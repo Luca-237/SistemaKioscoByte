@@ -1,0 +1,117 @@
+/* ===== Base FitoShop ===== */
+:root {
+    --primary: #4f46e5;
+    --primary-dark: #4338ca;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --radius: 12px;
+    --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+button { font-family: inherit; cursor: pointer; }
+input, select { font-family: inherit; }
+
+/* ===== Login operario ===== */
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+    padding: 20px;
+}
+
+.login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+}
+
+.login-brand { text-align: center; margin-bottom: 24px; }
+.login-brand h1 { margin: 12px 0 4px; font-size: 1.6rem; }
+.login-brand p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+
+.login-logo {
+    display: inline-flex;
+    width: 52px; height: 52px;
+    align-items: center; justify-content: center;
+    background: var(--primary);
+    color: white;
+    font-weight: 800;
+    font-size: 1.2rem;
+    border-radius: 14px;
+}
+
+.login-form { display: flex; flex-direction: column; gap: 14px; }
+.login-form label {
+    display: flex; flex-direction: column; gap: 6px;
+    font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);
+}
+.login-form input {
+    padding: 11px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    outline: none;
+}
+.login-form input:focus { border-color: var(--primary); }
+.login-form > button[type="submit"] {
+    margin-top: 6px;
+    padding: 12px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 1rem;
+}
+.login-form > button[type="submit"]:hover { background: var(--primary-dark); }
+.login-form > button:disabled { opacity: 0.6; cursor: wait; }
+
+.login-error { color: var(--danger); font-size: 0.875rem; margin: 0; text-align: center; }
+
+.branch-option {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    text-align: left;
+    font-size: 0.95rem;
+}
+.branch-option:hover { border-color: var(--primary); background: #eef2ff; }
+.branch-option span { color: var(--text-muted); font-size: 0.8rem; }
+
+.btn-link {
+    background: none; border: none;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    padding: 6px;
+}
+
+.login-footer {
+    margin: 22px 0 0;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+.login-footer a { color: var(--primary); }

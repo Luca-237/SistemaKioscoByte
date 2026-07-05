@@ -1,0 +1,19 @@
+{
+  "name": "fitoshop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FitoShop - SaaS de gestión para comercios: ventas, stock, compras y contabilidad multi-sucursal",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev -w server",
+    "dev:client": "npm run dev -w client",
+    "seed": "npm run seed -w server",
+    "build": "npm run build -w client"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
