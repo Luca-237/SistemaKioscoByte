@@ -13,7 +13,7 @@ async function seedDemo() {
         adminId: 'demo_admin', name: 'Kiosco Demo', code: 'DEMO01', ownerClerkId: 'demo_owner_sin_clerk'
     });
 
-    const tenantModels = getTenantModels(org._id);
+    const tenantModels = getTenantModels(org.adminId);
     const { Branch, User, Article } = tenantModels;
 
     const [central, norte] = await Branch.create([
