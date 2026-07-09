@@ -197,6 +197,118 @@
 .pos-ticket-items > div { display: flex; justify-content: space-between; font-size: 0.88rem; }
 .pos-ticket-total { display: flex; justify-content: space-between; font-size: 1rem; padding: 4px 0; }
 
+/* --- Modal Info (Último Cierre) --- */
+.pos-modal-info {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1.5px solid #7dd3fc;
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin: 4px 0;
+    text-align: center;
+}
+.pos-modal-info-title {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #0369a1;
+    font-weight: 600;
+}
+.pos-modal-info-amount {
+    margin: 6px 0 0;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0c4a6e;
+}
+.pos-modal-info-date {
+    margin: 4px 0 0;
+    font-size: 0.75rem;
+    color: #0369a1;
+}
+
+/* --- Historial Modal --- */
+.pos-historial {
+    max-width: 520px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.pos-historial-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    margin: 8px 0;
+}
+
+.pos-historial-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 0.85rem;
+}
+
+.pos-historial-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+}
+
+.pos-historial-number {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.pos-historial-date {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+.pos-historial-items {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 6px 0;
+    padding: 6px;
+    background: var(--surface-2);
+    border-radius: 4px;
+}
+
+.pos-historial-item-detail {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.80rem;
+    padding: 2px 0;
+}
+
+.pos-historial-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    font-weight: 600;
+}
+
+.pos-historial-method {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: capitalize;
+}
+
+.pos-historial-total {
+    color: var(--primary);
+    font-size: 1rem;
+}
+
 @media (max-width: 860px) {
     .pos-main { grid-template-columns: 1fr; overflow: auto; }
     .pos-cart { min-height: 300px; }

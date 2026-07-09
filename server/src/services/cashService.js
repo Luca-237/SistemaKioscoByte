@@ -77,6 +77,14 @@ class CashService {
             session.endSession();
         }
     }
+
+    async getLastClosed(branchId) {
+        return this.models.CashSession.findOne({
+            branchId,
+            status: 'closed'
+        }).sort({ closedAt: -1 });
+    }
 }
 
 module.exports = CashService;
+    
