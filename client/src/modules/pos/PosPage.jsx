@@ -46,7 +46,7 @@ export default function PosPage() {
         try {
             if (!operator?.branchId) return;
             const res = await apiPos.get(`/api/pos/cash/last-session/${operator.branchId}`);
-            setUltimoCierre(res.data);
+            setUltimoCierre(res.data.data);
         } catch (e) { console.error('Error al cargar último cierre:', e); }
     }, [operator?.branchId]);
 
@@ -54,7 +54,7 @@ export default function PosPage() {
         try {
             if (!operator?.branchId) return;
             const res = await apiPos.get(`/api/pos/sales/recent/${operator.branchId}`);
-            setHistorialVentas(res.data);
+            setHistorialVentas(res.data.data);
             setShowHistorial(true);
         } catch (e) { console.error('Error al cargar historial:', e); }
     }, [operator?.branchId]);
