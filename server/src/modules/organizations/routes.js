@@ -1,6 +1,6 @@
 const express = require('express');
 const crypto = require('crypto');
-
+const { Organization } = require('../../models');
 
 const router = express.Router();
 
@@ -42,6 +42,7 @@ router.post('/bootstrap', async (req, res, next) => {
         for (let intento = 0; intento < 3; intento++) {
             try {
                 org = await Organization.create({
+                    adminId: req.owner.clerkUserId,
                     name: name.trim(), taxId,
                     code: generarCodigo(),
                     ownerClerkId: req.owner.clerkUserId

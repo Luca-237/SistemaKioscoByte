@@ -1,13 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 
-
 const router = express.Router();
 
-// Valida que todas las sucursales a asignar pertenezcan a la organización.
-async function validarBranches(branchIds = []) {
+// Valida que todas las sucursales a asignar existan en la base de datos del negocio.
+async function validarBranches(BranchModel, branchIds = []) {
     if (!branchIds.length) return [];
-    const propias = await Branch.find({ _id: { $in: branchIds }, active: true }).select('_id');
+    const propias = await BranchModel.find({ _id: { $in: branchIds }, active: true }).select('_id');
     return propias.map(b => b._id);
 }
 
@@ -38,7 +37,7 @@ router.post('/', async (req, res, next) => {
             username: String(username).toLowerCase().trim(),
             passwordHash: await bcrypt.hash(String(password), 10),
             name: name.trim(),
-            branchIds: await validarBranches(req.org._id, branchIds)
+            branchIds: await validarBranches(Branch, branchIds)
         });
 
         const { passwordHash, ...safe } = user.toObject();
@@ -54,7 +53,7 @@ router.put('/:id', async (req, res, next) => {
         const update = {};
         if (name !== undefined) update.name = name;
         if (active !== undefined) update.active = active;
-        if (branchIds !== undefined) update.branchIds = await validarBranches(req.org._id, branchIds);
+        if (branchIds !== undefined) update.branchIds = await validarBranches(Branch, branchIds);
         if (newPassword) {
             if (String(newPassword).length < 4) {
                 return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 4 caracteres' });

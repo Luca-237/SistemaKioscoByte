@@ -28,7 +28,7 @@ router.get('/articles', async (req, res, next) => {
 router.get('/cash', async (req, res, next) => {
     const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
-        const caja = await new CashService(req.tenantModels).getOpen(req.operator.req.operator.branchId);
+        const caja = await new CashService(req.tenantModels).getOpen(req.operator.branchId);
         res.json({ success: true, data: caja });
     } catch (error) { next(error); }
 });
@@ -65,7 +65,7 @@ router.post('/sales', async (req, res, next) => {
 router.get('/sales', async (req, res, next) => {
     const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
-        const caja = await new CashService(req.tenantModels).getOpen(req.operator.req.operator.branchId);
+        const caja = await new CashService(req.tenantModels).getOpen(req.operator.branchId);
         if (!caja) return res.json({ success: true, data: [] });
         const ventas = await new SalesService(req.tenantModels).listBySession(req.operator, caja._id);
         res.json({ success: true, data: ventas });

@@ -3,7 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const { notFound, errorHandler } = require('./middlewares/error');
-const { ownerAuth, requireOrg } = require('./middlewares/ownerAuth');
+const { ownerAuth, requireOrg } = require('./middlewares/devAuth');
 const { operatorAuth } = require('./middlewares/operatorAuth');
 
 const authRoutes = require('./modules/auth/routes');
