@@ -1,16 +1,17 @@
 const express = require('express');
-const { Article, BranchStock } = require('../../models');
+
 
 const router = express.Router();
 
 // Catálogo del propietario. ?branchId=... agrega existencias de esa sucursal.
 router.get('/', async (req, res, next) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
-        const articles = await Article.find({ orgId: req.org._id, active: true }).sort({ name: 1 }).lean();
+        const articles = await Article.find({ active: true }).sort({ name: 1 }).lean();
 
         if (req.query.branchId) {
             const stocks = await BranchStock.find({
-                orgId: req.org._id, branchId: req.query.branchId
+                branchId: req.query.branchId
             }).lean();
             const porArticulo = new Map(stocks.map(s => [s.articleId.toString(), s]));
             for (const a of articles) {
@@ -24,6 +25,7 @@ router.get('/', async (req, res, next) => {
 });
 
 router.post('/', async (req, res, next) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
         const { code, barcode, name, description, category, unit, salePrice } = req.body;
         if (!code || !name || salePrice === undefined) {
@@ -33,7 +35,7 @@ router.post('/', async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Precio de venta inválido' });
         }
         const article = await Article.create({
-            orgId: req.org._id, code: String(code).trim(), barcode, name: name.trim(),
+            code: String(code).trim(), barcode, name: name.trim(),
             description, category, unit, salePrice: Number(salePrice)
         });
         res.status(201).json({ success: true, data: article });
@@ -41,10 +43,11 @@ router.post('/', async (req, res, next) => {
 });
 
 router.put('/:id', async (req, res, next) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
         const { code, barcode, name, description, category, unit, salePrice, active } = req.body;
         const article = await Article.findOneAndUpdate(
-            { _id: req.params.id, orgId: req.org._id },
+            { _id: req.params.id},
             { code, barcode, name, description, category, unit, salePrice, active },
             { new: true, runValidators: true }
         );
@@ -55,9 +58,10 @@ router.put('/:id', async (req, res, next) => {
 
 // Baja lógica: el artículo sale del catálogo pero las ventas históricas quedan.
 router.delete('/:id', async (req, res, next) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
         const article = await Article.findOneAndUpdate(
-            { _id: req.params.id, orgId: req.org._id },
+            { _id: req.params.id},
             { active: false },
             { new: true }
         );

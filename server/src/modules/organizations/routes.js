@@ -1,6 +1,6 @@
 const express = require('express');
 const crypto = require('crypto');
-const { Organization, Branch } = require('../../models');
+const { Organization } = require('../../models');
 
 const router = express.Router();
 
@@ -11,10 +11,11 @@ function generarCodigo() {
 
 // Estado de la organización del propietario logueado (Clerk).
 router.get('/me', async (req, res) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     if (!req.org) {
         return res.json({ success: true, org: null });
     }
-    const branches = await Branch.countDocuments({ orgId: req.org._id, active: true });
+    const branches = await Branch.countDocuments({ active: true });
     res.json({
         success: true,
         org: {
@@ -26,6 +27,7 @@ router.get('/me', async (req, res) => {
 
 // Onboarding: el propietario crea su empresa la primera vez que entra.
 router.post('/bootstrap', async (req, res, next) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
         if (req.org) {
             return res.status(409).json({ success: false, message: 'Ya tienes una organización creada' });
@@ -40,6 +42,7 @@ router.post('/bootstrap', async (req, res, next) => {
         for (let intento = 0; intento < 3; intento++) {
             try {
                 org = await Organization.create({
+                    adminId: req.owner.clerkUserId,
                     name: name.trim(), taxId,
                     code: generarCodigo(),
                     ownerClerkId: req.owner.clerkUserId

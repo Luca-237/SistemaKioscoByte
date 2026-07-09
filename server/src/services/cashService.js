@@ -1,16 +1,18 @@
 const mongoose = require('mongoose');
-const { CashSession, Sale, LedgerEntry } = require('../models');
 const { AppError } = require('../middlewares/error');
 
 class CashService {
-    static async getOpen(orgId, branchId) {
-        return CashSession.findOne({ orgId, branchId, status: 'open' });
+    constructor(models) {
+        this.models = models;
     }
 
-    static async open(operator, openingAmount = 0) {
+    async getOpen(branchId) {
+        return this.models.CashSession.findOne({ branchId, status: 'open' });
+    }
+
+    async open(operator, openingAmount = 0) {
         try {
-            return await CashSession.create({
-                orgId: operator.orgId,
+            return await this.models.CashSession.create({
                 branchId: operator.branchId,
                 openedBy: operator.userId,
                 openingAmount: Number(openingAmount) || 0
@@ -25,7 +27,7 @@ class CashService {
 
     // Cierre: esperado = apertura + ventas en EFECTIVO de la sesión.
     // La diferencia (sobrante/faltante) queda asentada en el libro diario.
-    static async close(operator, { closingAmount }) {
+    async close(operator, { closingAmount }) {
         if (closingAmount === undefined || closingAmount === null) {
             throw new AppError(400, 'Falta el monto contado al cierre (closingAmount)');
         }
@@ -34,12 +36,12 @@ class CashService {
         try {
             let caja;
             await session.withTransaction(async () => {
-                caja = await CashSession.findOne({
-                    orgId: operator.orgId, branchId: operator.branchId, status: 'open'
+                caja = await this.models.CashSession.findOne({
+                    branchId: operator.branchId, status: 'open'
                 }).session(session);
                 if (!caja) throw new AppError(409, 'No hay una caja abierta para cerrar', 'NO_OPEN_CASH');
 
-                const [efectivo] = await Sale.aggregate([
+                const [efectivo] = await this.models.Sale.aggregate([
                     { $match: { cashSessionId: caja._id, paymentMethod: 'efectivo' } },
                     { $group: { _id: null, total: { $sum: '$total' } } }
                 ]).session(session);
@@ -56,8 +58,8 @@ class CashService {
                 await caja.save({ session });
 
                 if (difference !== 0) {
-                    await LedgerEntry.create([{
-                        orgId: operator.orgId, branchId: operator.branchId,
+                    await this.models.LedgerEntry.create([{
+                        branchId: operator.branchId,
                         type: difference > 0 ? 'ingreso' : 'egreso',
                         source: 'cierre_caja',
                         concept: difference > 0

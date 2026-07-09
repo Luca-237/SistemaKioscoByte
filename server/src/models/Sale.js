@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose');
+const { Schema } = require('mongoose');
 const { PAYMENT_METHODS } = require('../config/constants');
 
 // Venta registrada por un operario dentro de una caja abierta.
@@ -16,11 +16,10 @@ const saleItemSchema = new Schema({
 }, { _id: false });
 
 const saleSchema = new Schema({
-    orgId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true, index: true },
     branchId: { type: Schema.Types.ObjectId, ref: 'Branch', required: true },
     cashSessionId: { type: Schema.Types.ObjectId, ref: 'CashSession', required: true },
     operatorId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    number: { type: Number, required: true },        // correlativo por organización
+    number: { type: Number, required: true },        // correlativo por negocio
     items: { type: [saleItemSchema], required: true },
     total: { type: Number, required: true, min: 0 },
     paymentMethod: { type: String, enum: PAYMENT_METHODS, required: true },
@@ -34,8 +33,8 @@ const saleSchema = new Schema({
     }
 }, { timestamps: true });
 
-saleSchema.index({ orgId: 1, createdAt: -1 });
-saleSchema.index({ orgId: 1, branchId: 1, cashSessionId: 1 });
-saleSchema.index({ orgId: 1, number: 1 }, { unique: true });
+saleSchema.index({ createdAt: -1 });
+saleSchema.index({ branchId: 1, cashSessionId: 1 });
+saleSchema.index({ number: 1 }, { unique: true });
 
-module.exports = model('Sale', saleSchema);
+module.exports = saleSchema;
