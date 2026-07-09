@@ -1,18 +1,23 @@
 const mongoose = require('mongoose');
 
-const Organization = require('../models/Organization');
+// Schemas
+const branchSchema = require('../models/Branch');
+const userSchema = require('../models/User');
+const articleSchema = require('../models/Article');
+const branchStockSchema = require('../models/BranchStock');
+const cashSessionSchema = require('../models/CashSession');
+const saleSchema = require('../models/Sale');
+const purchaseSchema = require('../models/Purchase');
+const ledgerEntrySchema = require('../models/LedgerEntry');
+const counterSchema = require('../models/Counter');
 
 const tenantConnections = {};
 
 /**
- * Mantiene y devuelve la conexión a la base de datos específica del inquilino (Admin).
- * Si la conexión no existe, la crea dinámicamente.
- * 
- * @param {string} adminId - El ID del administrador provisto por Clerk.
- * @returns {mongoose.Connection}
+ * Mantiene y devuelve la conexión a la base de datos específica del tenant (Admin).
+ * Si la conexión no existe, la crea dinámicamente con useDb.
  */
 const getTenantConnection = (adminId) => {
-    // Si adminId está vacío o no es string válido, lanzar error
     if (!adminId) throw new Error('adminId es requerido para obtener la conexión del tenant');
 
     const dbName = `tenant_${adminId}`;
@@ -25,15 +30,15 @@ const getTenantConnection = (adminId) => {
     const tenantDb = mongoose.connection.useDb(dbName, { useCache: true });
 
     // Registrar todos los modelos del tenant en esta conexión
-    tenantDb.model('Branch', require('../models/Branch'));
-    tenantDb.model('User', require('../models/User'));
-    tenantDb.model('Article', require('../models/Article'));
-    tenantDb.model('BranchStock', require('../models/BranchStock'));
-    tenantDb.model('CashSession', require('../models/CashSession'));
-    tenantDb.model('Sale', require('../models/Sale'));
-    tenantDb.model('Purchase', require('../models/Purchase'));
-    tenantDb.model('LedgerEntry', require('../models/LedgerEntry'));
-    tenantDb.model('Counter', require('../models/Counter'));
+    tenantDb.model('Branch', branchSchema);
+    tenantDb.model('User', userSchema);
+    tenantDb.model('Article', articleSchema);
+    tenantDb.model('BranchStock', branchStockSchema);
+    tenantDb.model('CashSession', cashSessionSchema);
+    tenantDb.model('Sale', saleSchema);
+    tenantDb.model('Purchase', purchaseSchema);
+    tenantDb.model('LedgerEntry', ledgerEntrySchema);
+    tenantDb.model('Counter', counterSchema);
 
     tenantConnections[dbName] = tenantDb;
     return tenantDb;
@@ -41,7 +46,7 @@ const getTenantConnection = (adminId) => {
 
 /**
  * Retorna un objeto con todos los modelos inicializados para un tenant.
- * Útil para pasarlo en el req (ej: req.models.Article)
+ * Se inyecta como req.tenantModels en los middlewares de auth.
  */
 const getTenantModels = (adminId) => {
     const db = getTenantConnection(adminId);
@@ -58,4 +63,4 @@ const getTenantModels = (adminId) => {
     };
 };
 
-module.exports = { getTenantConnection, getTenantModels, Organization };
+module.exports = { getTenantConnection, getTenantModels };

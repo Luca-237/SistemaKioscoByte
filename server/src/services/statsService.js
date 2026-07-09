@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const oid = (v) => new mongoose.Types.ObjectId(String(v));
 
 class StatsService {
@@ -11,7 +10,7 @@ class StatsService {
     // Resumen para el dashboard del propietario: ingresos/egresos del libro
     // diario + margen bruto real de ventas (precio - costo promedio al vender).
     async summary({ branchId, from, to } = {}) {
-        const match = { (orgId) };
+        const match = {};
         if (branchId) match.branchId = oid(branchId);
         if (from || to) {
             match.createdAt = {};
@@ -54,7 +53,7 @@ class StatsService {
     }
 
     async movements({ branchId, limit = 50 } = {}) {
-        const filtro = { orgId };
+        const filtro = {};
         if (branchId) filtro.branchId = branchId;
         return this.models.LedgerEntry.find(filtro).sort({ createdAt: -1 }).limit(Number(limit));
     }

@@ -1,12 +1,7 @@
 const mongoose = require('mongoose');
-
 const { AppError } = require('../middlewares/error');
 
 class CashService {
-    constructor(models) {
-        this.models = models;
-    }
-
     constructor(models) {
         this.models = models;
     }

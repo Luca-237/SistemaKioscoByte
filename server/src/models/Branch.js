@@ -1,8 +1,7 @@
-const { Schema, model } = require('mongoose');
+const { Schema } = require('mongoose');
 
-// Sucursal de una organización.
+// Sucursal del negocio. Cada BD de tenant tiene sus propias sucursales.
 const branchSchema = new Schema({
-    orgId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true, index: true },
     name: { type: String, required: true, trim: true },
     address: { type: String, trim: true },
     phone: { type: String, trim: true },

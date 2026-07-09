@@ -1,8 +1,8 @@
-const { Schema, model } = require('mongoose');
+const { Schema } = require('mongoose');
 
-// Contadores atómicos por organización (ej: numeración correlativa de ventas).
+// Contadores atómicos por negocio (ej: numeración correlativa de ventas).
+// En multi-tenant cada BD tiene su propio Counter, así que no necesita orgId.
 const counterSchema = new Schema({
-    orgId: { type: Schema.Types.ObjectId, required: true },
     key: { type: String, required: true },
     seq: { type: Number, default: 0 }
 });
@@ -10,9 +10,9 @@ const counterSchema = new Schema({
 counterSchema.index({ key: 1 }, { unique: true });
 
 // Devuelve el próximo número de la secuencia de forma atómica.
-counterSchema.statics.next = async function (orgId, key, session) {
+counterSchema.statics.next = async function (key, session) {
     const doc = await this.findOneAndUpdate(
-        { orgId, key },
+        { key },
         { $inc: { seq: 1 } },
         { new: true, upsert: true, session }
     );

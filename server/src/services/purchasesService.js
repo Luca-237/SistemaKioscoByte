@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const StockService = require('./stockService');
 const { AppError } = require('../middlewares/error');
 
@@ -10,7 +9,7 @@ class PurchasesService {
 
     // Registra una compra: suma stock en la sucursal destino, recalcula el
     // costo promedio ponderado de cada artículo y asienta el egreso.
-    async create(org, clerkUserId, { branchId, supplierName, notes, items, paymentMethod }) {
+    async create(clerkUserId, { branchId, supplierName, notes, items, paymentMethod }) {
         if (!branchId) throw new AppError(400, 'Falta la sucursal destino (branchId)');
         if (!Array.isArray(items) || items.length === 0) {
             throw new AppError(400, 'La compra debe incluir al menos un artículo');
@@ -21,7 +20,7 @@ class PurchasesService {
             let compra;
             await session.withTransaction(async () => {
                 const ids = items.map(i => i.articleId);
-                const articulos = await this.models.Article.find({ _id: { $in: ids }}).session(session);
+                const articulos = await this.models.Article.find({ _id: { $in: ids } }).session(session);
                 const porId = new Map(articulos.map(a => [a._id.toString(), a]));
 
                 const purchaseItems = [];
@@ -62,7 +61,7 @@ class PurchasesService {
     }
 
     async list({ branchId } = {}) {
-        const filtro = { orgId };
+        const filtro = {};
         if (branchId) filtro.branchId = branchId;
         return this.models.Purchase.find(filtro).sort({ createdAt: -1 }).limit(200);
     }

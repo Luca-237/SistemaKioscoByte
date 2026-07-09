@@ -1,10 +1,9 @@
-const { Schema, model } = require('mongoose');
+const { Schema } = require('mongoose');
 
-// Catálogo de artículos de la organización. El precio de venta es final
+// Catálogo de artículos del negocio. El precio de venta es final
 // (IVA incluido). Las existencias y el costo promedio viven en BranchStock,
 // porque son por sucursal.
 const articleSchema = new Schema({
-    orgId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true, index: true },
     code: { type: String, required: true, trim: true },
     barcode: { type: String, trim: true },
     name: { type: String, required: true, trim: true },
