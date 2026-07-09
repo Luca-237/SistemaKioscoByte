@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const { AppError } = require('../middlewares/error');
 
 class CashService {
@@ -32,7 +31,9 @@ class CashService {
             throw new AppError(400, 'Falta el monto contado al cierre (closingAmount)');
         }
 
-        const session = await mongoose.startSession();
+        // La sesión debe crearse en la conexión del tenant, no en la conexión
+        // por defecto de mongoose, para que las transacciones impacten la BD correcta.
+        const session = await this.models.CashSession.db.startSession();
         try {
             let caja;
             await session.withTransaction(async () => {

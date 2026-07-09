@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const StockService = require('./stockService');
 const { AppError } = require('../middlewares/error');
 
@@ -15,7 +14,9 @@ class PurchasesService {
             throw new AppError(400, 'La compra debe incluir al menos un artículo');
         }
 
-        const session = await mongoose.startSession();
+        // La sesión debe crearse en la conexión del tenant, no en la conexión
+        // por defecto de mongoose, para que las transacciones impacten la BD correcta.
+        const session = await this.models.Purchase.db.startSession();
         try {
             let compra;
             await session.withTransaction(async () => {
