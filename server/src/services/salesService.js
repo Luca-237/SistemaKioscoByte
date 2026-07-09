@@ -79,6 +79,13 @@ class SalesService {
             branchId: operator.branchId, cashSessionId
         }).sort({ createdAt: -1 });
     }
+
+    async getRecent(branchId, limit = 30) {
+        return this.models.Sale.find({ branchId })
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .populate('operatorId', 'name');
+    }
 }
 
 module.exports = SalesService;

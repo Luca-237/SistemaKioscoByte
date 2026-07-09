@@ -25,6 +25,9 @@ export default function PosPage() {
     const [modal, setModal] = useState(null);           // 'abrir' | 'cerrar' | 'cobrar' | null
     const [ultimaVenta, setUltimaVenta] = useState(null);
     const [ocupado, setOcupado] = useState(false);
+    const [ultimoCierre, setUltimoCierre] = useState(null);
+    const [historialVentas, setHistorialVentas] = useState([]);
+    const [showHistorial, setShowHistorial] = useState(false);
 
     const cargar = useCallback(async () => {
         try {
@@ -38,6 +41,23 @@ export default function PosPage() {
             setVentasTurno(ventas.data.data);
         } catch (e) { console.error(e); }
     }, []);
+
+    const cargarUltimoCierre = useCallback(async () => {
+        try {
+            if (!operator?.branchId) return;
+            const res = await apiPos.get(`/api/pos/cash/last-session/${operator.branchId}`);
+            setUltimoCierre(res.data);
+        } catch (e) { console.error('Error al cargar último cierre:', e); }
+    }, [operator?.branchId]);
+
+    const cargarHistorialVentas = useCallback(async () => {
+        try {
+            if (!operator?.branchId) return;
+            const res = await apiPos.get(`/api/pos/sales/recent/${operator.branchId}`);
+            setHistorialVentas(res.data);
+            setShowHistorial(true);
+        } catch (e) { console.error('Error al cargar historial:', e); }
+    }, [operator?.branchId]);
 
     useEffect(() => { cargar(); }, [cargar]);
 
@@ -65,6 +85,11 @@ export default function PosPage() {
             cargar();
         } catch (e) { alert(e.response?.data?.message || 'Error al abrir la caja'); }
         finally { setOcupado(false); }
+    };
+
+    const abrirModalApertura = async () => {
+        await cargarUltimoCierre();
+        setModal('abrir');
     };
 
     const cerrarCaja = async (contado) => {
@@ -122,7 +147,10 @@ export default function PosPage() {
                     />
                 </div>
                 <div className="pos-header-right">
-                    <button className="btn-outline" onClick={() => setModal(caja ? 'cerrar' : 'abrir')}>
+                    <button className="btn-outline" onClick={cargarHistorialVentas}>
+                        📊 Historial
+                    </button>
+                    <button className="btn-outline" onClick={() => caja ? setModal('cerrar') : abrirModalApertura()}>
                         {caja ? 'Cerrar Caja' : 'Abrir Caja'}
                     </button>
                     <div className={`pos-caja-chip ${caja ? 'abierta' : ''}`}>
@@ -195,6 +223,7 @@ export default function PosPage() {
                     descripcion="Monto inicial en efectivo"
                     accion="Abrir"
                     ocupado={ocupado}
+                    ultimoCierre={ultimoCierre}
                     onConfirm={abrirCaja}
                     onClose={() => setModal(null)}
                 />
@@ -245,18 +274,68 @@ export default function PosPage() {
                     </div>
                 </div>
             )}
+            {showHistorial && (
+                <div className="pos-modal-overlay" onClick={() => setShowHistorial(false)}>
+                    <div className="pos-modal pos-historial" onClick={(e) => e.stopPropagation()}>
+                        <h3>📊 Últimas 30 Ventas</h3>
+                        <div className="pos-historial-list">
+                            {historialVentas.length === 0 ? (
+                                <p className="pos-empty">No hay ventas registradas</p>
+                            ) : (
+                                historialVentas.map((venta, idx) => (
+                                    <div key={idx} className="pos-historial-item">
+                                        <div className="pos-historial-header">
+                                            <span className="pos-historial-number">Venta #{venta.number}</span>
+                                            <span className="pos-historial-date">
+                                                {new Date(venta.createdAt).toLocaleString('es-AR')}
+                                            </span>
+                                        </div>
+                                        <div className="pos-historial-items">
+                                            {venta.items.map((item, i) => (
+                                                <span key={i} className="pos-historial-item-detail">
+                                                    {item.quantity}× {item.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <div className="pos-historial-footer">
+                                            <span className="pos-historial-method">{venta.paymentMethod}</span>
+                                            <span className="pos-historial-total">{fmt(venta.total)}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                        <button className="btn-link" onClick={() => setShowHistorial(false)}>Cerrar</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
 
 // Modal genérico para pedir un monto (apertura/cierre de caja).
-function ModalMonto({ titulo, descripcion, accion, ocupado, onConfirm, onClose }) {
+function ModalMonto({ titulo, descripcion, accion, ocupado, ultimoCierre, onConfirm, onClose }) {
     const [monto, setMonto] = useState('');
+    const fmt = (n) => `$${Number(n).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    
     return (
         <div className="pos-modal-overlay" onClick={onClose}>
             <div className="pos-modal" onClick={(e) => e.stopPropagation()}>
                 <h3>{titulo}</h3>
                 <p className="pos-modal-desc">{descripcion}</p>
+                
+                {titulo === 'Abrir caja' && ultimoCierre?.closingAmount !== undefined && (
+                    <div className="pos-modal-info">
+                        <p className="pos-modal-info-title">📋 Último cierre:</p>
+                        <p className="pos-modal-info-amount">{fmt(ultimoCierre.closingAmount)}</p>
+                        {ultimoCierre.closedAt && (
+                            <p className="pos-modal-info-date">
+                                {new Date(ultimoCierre.closedAt).toLocaleString('es-AR')}
+                            </p>
+                        )}
+                    </div>
+                )}
+                
                 <input
                     type="number"
                     min="0"

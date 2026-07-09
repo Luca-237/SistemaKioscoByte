@@ -1,5 +1,4 @@
 const express = require('express');
-
 const CashService = require('../../services/cashService');
 const SalesService = require('../../services/salesService');
 const { PAYMENT_METHODS } = require('../../config/constants');
@@ -22,6 +21,27 @@ router.get('/articles', async (req, res, next) => {
         for (const a of articles) a.stock = porArticulo.get(a._id.toString()) ?? 0;
         res.json({ success: true, data: articles });
     } catch (error) { next(error); }
+});
+
+// Endpoint para obtener último cierre
+router.get('/cash/last-session/:branchId', async (req, res, next) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
+    try {
+        const lastSession = await new CashService(req.tenantModels).getLastClosed(req.params.branchId);
+        res.json({ success: true, data: lastSession || {} });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get('/sales/recent/:branchId', async (req, res, next) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
+    try {
+        const recentSales = await new SalesService(req.tenantModels).getRecent(req.params.branchId, 30);
+        res.json({ success: true, data: recentSales });
+    } catch (error) {
+        next(error);
+    }
 });
 
 // Estado de la caja de mi sucursal.
