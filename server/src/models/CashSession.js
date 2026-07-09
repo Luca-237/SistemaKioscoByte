@@ -20,6 +20,6 @@ cashSessionSchema.index(
     { branchId: 1 },
     { unique: true, partialFilterExpression: { status: 'open' } }
 );
-cashSessionSchema.index({ orgId: 1, branchId: 1, openedAt: -1 });
+cashSessionSchema.index({ branchId: 1, openedAt: -1 });
 
-module.exports = model('CashSession', cashSessionSchema);
+module.exports = cashSessionSchema;

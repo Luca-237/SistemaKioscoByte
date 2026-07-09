@@ -34,8 +34,8 @@ const saleSchema = new Schema({
     }
 }, { timestamps: true });
 
-saleSchema.index({ orgId: 1, createdAt: -1 });
-saleSchema.index({ orgId: 1, branchId: 1, cashSessionId: 1 });
-saleSchema.index({ orgId: 1, number: 1 }, { unique: true });
+saleSchema.index({ createdAt: -1 });
+saleSchema.index({ branchId: 1, cashSessionId: 1 });
+saleSchema.index({ number: 1 }, { unique: true });
 
-module.exports = model('Sale', saleSchema);
+module.exports = saleSchema;

@@ -1,19 +1,20 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const { User, Branch } = require('../../models');
+
 
 const router = express.Router();
 
 // Valida que todas las sucursales a asignar pertenezcan a la organización.
-async function validarBranches(orgId, branchIds = []) {
+async function validarBranches(branchIds = []) {
     if (!branchIds.length) return [];
-    const propias = await Branch.find({ _id: { $in: branchIds }, orgId, active: true }).select('_id');
+    const propias = await Branch.find({ _id: { $in: branchIds }, active: true }).select('_id');
     return propias.map(b => b._id);
 }
 
 router.get('/', async (req, res, next) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
-        const users = await User.find({ orgId: req.org._id })
+        const users = await User.find({ })
             .select('-passwordHash')
             .populate('branchIds', 'name')
             .sort({ name: 1 });
@@ -23,6 +24,7 @@ router.get('/', async (req, res, next) => {
 
 // El propietario crea un operario con usuario + clave y sucursales asignadas.
 router.post('/', async (req, res, next) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
         const { username, password, name, branchIds } = req.body;
         if (!username || !password || !name) {
@@ -33,7 +35,6 @@ router.post('/', async (req, res, next) => {
         }
 
         const user = await User.create({
-            orgId: req.org._id,
             username: String(username).toLowerCase().trim(),
             passwordHash: await bcrypt.hash(String(password), 10),
             name: name.trim(),
@@ -47,6 +48,7 @@ router.post('/', async (req, res, next) => {
 
 // Editar operario: nombre, sucursales, estado y (opcional) resetear clave.
 router.put('/:id', async (req, res, next) => {
+    const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
         const { name, branchIds, active, newPassword } = req.body;
         const update = {};
@@ -61,7 +63,7 @@ router.put('/:id', async (req, res, next) => {
         }
 
         const user = await User.findOneAndUpdate(
-            { _id: req.params.id, orgId: req.org._id },
+            { _id: req.params.id},
             update,
             { new: true, runValidators: true }
         ).select('-passwordHash');

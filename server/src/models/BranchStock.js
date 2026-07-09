@@ -11,6 +11,6 @@ const branchStockSchema = new Schema({
     avgCost: { type: Number, default: 0 }
 }, { timestamps: true });
 
-branchStockSchema.index({ orgId: 1, branchId: 1, articleId: 1 }, { unique: true });
+branchStockSchema.index({ branchId: 1, articleId: 1 }, { unique: true });
 
-module.exports = model('BranchStock', branchStockSchema);
+module.exports = branchStockSchema;

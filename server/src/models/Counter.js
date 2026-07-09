@@ -7,7 +7,7 @@ const counterSchema = new Schema({
     seq: { type: Number, default: 0 }
 });
 
-counterSchema.index({ orgId: 1, key: 1 }, { unique: true });
+counterSchema.index({ key: 1 }, { unique: true });
 
 // Devuelve el próximo número de la secuencia de forma atómica.
 counterSchema.statics.next = async function (orgId, key, session) {
@@ -19,4 +19,4 @@ counterSchema.statics.next = async function (orgId, key, session) {
     return doc.seq;
 };
 
-module.exports = model('Counter', counterSchema);
+module.exports = counterSchema;

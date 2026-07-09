@@ -9,6 +9,6 @@ const branchSchema = new Schema({
     active: { type: Boolean, default: true }
 }, { timestamps: true });
 
-branchSchema.index({ orgId: 1, name: 1 }, { unique: true });
+branchSchema.index({ name: 1 }, { unique: true });
 
-module.exports = model('Branch', branchSchema);
+module.exports = branchSchema;

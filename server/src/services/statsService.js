@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
-const { LedgerEntry, Sale } = require('../models');
+
 
 const oid = (v) => new mongoose.Types.ObjectId(String(v));
 
 class StatsService {
+    constructor(models) {
+        this.models = models;
+    }
+
     // Resumen para el dashboard del propietario: ingresos/egresos del libro
     // diario + margen bruto real de ventas (precio - costo promedio al vender).
-    static async summary(orgId, { branchId, from, to } = {}) {
-        const match = { orgId: oid(orgId) };
+    async summary({ branchId, from, to } = {}) {
+        const match = { (orgId) };
         if (branchId) match.branchId = oid(branchId);
         if (from || to) {
             match.createdAt = {};
@@ -15,14 +19,14 @@ class StatsService {
             if (to) match.createdAt.$lte = new Date(to);
         }
 
-        const porTipo = await LedgerEntry.aggregate([
+        const porTipo = await this.models.LedgerEntry.aggregate([
             { $match: match },
             { $group: { _id: '$type', total: { $sum: '$amount' } } }
         ]);
         const ingresos = porTipo.find(r => r._id === 'ingreso')?.total || 0;
         const egresos = porTipo.find(r => r._id === 'egreso')?.total || 0;
 
-        const [margen] = await Sale.aggregate([
+        const [margen] = await this.models.Sale.aggregate([
             { $match: match },
             { $unwind: '$items' },
             {
@@ -49,10 +53,10 @@ class StatsService {
         };
     }
 
-    static async movements(orgId, { branchId, limit = 50 } = {}) {
+    async movements({ branchId, limit = 50 } = {}) {
         const filtro = { orgId };
         if (branchId) filtro.branchId = branchId;
-        return LedgerEntry.find(filtro).sort({ createdAt: -1 }).limit(Number(limit));
+        return this.models.LedgerEntry.find(filtro).sort({ createdAt: -1 }).limit(Number(limit));
     }
 }
 

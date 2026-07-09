@@ -13,6 +13,6 @@ const userSchema = new Schema({
     active: { type: Boolean, default: true }
 }, { timestamps: true });
 
-userSchema.index({ orgId: 1, username: 1 }, { unique: true });
+userSchema.index({ username: 1 }, { unique: true });
 
-module.exports = model('User', userSchema);
+module.exports = userSchema;

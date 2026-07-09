@@ -16,7 +16,7 @@ const ledgerEntrySchema = new Schema({
     cashSessionId: { type: Schema.Types.ObjectId, ref: 'CashSession' }
 }, { timestamps: true });
 
-ledgerEntrySchema.index({ orgId: 1, createdAt: -1 });
-ledgerEntrySchema.index({ orgId: 1, branchId: 1, createdAt: -1 });
+ledgerEntrySchema.index({ createdAt: -1 });
+ledgerEntrySchema.index({ branchId: 1, createdAt: -1 });
 
-module.exports = model('LedgerEntry', ledgerEntrySchema);
+module.exports = ledgerEntrySchema;

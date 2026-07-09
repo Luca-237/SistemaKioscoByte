@@ -15,7 +15,7 @@ const articleSchema = new Schema({
     active: { type: Boolean, default: true }
 }, { timestamps: true });
 
-articleSchema.index({ orgId: 1, code: 1 }, { unique: true });
-articleSchema.index({ orgId: 1, barcode: 1 }, { sparse: true });
+articleSchema.index({ code: 1 }, { unique: true });
+articleSchema.index({ barcode: 1 }, { sparse: true });
 
-module.exports = model('Article', articleSchema);
+module.exports = articleSchema;

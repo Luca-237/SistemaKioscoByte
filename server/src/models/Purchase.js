@@ -21,6 +21,6 @@ const purchaseSchema = new Schema({
     createdBy: { type: String }   // clerkUserId del propietario
 }, { timestamps: true });
 
-purchaseSchema.index({ orgId: 1, createdAt: -1 });
+purchaseSchema.index({ createdAt: -1 });
 
-module.exports = model('Purchase', purchaseSchema);
+module.exports = purchaseSchema;
