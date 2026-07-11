@@ -12,6 +12,7 @@ module.exports = {
     BranchStockSchema: require('./BranchStock'),
     CashSessionSchema: require('./CashSession'),
     SaleSchema: require('./Sale'),
+    SupplierSchema: require('./Supplier'),
     PurchaseSchema: require('./Purchase'),
     LedgerEntrySchema: require('./LedgerEntry'),
     CounterSchema: require('./Counter')

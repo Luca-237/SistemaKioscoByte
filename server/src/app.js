@@ -11,6 +11,7 @@ const organizationRoutes = require('./modules/organizations/routes');
 const branchRoutes = require('./modules/branches/routes');
 const userRoutes = require('./modules/users/routes');
 const articleRoutes = require('./modules/articles/routes');
+const supplierRoutes = require('./modules/suppliers/routes');
 const purchaseRoutes = require('./modules/purchases/routes');
 const posRoutes = require('./modules/pos/routes');
 const statsRoutes = require('./modules/stats/routes');
@@ -33,6 +34,7 @@ app.use('/api/organizations', ownerAuth, organizationRoutes);
 app.use('/api/branches', ownerAuth, requireOrg, branchRoutes);
 app.use('/api/users', ownerAuth, requireOrg, userRoutes);
 app.use('/api/articles', ownerAuth, requireOrg, articleRoutes);
+app.use('/api/suppliers', ownerAuth, requireOrg, supplierRoutes);
 app.use('/api/purchases', ownerAuth, requireOrg, purchaseRoutes);
 app.use('/api/stats', ownerAuth, requireOrg, statsRoutes);
 
