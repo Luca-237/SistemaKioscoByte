@@ -116,6 +116,29 @@ input, select { font-family: inherit; }
 }
 .login-footer a { color: var(--primary); }
 
+.login-demo {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px dashed var(--border, #cbd5e1);
+    border-radius: 10px;
+    background: rgba(148, 163, 184, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+.login-demo strong { color: var(--text-primary, #1e293b); font-size: 0.82rem; }
+.login-demo code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: rgba(148, 163, 184, 0.22);
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+.login-demo .btn-link { color: var(--primary); padding: 2px; }
+
 /* ===== Admin Layout & Design System ===== */
 :root {
     --bg-dark: #0f172a;

@@ -17,6 +17,9 @@ const noteSchema = new Schema({
     },
     title: { type: String, trim: true },
     description: { type: String, trim: true },
+    supplierId: { type: Schema.Types.ObjectId, ref: 'Supplier' },
+    // Copia desnormalizada del nombre: la nota no se rompe si el proveedor
+    // se edita o se da de baja.
     supplierName: { type: String, trim: true },
     paymentMethod: { type: String, trim: true },
     items: { type: [noteItemSchema], default: [] },

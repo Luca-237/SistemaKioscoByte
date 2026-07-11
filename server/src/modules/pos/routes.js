@@ -70,6 +70,15 @@ router.post('/cash/close', async (req, res, next) => {
     } catch (error) { next(error); }
 });
 
+// Proveedores activos: el operario los necesita para las notas de compra.
+router.get('/suppliers', async (req, res, next) => {
+    const { Supplier } = req.tenantModels || {};
+    try {
+        const suppliers = await Supplier.find({ active: true }).sort({ name: 1 });
+        res.json({ success: true, data: suppliers });
+    } catch (error) { next(error); }
+});
+
 router.post('/notes', async (req, res, next) => {
     const { Note } = req.tenantModels || {};
     try {

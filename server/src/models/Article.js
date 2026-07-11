@@ -6,7 +6,7 @@ const { Schema } = require('mongoose');
 const articleSchema = new Schema({
     code: { type: String, required: true, trim: true },
     barcode: { type: String, trim: true },
-    name: { type: String, required: true, trim: true },
+    name: { type: String, required: false, trim: true },
     description: { type: String, trim: true },
     category: { type: String, trim: true },
     unit: { type: String, trim: true, default: 'unidad' },
