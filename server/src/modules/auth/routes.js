@@ -76,6 +76,7 @@ router.post('/operator/login', async (req, res, next) => {
                 name: user.name,
                 username: user.username,
                 orgName: org.name,
+                branchId: branch._id.toString(),
                 branch: { id: branch._id, name: branch.name }
             }
         });

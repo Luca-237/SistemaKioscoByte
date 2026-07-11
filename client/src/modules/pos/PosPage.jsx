@@ -16,6 +16,7 @@ const fmt = (n) => `$${Number(n).toLocaleString('es-AR', { minimumFractionDigits
 export default function PosPage() {
     const navigate = useNavigate();
     const { operator, logout } = useOperatorStore();
+    const branchId = operator?.branchId || operator?.branch?.id;
 
     const [articulos, setArticulos] = useState([]);
     const [caja, setCaja] = useState(null);
@@ -28,6 +29,18 @@ export default function PosPage() {
     const [ultimoCierre, setUltimoCierre] = useState(null);
     const [historialVentas, setHistorialVentas] = useState([]);
     const [showHistorial, setShowHistorial] = useState(false);
+    const [showNotas, setShowNotas] = useState(false);
+    const [noteForm, setNoteForm] = useState({
+        type: 'reporte',
+        title: '',
+        description: '',
+        supplierName: '',
+        paymentMethod: 'efectivo',
+        items: []
+    });
+    const [noteItems, setNoteItems] = useState([]);
+    const [noteTemp, setNoteTemp] = useState({ articleId: '', quantity: '', unitCost: '' });
+    const [noteBusy, setNoteBusy] = useState(false);
 
     const cargar = useCallback(async () => {
         try {
@@ -44,20 +57,20 @@ export default function PosPage() {
 
     const cargarUltimoCierre = useCallback(async () => {
         try {
-            if (!operator?.branchId) return;
-            const res = await apiPos.get(`/api/pos/cash/last-session/${operator.branchId}`);
+            if (!branchId) return;
+            const res = await apiPos.get(`/api/pos/cash/last-session/${branchId}`);
             setUltimoCierre(res.data.data);
         } catch (e) { console.error('Error al cargar último cierre:', e); }
-    }, [operator?.branchId]);
+    }, [branchId]);
 
     const cargarHistorialVentas = useCallback(async () => {
         try {
-            if (!operator?.branchId) return;
-            const res = await apiPos.get(`/api/pos/sales/recent/${operator.branchId}`);
+            if (!branchId) return;
+            const res = await apiPos.get(`/api/pos/sales/recent/${branchId}`);
             setHistorialVentas(res.data.data);
             setShowHistorial(true);
         } catch (e) { console.error('Error al cargar historial:', e); }
-    }, [operator?.branchId]);
+    }, [branchId]);
 
     useEffect(() => { cargar(); }, [cargar]);
 
@@ -129,6 +142,53 @@ export default function PosPage() {
     );
 
     const totalTurno = ventasTurno.reduce((a, v) => a + v.total, 0);
+    const noteTotal = noteItems.reduce((sum, item) => sum + Number(item.quantity || 0) * Number(item.unitCost || 0), 0);
+
+    const addNoteItem = () => {
+        const art = articulos.find((a) => a._id === noteTemp.articleId);
+        if (!art || !noteTemp.quantity || noteTemp.unitCost === '') return;
+        setNoteItems((prev) => [
+            ...prev,
+            {
+                articleId: art._id,
+                name: art.name,
+                quantity: Number(noteTemp.quantity),
+                unitCost: Number(noteTemp.unitCost)
+            }
+        ]);
+        setNoteTemp({ articleId: '', quantity: '', unitCost: '' });
+    };
+
+    const submitNote = async () => {
+        if (!noteForm.title.trim() || !noteForm.description.trim()) {
+            alert('Completá título y descripción');
+            return;
+        }
+        if (noteForm.type === 'compra' && noteItems.length === 0) {
+            alert('La compra requiere al menos un artículo');
+            return;
+        }
+        setNoteBusy(true);
+        try {
+            await apiPos.post('/api/pos/notes', {
+                ...noteForm,
+                items: noteItems,
+                supplierName: noteForm.supplierName.trim(),
+                paymentMethod: noteForm.paymentMethod,
+                title: noteForm.title.trim(),
+                description: noteForm.description.trim()
+            });
+            setShowNotas(false);
+            setNoteForm({ type: 'reporte', title: '', description: '', supplierName: '', paymentMethod: 'efectivo', items: [] });
+            setNoteItems([]);
+            setNoteTemp({ articleId: '', quantity: '', unitCost: '' });
+            alert('Nota enviada al administrador');
+        } catch (error) {
+            alert(error.response?.data?.message || 'No se pudo enviar la nota');
+        } finally {
+            setNoteBusy(false);
+        }
+    };
 
     return (
         <div className="pos-wrapper">
@@ -149,6 +209,9 @@ export default function PosPage() {
                 <div className="pos-header-right">
                     <button className="btn-outline" onClick={cargarHistorialVentas}>
                         📊 Historial
+                    </button>
+                    <button className="btn-outline" onClick={() => setShowNotas(true)}>
+                        📝 Notas
                     </button>
                     <button className="btn-outline" onClick={() => caja ? setModal('cerrar') : abrirModalApertura()}>
                         {caja ? 'Cerrar Caja' : 'Abrir Caja'}
@@ -306,6 +369,56 @@ export default function PosPage() {
                             )}
                         </div>
                         <button className="btn-link" onClick={() => setShowHistorial(false)}>Cerrar</button>
+                    </div>
+                </div>
+            )}
+
+            {showNotas && (
+                <div className="pos-modal-overlay" onClick={() => setShowNotas(false)}>
+                    <div className="pos-modal pos-notes" onClick={(e) => e.stopPropagation()}>
+                        <h3>📝 Nueva nota</h3>
+                        <div className="pos-note-form-grid">
+                            <select value={noteForm.type} onChange={(e) => setNoteForm({ ...noteForm, type: e.target.value })}>
+                                <option value="compra">Compra</option>
+                                <option value="mantenimiento">Mantenimiento</option>
+                                <option value="reporte">Reporte</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                            <input placeholder="Título" value={noteForm.title} onChange={(e) => setNoteForm({ ...noteForm, title: e.target.value })} />
+                            <textarea placeholder="Descripción" rows="3" value={noteForm.description} onChange={(e) => setNoteForm({ ...noteForm, description: e.target.value })} />
+                            {noteForm.type === 'compra' && (
+                                <>
+                                    <input placeholder="Proveedor" value={noteForm.supplierName} onChange={(e) => setNoteForm({ ...noteForm, supplierName: e.target.value })} />
+                                    <select value={noteForm.paymentMethod} onChange={(e) => setNoteForm({ ...noteForm, paymentMethod: e.target.value })}>
+                                        {METODOS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+                                    </select>
+                                    <div className="pos-note-items-row">
+                                        <select value={noteTemp.articleId} onChange={(e) => setNoteTemp({ ...noteTemp, articleId: e.target.value })}>
+                                            <option value="">Artículo…</option>
+                                            {articulos.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
+                                        </select>
+                                        <input type="number" min="1" placeholder="Cant." value={noteTemp.quantity} onChange={(e) => setNoteTemp({ ...noteTemp, quantity: e.target.value })} />
+                                        <input type="number" min="0" step="0.01" placeholder="Costo" value={noteTemp.unitCost} onChange={(e) => setNoteTemp({ ...noteTemp, unitCost: e.target.value })} />
+                                        <button className="btn-outline" type="button" onClick={addNoteItem}>+ Ítem</button>
+                                    </div>
+                                    {noteItems.length > 0 && (
+                                        <div className="pos-note-items-list">
+                                            {noteItems.map((item, idx) => (
+                                                <div key={`${item.articleId}-${idx}`} className="pos-note-item-row">
+                                                    <span>{item.name}</span>
+                                                    <span>{item.quantity} × {fmt(item.unitCost)}</span>
+                                                </div>
+                                            ))}
+                                            <strong>Total: {fmt(noteTotal)}</strong>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                        <div className="pos-modal-actions">
+                            <button className="btn-cobrar" disabled={noteBusy} onClick={submitNote}>{noteBusy ? 'Enviando…' : 'Enviar nota'}</button>
+                            <button className="btn-link" onClick={() => setShowNotas(false)}>Cancelar</button>
+                        </div>
                     </div>
                 </div>
             )}
