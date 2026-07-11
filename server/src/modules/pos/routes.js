@@ -1,6 +1,7 @@
 const express = require('express');
 const CashService = require('../../services/cashService');
 const SalesService = require('../../services/salesService');
+const NoteService = require('../../services/notesService');
 const { PAYMENT_METHODS } = require('../../config/constants');
 
 const router = express.Router();
@@ -66,6 +67,22 @@ router.post('/cash/close', async (req, res, next) => {
     try {
         const caja = await new CashService(req.tenantModels).close(req.operator, req.body);
         res.json({ success: true, data: caja });
+    } catch (error) { next(error); }
+});
+
+router.post('/notes', async (req, res, next) => {
+    const { Note } = req.tenantModels || {};
+    try {
+        const data = await new NoteService(req.tenantModels).create(req.operator, req.body);
+        res.status(201).json({ success: true, data });
+    } catch (error) { next(error); }
+});
+
+router.get('/notes/mine', async (req, res, next) => {
+    const { Note } = req.tenantModels || {};
+    try {
+        const data = await new NoteService(req.tenantModels).listByOperator(req.operator);
+        res.json({ success: true, data });
     } catch (error) { next(error); }
 });
 

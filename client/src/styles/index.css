@@ -231,6 +231,15 @@ input, select { font-family: inherit; }
     margin-bottom: 32px;
 }
 
+.stats-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 24px;
+    align-items: start;
+}
+
+.stats-section { min-width: 0; }
+
 .stat-card {
     display: flex;
     flex-direction: column;
@@ -258,6 +267,74 @@ input, select { font-family: inherit; }
 .admin-table-container {
     width: 100%;
     overflow-x: auto;
+}
+
+.monthly-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.monthly-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    background: rgba(248, 250, 252, 0.8);
+}
+
+.monthly-head,
+.expense-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.monthly-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.82rem;
+    margin-top: 10px;
+}
+
+.mini-bars {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.mini-bar-group {
+    display: grid;
+    gap: 4px;
+}
+
+.mini-bar-track,
+.expense-bar-track {
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.2);
+    overflow: hidden;
+}
+
+.mini-bar,
+.expense-bar {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.mini-bar.income,
+.expense-bar { background: linear-gradient(90deg, #10b981, #34d399); }
+.mini-bar.expense { background: linear-gradient(90deg, #ef4444, #fb7185); }
+
+.expense-chart {
+    display: grid;
+    gap: 12px;
+}
+
+.expense-item {
+    display: grid;
+    gap: 6px;
 }
 
 .admin-table {

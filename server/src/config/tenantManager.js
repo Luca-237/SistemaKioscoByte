@@ -9,6 +9,7 @@ const cashSessionSchema = require('../models/CashSession');
 const saleSchema = require('../models/Sale');
 const supplierSchema = require('../models/Supplier');
 const purchaseSchema = require('../models/Purchase');
+const noteSchema = require('../models/Note');
 const ledgerEntrySchema = require('../models/LedgerEntry');
 const counterSchema = require('../models/Counter');
 
@@ -39,6 +40,7 @@ const getTenantConnection = (adminId) => {
     tenantDb.model('Sale', saleSchema);
     tenantDb.model('Supplier', supplierSchema);
     tenantDb.model('Purchase', purchaseSchema);
+    tenantDb.model('Note', noteSchema);
     tenantDb.model('LedgerEntry', ledgerEntrySchema);
     tenantDb.model('Counter', counterSchema);
 
@@ -61,6 +63,7 @@ const getTenantModels = (adminId) => {
         Sale: db.model('Sale'),
         Supplier: db.model('Supplier'),
         Purchase: db.model('Purchase'),
+        Note: db.model('Note'),
         LedgerEntry: db.model('LedgerEntry'),
         Counter: db.model('Counter')
     };

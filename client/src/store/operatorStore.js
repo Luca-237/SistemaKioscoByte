@@ -1,14 +1,23 @@
 import { create } from 'zustand';
 
+const normalizeOperator = (operator) => {
+    if (!operator) return null;
+    return {
+        ...operator,
+        branchId: operator.branchId || operator.branch?.id || null
+    };
+};
+
 // Sesión del operario (JWT propio, independiente de Clerk).
 export const useOperatorStore = create((set) => ({
     token: localStorage.getItem('fs_operator_token') || null,
-    operator: JSON.parse(localStorage.getItem('fs_operator') || 'null'),
+    operator: normalizeOperator(JSON.parse(localStorage.getItem('fs_operator') || 'null')),
 
     login: (token, operator) => {
+        const normalized = normalizeOperator(operator);
         localStorage.setItem('fs_operator_token', token);
-        localStorage.setItem('fs_operator', JSON.stringify(operator));
-        set({ token, operator });
+        localStorage.setItem('fs_operator', JSON.stringify(normalized));
+        set({ token, operator: normalized });
     },
 
     logout: () => {

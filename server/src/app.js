@@ -15,6 +15,7 @@ const supplierRoutes = require('./modules/suppliers/routes');
 const purchaseRoutes = require('./modules/purchases/routes');
 const posRoutes = require('./modules/pos/routes');
 const statsRoutes = require('./modules/stats/routes');
+const noteRoutes = require('./modules/notes/routes');
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/api/articles', ownerAuth, requireOrg, articleRoutes);
 app.use('/api/suppliers', ownerAuth, requireOrg, supplierRoutes);
 app.use('/api/purchases', ownerAuth, requireOrg, purchaseRoutes);
 app.use('/api/stats', ownerAuth, requireOrg, statsRoutes);
+app.use('/api/notes', ownerAuth, requireOrg, noteRoutes);
 
 // --- Rutas del OPERARIO (JWT propio): caja, ventas, catálogo con stock ---
 app.use('/api/pos', operatorAuth, posRoutes);

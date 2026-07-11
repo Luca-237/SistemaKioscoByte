@@ -224,6 +224,64 @@
     color: #0369a1;
 }
 
+/* --- Notas Modal --- */
+.pos-notes {
+    max-width: 560px;
+    max-height: 78vh;
+    overflow-y: auto;
+}
+
+.pos-note-form-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.pos-note-form-grid select,
+.pos-note-form-grid input,
+.pos-note-form-grid textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    outline: none;
+    background: var(--surface);
+}
+
+.pos-note-form-grid textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+.pos-note-items-row {
+    display: grid;
+    grid-template-columns: 1.2fr 0.7fr 0.8fr auto;
+    gap: 8px;
+}
+
+.pos-note-items-list {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    background: var(--surface-2);
+    border-radius: 10px;
+}
+
+.pos-note-item-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.pos-modal-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
 /* --- Historial Modal --- */
 .pos-historial {
     max-width: 520px;
