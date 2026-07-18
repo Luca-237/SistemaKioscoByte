@@ -12,6 +12,9 @@ const purchaseItemSchema = new Schema({
 
 const purchaseSchema = new Schema({
     branchId: { type: Schema.Types.ObjectId, ref: 'Branch', required: true },
+    supplierId: { type: Schema.Types.ObjectId, ref: 'Supplier' },
+    // Copia desnormalizada del nombre: el historial no se rompe si el
+    // proveedor se edita o se da de baja.
     supplierName: { type: String, trim: true },
     notes: { type: String, trim: true },
     items: { type: [purchaseItemSchema], required: true },

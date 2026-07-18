@@ -86,6 +86,18 @@ export const LoginOperario = () => {
                         <button type="submit" disabled={cargando}>
                             {cargando ? 'Ingresando…' : 'Ingresar'}
                         </button>
+
+                        <div className="login-demo">
+                            <strong>Cuenta demo</strong>
+                            <span>Empresa <code>DEMO01</code> · usuarios <code>juan</code> / <code>maria</code> · clave <code>1234</code></span>
+                            <button
+                                type="button"
+                                className="btn-link"
+                                onClick={() => setForm({ orgCode: 'DEMO01', username: 'juan', password: '1234' })}
+                            >
+                                Usar credenciales demo
+                            </button>
+                        </div>
                     </form>
                 ) : (
                     <div className="login-form">

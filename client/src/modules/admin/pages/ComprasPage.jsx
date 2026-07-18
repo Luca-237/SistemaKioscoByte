@@ -10,21 +10,27 @@ export const ComprasPage = () => {
     const [compras, setCompras] = useState([]);
     const [articulos, setArticulos] = useState([]);
     const [sucursales, setSucursales] = useState([]);
+    const [proveedores, setProveedores] = useState([]);
 
-    const [cab, setCab] = useState({ branchId: '', supplierName: '', paymentMethod: 'transferencia', notes: '' });
+    const [cab, setCab] = useState({ branchId: '', supplierId: '', paymentMethod: 'transferencia', notes: '' });
     const [items, setItems] = useState([]);
     const [temp, setTemp] = useState({ articleId: '', quantity: '', unitCost: '' });
     const [ocupado, setOcupado] = useState(false);
 
+    // Alta rápida de proveedor sin salir de la carga de la compra
+    const [nuevoProv, setNuevoProv] = useState(null); // null = cerrado
+
     const cargar = useCallback(async () => {
-        const [c, a, b] = await Promise.all([
+        const [c, a, b, p] = await Promise.all([
             apiOwner.get('/api/purchases'),
             apiOwner.get('/api/articles'),
-            apiOwner.get('/api/branches')
+            apiOwner.get('/api/branches'),
+            apiOwner.get('/api/suppliers')
         ]);
         setCompras(c.data.data);
         setArticulos(a.data.data);
         setSucursales(b.data.data);
+        setProveedores(p.data.data);
     }, []);
 
     useEffect(() => { cargar().catch(console.error); }, [cargar]);
@@ -42,6 +48,17 @@ export const ComprasPage = () => {
 
     const total = items.reduce((a, i) => a + i.quantity * i.unitCost, 0);
 
+    const guardarProveedor = async () => {
+        if (!nuevoProv?.name?.trim()) return alert('El nombre del proveedor es obligatorio');
+        try {
+            const r = await apiOwner.post('/api/suppliers', nuevoProv);
+            const prov = r.data.data;
+            setProveedores([...proveedores, prov].sort((a, b) => a.name.localeCompare(b.name)));
+            setCab({ ...cab, supplierId: prov._id });
+            setNuevoProv(null);
+        } catch (err) { alert(err.response?.data?.message || 'Error al crear el proveedor'); }
+    };
+
     const registrar = async () => {
         if (!cab.branchId) return alert('Elegí la sucursal destino');
         if (items.length === 0) return alert('Agregá al menos un artículo');
@@ -49,7 +66,7 @@ export const ComprasPage = () => {
         try {
             await apiOwner.post('/api/purchases', { ...cab, items });
             setItems([]);
-            setCab({ branchId: '', supplierName: '', paymentMethod: 'transferencia', notes: '' });
+            setCab({ branchId: '', supplierId: '', paymentMethod: 'transferencia', notes: '' });
             alert('Compra registrada: stock y costos promedio actualizados.');
             cargar();
         } catch (err) { alert(err.response?.data?.message || 'Error al registrar la compra'); }
@@ -67,12 +84,32 @@ export const ComprasPage = () => {
                         <option value="">Sucursal destino *</option>
                         {sucursales.map((b) => <option key={b._id} value={b._id}>{b.name}</option>)}
                     </select>
-                    <input placeholder="Proveedor" value={cab.supplierName} onChange={(e) => setCab({ ...cab, supplierName: e.target.value })} />
+                    <select value={cab.supplierId} onChange={(e) => {
+                        if (e.target.value === '__nuevo__') {
+                            setNuevoProv({ name: '', phone: '', cuit: '' });
+                        } else {
+                            setCab({ ...cab, supplierId: e.target.value });
+                        }
+                    }}>
+                        <option value="">Proveedor…</option>
+                        {proveedores.map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
+                        <option value="__nuevo__">+ Nuevo proveedor</option>
+                    </select>
                     <select value={cab.paymentMethod} onChange={(e) => setCab({ ...cab, paymentMethod: e.target.value })}>
                         {METODOS.map((m) => <option key={m} value={m}>{m}</option>)}
                     </select>
                     <input placeholder="Notas (factura, remito…)" value={cab.notes} onChange={(e) => setCab({ ...cab, notes: e.target.value })} />
                 </div>
+
+                {nuevoProv && (
+                    <div className="admin-form-row">
+                        <input placeholder="Nombre del proveedor *" value={nuevoProv.name} onChange={(e) => setNuevoProv({ ...nuevoProv, name: e.target.value })} />
+                        <input placeholder="Teléfono" value={nuevoProv.phone} onChange={(e) => setNuevoProv({ ...nuevoProv, phone: e.target.value })} />
+                        <input placeholder="CUIT" value={nuevoProv.cuit} onChange={(e) => setNuevoProv({ ...nuevoProv, cuit: e.target.value })} />
+                        <button type="button" className="btn-primario" onClick={guardarProveedor}>Guardar proveedor</button>
+                        <button type="button" className="btn-outline" onClick={() => setNuevoProv(null)}>Cancelar</button>
+                    </div>
+                )}
 
                 <div className="admin-form-row">
                     <select value={temp.articleId} onChange={(e) => setTemp({ ...temp, articleId: e.target.value })}>

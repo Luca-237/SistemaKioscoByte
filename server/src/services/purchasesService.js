@@ -8,10 +8,17 @@ class PurchasesService {
 
     // Registra una compra: suma stock en la sucursal destino, recalcula el
     // costo promedio ponderado de cada artículo y asienta el egreso.
-    async create(clerkUserId, { branchId, supplierName, notes, items, paymentMethod }) {
+    async create(clerkUserId, { branchId, supplierId, supplierName, notes, items, paymentMethod }) {
         if (!branchId) throw new AppError(400, 'Falta la sucursal destino (branchId)');
         if (!Array.isArray(items) || items.length === 0) {
             throw new AppError(400, 'La compra debe incluir al menos un artículo');
+        }
+
+        // Si viene supplierId, el nombre se toma del proveedor registrado.
+        if (supplierId) {
+            const proveedor = await this.models.Supplier.findById(supplierId);
+            if (!proveedor) throw new AppError(400, 'Proveedor inexistente');
+            supplierName = proveedor.name;
         }
 
         // La sesión debe crearse en la conexión del tenant, no en la conexión
@@ -44,7 +51,7 @@ class PurchasesService {
                 total = Math.round(total * 100) / 100;
 
                 [compra] = await this.models.Purchase.create([{
-                    branchId, supplierName, notes,
+                    branchId, supplierId, supplierName, notes,
                     items: purchaseItems, total, paymentMethod, createdBy: clerkUserId
                 }], { session });
 

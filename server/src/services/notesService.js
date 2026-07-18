@@ -6,7 +6,8 @@ class NoteService {
     }
 
     async create(operator, payload) {
-        const { type, title, description, supplierName, paymentMethod, items = [] } = payload || {};
+        const { type, title, description, supplierId, paymentMethod, items = [] } = payload || {};
+        let { supplierName } = payload || {};
         const validTypes = ['compra', 'mantenimiento', 'reporte', 'otro'];
         if (!validTypes.includes(type)) {
             throw new AppError(400, 'Tipo de nota inválido');
@@ -16,6 +17,13 @@ class NoteService {
         }
         if (!description?.trim()) {
             throw new AppError(400, 'La nota requiere una descripción');
+        }
+
+        // Si viene supplierId, el nombre se toma del proveedor registrado.
+        if (supplierId) {
+            const proveedor = await this.models.Supplier.findById(supplierId);
+            if (!proveedor) throw new AppError(400, 'Proveedor inexistente');
+            supplierName = proveedor.name;
         }
 
         const normalizedItems = Array.isArray(items)
@@ -35,6 +43,7 @@ class NoteService {
             type,
             title: title.trim(),
             description: description.trim(),
+            supplierId,
             supplierName: supplierName?.trim(),
             paymentMethod,
             items: normalizedItems,

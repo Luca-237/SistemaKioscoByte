@@ -30,11 +30,12 @@ export default function PosPage() {
     const [historialVentas, setHistorialVentas] = useState([]);
     const [showHistorial, setShowHistorial] = useState(false);
     const [showNotas, setShowNotas] = useState(false);
+    const [proveedores, setProveedores] = useState([]);
     const [noteForm, setNoteForm] = useState({
         type: 'reporte',
         title: '',
         description: '',
-        supplierName: '',
+        supplierId: '',
         paymentMethod: 'efectivo',
         items: []
     });
@@ -44,14 +45,16 @@ export default function PosPage() {
 
     const cargar = useCallback(async () => {
         try {
-            const [arts, cajaRes, ventas] = await Promise.all([
+            const [arts, cajaRes, ventas, provs] = await Promise.all([
                 apiPos.get('/api/pos/articles'),
                 apiPos.get('/api/pos/cash'),
-                apiPos.get('/api/pos/sales')
+                apiPos.get('/api/pos/sales'),
+                apiPos.get('/api/pos/suppliers')
             ]);
             setArticulos(arts.data.data);
             setCaja(cajaRes.data.data);
             setVentasTurno(ventas.data.data);
+            setProveedores(provs.data.data);
         } catch (e) { console.error(e); }
     }, []);
 
@@ -168,18 +171,21 @@ export default function PosPage() {
             alert('La compra requiere al menos un artículo');
             return;
         }
+        if (noteForm.type === 'compra' && !noteForm.supplierId) {
+            alert('Seleccioná un proveedor');
+            return;
+        }
         setNoteBusy(true);
         try {
             await apiPos.post('/api/pos/notes', {
                 ...noteForm,
                 items: noteItems,
-                supplierName: noteForm.supplierName.trim(),
                 paymentMethod: noteForm.paymentMethod,
                 title: noteForm.title.trim(),
                 description: noteForm.description.trim()
             });
             setShowNotas(false);
-            setNoteForm({ type: 'reporte', title: '', description: '', supplierName: '', paymentMethod: 'efectivo', items: [] });
+            setNoteForm({ type: 'reporte', title: '', description: '', supplierId: '', paymentMethod: 'efectivo', items: [] });
             setNoteItems([]);
             setNoteTemp({ articleId: '', quantity: '', unitCost: '' });
             alert('Nota enviada al administrador');
@@ -388,7 +394,10 @@ export default function PosPage() {
                             <textarea placeholder="Descripción" rows="3" value={noteForm.description} onChange={(e) => setNoteForm({ ...noteForm, description: e.target.value })} />
                             {noteForm.type === 'compra' && (
                                 <>
-                                    <input placeholder="Proveedor" value={noteForm.supplierName} onChange={(e) => setNoteForm({ ...noteForm, supplierName: e.target.value })} />
+                                    <select value={noteForm.supplierId} onChange={(e) => setNoteForm({ ...noteForm, supplierId: e.target.value })}>
+                                        <option value="">Proveedor…</option>
+                                        {proveedores.map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
+                                    </select>
                                     <select value={noteForm.paymentMethod} onChange={(e) => setNoteForm({ ...noteForm, paymentMethod: e.target.value })}>
                                         {METODOS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
                                     </select>
