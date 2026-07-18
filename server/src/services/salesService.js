@@ -86,6 +86,19 @@ class SalesService {
             .limit(limit)
             .populate('operatorId', 'name');
     }
+
+    async getDailyByBranch(branchId) {
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date();
+        end.setHours(23, 59, 59, 999);
+
+        return this.models.Sale.find({
+            branchId,
+            createdAt: { $gte: start, $lte: end }
+        }).sort({ createdAt: -1 }).populate('operatorId', 'name');
+    }
 }
 
 module.exports = SalesService;

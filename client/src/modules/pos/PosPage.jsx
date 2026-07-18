@@ -29,6 +29,7 @@ export default function PosPage() {
     const [ultimoCierre, setUltimoCierre] = useState(null);
     const [historialVentas, setHistorialVentas] = useState([]);
     const [showHistorial, setShowHistorial] = useState(false);
+    const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
     const [showNotas, setShowNotas] = useState(false);
     const [proveedores, setProveedores] = useState([]);
     const [noteForm, setNoteForm] = useState({
@@ -74,6 +75,39 @@ export default function PosPage() {
             setShowHistorial(true);
         } catch (e) { console.error('Error al cargar historial:', e); }
     }, [branchId]);
+
+    const imprimirTicket = (venta) => {
+        const contenido = `
+            <html>
+                <head>
+                    <title>Ticket ${venta.number}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; color: #111827; }
+                        h2 { margin-bottom: 10px; }
+                        .item { display: flex; justify-content: space-between; margin: 6px 0; }
+                        .total { margin-top: 12px; padding-top: 8px; border-top: 1px dashed #94a3b8; display: flex; justify-content: space-between; font-weight: 700; }
+                    </style>
+                </head>
+                <body>
+                    <h2>FitoShop - Ticket #${venta.number}</h2>
+                    <div>${new Date(venta.createdAt).toLocaleString('es-AR')}</div>
+                    <div>Pago: ${venta.paymentMethod}</div>
+                    ${venta.items.map((item) => `<div class="item"><span>${item.quantity}× ${item.name}</span><span>${fmt(item.unitPrice * item.quantity)}</span></div>`).join('')}
+                    <div class="total"><span>Total</span><span>${fmt(venta.total)}</span></div>
+                </body>
+            </html>
+        `;
+
+        const printWindow = window.open('', '_blank', 'width=420,height=600');
+        if (!printWindow) {
+            alert('Tu navegador bloqueó la ventana de impresión. Permití pop-ups para imprimir el ticket.');
+            return;
+        }
+        printWindow.document.write(contenido);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+    };
 
     useEffect(() => { cargar(); }, [cargar]);
 
@@ -339,7 +373,34 @@ export default function PosPage() {
                             <span>Total ({ultimaVenta.paymentMethod})</span>
                             <strong>{fmt(ultimaVenta.total)}</strong>
                         </div>
-                        <button className="btn-cobrar" onClick={() => setUltimaVenta(null)}>Nueva venta</button>
+                        <div className="pos-modal-actions">
+                            <button className="btn-cobrar" onClick={() => imprimirTicket(ultimaVenta)}>🖨 Imprimir ticket</button>
+                            <button className="btn-link" onClick={() => setUltimaVenta(null)}>Nueva venta</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {ventaSeleccionada && (
+                <div className="pos-modal-overlay" onClick={() => setVentaSeleccionada(null)}>
+                    <div className="pos-modal pos-ticket" onClick={(e) => e.stopPropagation()}>
+                        <h3>🧾 Detalle de venta #{ventaSeleccionada.number}</h3>
+                        <p className="pos-modal-desc">{new Date(ventaSeleccionada.createdAt).toLocaleString('es-AR')}</p>
+                        <div className="pos-ticket-items">
+                            {ventaSeleccionada.items.map((item, idx) => (
+                                <div key={idx}>
+                                    <span>{item.quantity}× {item.name}</span>
+                                    <span>{fmt(item.unitPrice * item.quantity)}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="pos-ticket-total">
+                            <span>Pago: {ventaSeleccionada.paymentMethod}</span>
+                            <strong>{fmt(ventaSeleccionada.total)}</strong>
+                        </div>
+                        <div className="pos-modal-actions">
+                            <button className="btn-cobrar" onClick={() => imprimirTicket(ventaSeleccionada)}>🖨 Imprimir ticket</button>
+                            <button className="btn-link" onClick={() => setVentaSeleccionada(null)}>Cerrar</button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -369,6 +430,10 @@ export default function PosPage() {
                                         <div className="pos-historial-footer">
                                             <span className="pos-historial-method">{venta.paymentMethod}</span>
                                             <span className="pos-historial-total">{fmt(venta.total)}</span>
+                                        </div>
+                                        <div className="pos-historial-actions">
+                                            <button className="btn-outline" onClick={() => setVentaSeleccionada(venta)}>Detalle</button>
+                                            <button className="btn-outline" onClick={() => imprimirTicket(venta)}>🖨 Ticket</button>
                                         </div>
                                     </div>
                                 ))

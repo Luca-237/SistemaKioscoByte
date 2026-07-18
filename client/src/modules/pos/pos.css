@@ -356,6 +356,13 @@
     font-weight: 600;
 }
 
+.pos-historial-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
 .pos-historial-method {
     font-size: 0.75rem;
     color: var(--text-muted);

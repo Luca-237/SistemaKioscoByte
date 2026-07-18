@@ -38,8 +38,8 @@ router.get('/cash/last-session/:branchId', async (req, res, next) => {
 router.get('/sales/recent/:branchId', async (req, res, next) => {
     const { Branch, User, Article, BranchStock, CashSession, Sale, Purchase, LedgerEntry, Counter } = req.tenantModels || {};
     try {
-        const recentSales = await new SalesService(req.tenantModels).getRecent(req.params.branchId, 30);
-        res.json({ success: true, data: recentSales });
+        const todaySales = await new SalesService(req.tenantModels).getDailyByBranch(req.params.branchId);
+        res.json({ success: true, data: todaySales });
     } catch (error) {
         next(error);
     }
