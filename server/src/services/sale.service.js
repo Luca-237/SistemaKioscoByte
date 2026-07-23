@@ -132,4 +132,17 @@ const getRecentSales = async (models, branchId, limit = 30) => {
         .populate('operatorId', 'name');
 };
 
-module.exports = { createSale, listSalesBySession, getCurrentSessionSales, getRecentSales };
+const getDailyByBranch = async (models, branchId) => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    return models.Sale.find({
+        branchId,
+        createdAt: { $gte: start, $lte: end }
+    }).sort({ createdAt: -1 }).populate('operatorId', 'name');
+};
+
+module.exports = { createSale, listSalesBySession, getCurrentSessionSales, getRecentSales, getDailyByBranch };

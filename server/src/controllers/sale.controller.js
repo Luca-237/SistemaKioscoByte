@@ -1,4 +1,4 @@
-const { createSale, getCurrentSessionSales, getRecentSales } = require('../services/sale.service');
+const { createSale, getCurrentSessionSales, getRecentSales, getDailyByBranch } = require('../services/sale.service');
 const { respondError } = require('../utils/logger');
 
 // Capa HTTP fina: traduce request <-> sale.service. Sin lógica de negocio acá.
@@ -25,7 +25,7 @@ const getCurrentSession = async (req, res) => {
 
 const getRecent = async (req, res) => {
     try {
-        const data = await getRecentSales(req.tenantModels, req.params.branchId, 30);
+        const data = await getDailyByBranch(req.tenantModels, req.params.branchId);
         res.json({ success: true, data });
     } catch (error) {
         respondError(res, error, { context: 'sales.getRecent' });
