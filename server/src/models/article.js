@@ -11,6 +11,7 @@ const articleSchema = new Schema({
     category: { type: String, trim: true },
     unit: { type: String, trim: true, default: 'unidad' },
     salePrice: { type: Number, required: true, min: 0 },
+    imageUrl: { type: String, trim: true },
     active: { type: Boolean, default: true }
 }, { timestamps: true });
 
