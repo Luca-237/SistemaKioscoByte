@@ -3,18 +3,18 @@
 // de tenant a través de tenantManager.js. Organization es el único modelo
 // global (vive en la BD principal).
 module.exports = {
-    Organization: require('./Organization'),
+    Organization: require('./organization'),
     // Los siguientes exportan SCHEMAS (no modelos compilados).
     // Se usan en tenantManager para registrarlos en cada BD de tenant.
-    BranchSchema: require('./Branch'),
-    UserSchema: require('./User'),
-    ArticleSchema: require('./Article'),
-    BranchStockSchema: require('./BranchStock'),
-    CashSessionSchema: require('./CashSession'),
-    SaleSchema: require('./Sale'),
-    SupplierSchema: require('./Supplier'),
-    PurchaseSchema: require('./Purchase'),
-    NoteSchema: require('./Note'),
-    LedgerEntrySchema: require('./LedgerEntry'),
-    CounterSchema: require('./Counter')
+    BranchSchema: require('./branch'),
+    UserSchema: require('./user'),
+    ArticleSchema: require('./article'),
+    BranchStockSchema: require('./branchStock'),
+    CashSessionSchema: require('./cashSession'),
+    SaleSchema: require('./sale'),
+    SupplierSchema: require('./supplier'),
+    PurchaseSchema: require('./purchase'),
+    NoteSchema: require('./note'),
+    LedgerEntrySchema: require('./ledgerEntry'),
+    CounterSchema: require('./counter')
 };

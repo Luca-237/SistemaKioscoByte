@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
 
 // Schemas
-const branchSchema = require('../models/Branch');
-const userSchema = require('../models/User');
-const articleSchema = require('../models/Article');
-const branchStockSchema = require('../models/BranchStock');
-const cashSessionSchema = require('../models/CashSession');
-const saleSchema = require('../models/Sale');
-const supplierSchema = require('../models/Supplier');
-const purchaseSchema = require('../models/Purchase');
-const noteSchema = require('../models/Note');
-const ledgerEntrySchema = require('../models/LedgerEntry');
-const counterSchema = require('../models/Counter');
+const branchSchema = require('../models/branch');
+const userSchema = require('../models/user');
+const articleSchema = require('../models/article');
+const branchStockSchema = require('../models/branchStock');
+const cashSessionSchema = require('../models/cashSession');
+const saleSchema = require('../models/sale');
+const supplierSchema = require('../models/supplier');
+const purchaseSchema = require('../models/purchase');
+const noteSchema = require('../models/note');
+const ledgerEntrySchema = require('../models/ledgerEntry');
+const counterSchema = require('../models/counter');
 
 const tenantConnections = {};
 
