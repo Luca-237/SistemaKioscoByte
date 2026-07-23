@@ -6,16 +6,16 @@ const { notFound, errorHandler } = require('./middlewares/error');
 const { ownerAuth, requireOrg } = require('./middlewares/devAuth');
 const { operatorAuth } = require('./middlewares/operatorAuth');
 
-const authRoutes = require('./modules/auth/routes');
-const organizationRoutes = require('./modules/organizations/routes');
-const branchRoutes = require('./modules/branches/routes');
-const userRoutes = require('./modules/users/routes');
-const articleRoutes = require('./modules/articles/routes');
-const supplierRoutes = require('./modules/suppliers/routes');
-const purchaseRoutes = require('./modules/purchases/routes');
-const posRoutes = require('./modules/pos/routes');
-const statsRoutes = require('./modules/stats/routes');
-const noteRoutes = require('./modules/notes/routes');
+const authRoutes = require('./routes/auth.routes');
+const organizationRoutes = require('./routes/organization.routes');
+const branchRoutes = require('./routes/branch.routes');
+const userRoutes = require('./routes/user.routes');
+const articleRoutes = require('./routes/article.routes');
+const supplierRoutes = require('./routes/supplier.routes');
+const purchaseRoutes = require('./routes/purchase.routes');
+const posRoutes = require('./routes/pos.routes');
+const statsRoutes = require('./routes/stats.routes');
+const noteRoutes = require('./routes/note.routes');
 
 const app = express();
 

@@ -120,7 +120,7 @@ export default function PosPage() {
                 if (item.quantity >= art.stock) return prev;
                 return prev.map((i) => i.articleId === art._id ? { ...i, quantity: i.quantity + 1 } : i);
             }
-            return [...prev, { articleId: art._id, name: art.name, unitPrice: art.salePrice, quantity: 1, stock: art.stock }];
+            return [...prev, { articleId: art._id, name: art.name, unitPrice: art.salePrice, quantity: 1, stock: art.stock, imageUrl: art.imageUrl }];
         });
     };
     const quitar = (articleId) => setCarrito((prev) => prev.filter((i) => i.articleId !== articleId));
@@ -273,12 +273,15 @@ export default function PosPage() {
                             disabled={a.stock <= 0}
                             onClick={() => agregar(a)}
                         >
-                            {a.code && <span className="pos-card-code">#{a.code}</span>}
-                            <span className="pos-card-name">{a.name}</span>
-                            <span className="pos-card-price">{fmt(a.salePrice)}</span>
-                            <span className={`pos-card-stock ${a.stock <= 0 ? 'agotado' : ''}`}>
-                                {a.stock <= 0 ? 'Agotado' : `Stock: ${a.stock}`}
-                            </span>
+                            {a.imageUrl && a.imageUrl.trim() && <img src={a.imageUrl} alt={a.name} className="pos-card-img" referrerPolicy="no-referrer" onError={(e) => { e.target.style.display = 'none'; }} />}
+                            <div className="pos-card-content">
+                                {a.code && <span className="pos-card-code">#{a.code}</span>}
+                                <span className="pos-card-name">{a.name}</span>
+                                <span className="pos-card-price">{fmt(a.salePrice)}</span>
+                                <span className={`pos-card-stock ${a.stock <= 0 ? 'agotado' : ''}`}>
+                                    {a.stock <= 0 ? 'Agotado' : `Stock: ${a.stock}`}
+                                </span>
+                            </div>
                         </button>
                     ))}
                     {filtrados.length === 0 && (
@@ -292,9 +295,12 @@ export default function PosPage() {
                         {carrito.length === 0 && <p className="pos-empty">El carrito está vacío</p>}
                         {carrito.map((i) => (
                             <div key={i.articleId} className="pos-cart-item">
-                                <div>
-                                    <p>{i.name}</p>
-                                    <span>{i.quantity} × {fmt(i.unitPrice)}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    {i.imageUrl && <img src={i.imageUrl} alt={i.name} referrerPolicy="no-referrer" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 4 }} onError={(e) => { e.target.style.display = 'none'; }} />}
+                                    <div>
+                                        <p>{i.name}</p>
+                                        <span>{i.quantity} × {fmt(i.unitPrice)}</span>
+                                    </div>
                                 </div>
                                 <div className="pos-cart-item-right">
                                     <strong>{fmt(i.quantity * i.unitPrice)}</strong>
