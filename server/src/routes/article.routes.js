@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAll, create, update, deactivate } = require('../controllers/article.controller');
+const { getAll, create, update, deactivate, setStock } = require('../controllers/article.controller');
 
 const router = express.Router();
 
@@ -10,6 +10,7 @@ const router = express.Router();
 router.get('/', getAll);
 router.post('/', create);
 router.put('/:id', update);
+router.patch('/:id/stock', setStock);
 router.delete('/:id', deactivate);
 
 module.exports = router;

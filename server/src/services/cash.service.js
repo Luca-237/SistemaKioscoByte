@@ -29,6 +29,47 @@ const getLastClosedCash = async (models, branchId) => {
     }).sort({ closedAt: -1 });
 };
 
+/**
+ * Devuelve todas las sesiones de caja (historial), ordenadas por fecha.
+ * @param {Object} models Modelos del tenant.
+ * @param {string} [branchId] Filtrar por sucursal opcionalmente.
+ * @returns {Promise<Array>} Sesiones de caja recientes (límite 50).
+ */
+const listAllSessions = async (models, branchId) => {
+    const query = branchId ? { branchId } : {};
+    return models.CashSession.find(query)
+        .sort({ openedAt: -1 })
+        .limit(50)
+        .populate('branchId', 'name')
+        .populate('openedBy', 'name')
+        .populate('closedBy', 'name');
+};
+
+/**
+ * Devuelve los movimientos (LedgerEntries) de una sesión de caja.
+ * @param {Object} models Modelos del tenant.
+ * @param {string} cashSessionId 
+ * @returns {Promise<Array>} Movimientos del libro diario.
+ */
+const getSessionMovements = async (models, cashSessionId) => {
+    return models.LedgerEntry.find({ cashSessionId })
+        .sort({ createdAt: -1 })
+        .populate('saleId')
+        .populate('purchaseId');
+};
+
+/**
+ * Devuelve las ventas de una sesión de caja.
+ * @param {Object} models Modelos del tenant.
+ * @param {string} cashSessionId
+ * @returns {Promise<Array>} Ventas de la sesión con operario populado.
+ */
+const getSalesBySession = async (models, cashSessionId) => {
+    return models.Sale.find({ cashSessionId })
+        .sort({ createdAt: -1 })
+        .populate('operatorId', 'name');
+};
+
 // ==========================================
 // APERTURA
 // ==========================================
@@ -122,4 +163,4 @@ const closeCash = async (models, operator, { closingAmount }) => {
     }
 };
 
-module.exports = { getOpenCash, getLastClosedCash, openCash, closeCash };
+module.exports = { getOpenCash, getLastClosedCash, listAllSessions, getSessionMovements, getSalesBySession, openCash, closeCash };

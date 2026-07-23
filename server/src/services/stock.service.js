@@ -54,4 +54,26 @@ const removeStockForSale = async (models, { branchId, articleId, quantity }, ses
     return stock.avgCost;
 };
 
-module.exports = { addStockFromPurchase, removeStockForSale };
+// ==========================================
+// AJUSTE MANUAL (ADMIN)
+// ==========================================
+
+/**
+ * Establece la cantidad de stock de un artículo en una sucursal.
+ * Si no existe el registro de BranchStock, lo crea con avgCost 0.
+ * @param {Object} models Modelos del tenant.
+ * @param {string} branchId
+ * @param {string} articleId
+ * @param {number} quantity Nueva cantidad.
+ * @returns {Promise<Object>} El BranchStock actualizado.
+ */
+const setStockManual = async (models, branchId, articleId, quantity) => {
+    const stock = await models.BranchStock.findOneAndUpdate(
+        { branchId, articleId },
+        { $set: { quantity: Number(quantity) }, $setOnInsert: { avgCost: 0 } },
+        { new: true, upsert: true }
+    );
+    return stock;
+};
+
+module.exports = { addStockFromPurchase, removeStockForSale, setStockManual };

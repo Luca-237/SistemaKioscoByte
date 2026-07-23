@@ -1,6 +1,7 @@
 const {
     getAllArticles, getArticlesForBranch, createArticle, updateArticle, deactivateArticle
 } = require('../services/article.service');
+const { setStockManual } = require('../services/stock.service');
 const { respondError } = require('../utils/logger');
 
 // Capa HTTP fina: traduce request <-> article.service. Sin lógica de negocio acá.
@@ -52,4 +53,17 @@ const deactivate = async (req, res) => {
     }
 };
 
-module.exports = { getAll, getForOperator, create, update, deactivate };
+const setStock = async (req, res) => {
+    try {
+        const { branchId, quantity } = req.body;
+        if (!branchId || quantity === undefined) {
+            return res.status(400).json({ success: false, message: 'Faltan branchId o quantity' });
+        }
+        const data = await setStockManual(req.tenantModels, branchId, req.params.id, quantity);
+        res.json({ success: true, data });
+    } catch (error) {
+        respondError(res, error, { context: 'articles.setStock' });
+    }
+};
+
+module.exports = { getAll, getForOperator, create, update, deactivate, setStock };

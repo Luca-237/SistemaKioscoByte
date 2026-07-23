@@ -12,6 +12,7 @@ export const ArticulosPage = () => {
     const [form, setForm] = useState({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
     const [editando, setEditando] = useState(null);
     const [buscandoOFF, setBuscandoOFF] = useState(false);
+    const [editingStock, setEditingStock] = useState({});  // { [articleId]: newQty }
 
     const cargar = useCallback(async () => {
         const [a, b] = await Promise.all([
@@ -64,6 +65,18 @@ export const ArticulosPage = () => {
         cargar();
     };
 
+    const actualizarStock = async (articleId) => {
+        const qty = editingStock[articleId];
+        if (qty === undefined || qty === '') return;
+        try {
+            await apiOwner.patch(`/api/articles/${articleId}/stock`, { branchId, quantity: Number(qty) });
+            setEditingStock(prev => { const n = { ...prev }; delete n[articleId]; return n; });
+            cargar();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error al actualizar stock');
+        }
+    };
+
     return (
         <div>
             <div className="admin-toolbar">
@@ -91,7 +104,7 @@ export const ArticulosPage = () => {
                     </div>
                     {buscandoOFF && <span style={{ fontSize: '0.85rem', color: '#888' }}>Buscando en OpenFoodFacts...</span>}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        {form.imageUrl && <img src={form.imageUrl} alt="preview" style={{ height: 40, width: 40, objectFit: 'cover', borderRadius: 4 }} />}
+                        {form.imageUrl && <img src={form.imageUrl} alt="preview" referrerPolicy="no-referrer" style={{ height: 40, width: 40, objectFit: 'cover', borderRadius: 4 }} />}
                         <input placeholder="URL de Imagen (Opcional)" value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} style={{ flex: 1, maxWidth: 300 }} />
                     </div>
                 </div>
@@ -112,14 +125,30 @@ export const ArticulosPage = () => {
                     {articulos.map((a) => (
                         <tr key={a._id}>
                             <td>
-                                {a.imageUrl ? <img src={a.imageUrl} alt={a.name} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : <div style={{ width: 40, height: 40, background: '#eee', borderRadius: 4 }} />}
+                                {a.imageUrl ? <img src={a.imageUrl} alt={a.name} referrerPolicy="no-referrer" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} onError={(e) => { e.target.style.display = 'none'; }} /> : <div style={{ width: 40, height: 40, background: '#eee', borderRadius: 4 }} />}
                             </td>
                             <td className="mono">{a.code}</td>
                             <td className="mono">{a.barcode || '—'}</td>
                             <td><strong>{a.name}</strong></td>
                             <td>{a.category || '—'}</td>
                             <td className="der">{fmt(a.salePrice)}</td>
-                            {branchId && <td className="der">{a.stock}</td>}
+                            {branchId && (
+                                <td className="der">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end' }}>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            style={{ width: 65, padding: '4px 6px', textAlign: 'right', border: '1px solid var(--border)', borderRadius: 4 }}
+                                            value={editingStock[a._id] !== undefined ? editingStock[a._id] : (a.stock ?? '')}
+                                            onChange={(e) => setEditingStock(prev => ({ ...prev, [a._id]: e.target.value }))}
+                                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); actualizarStock(a._id); } }}
+                                        />
+                                        {editingStock[a._id] !== undefined && String(editingStock[a._id]) !== String(a.stock) && (
+                                            <button className="btn-mini" onClick={() => actualizarStock(a._id)} title="Guardar stock">✓</button>
+                                        )}
+                                    </div>
+                                </td>
+                            )}
                             {branchId && <td className="der">{fmt(a.avgCost)}</td>}
                             <td className="der">
                                 <button className="btn-mini" onClick={() => { setEditando(a._id); setForm({ code: a.code, barcode: a.barcode || '', name: a.name, category: a.category || '', salePrice: a.salePrice, imageUrl: a.imageUrl || '' }); }}>Editar</button>

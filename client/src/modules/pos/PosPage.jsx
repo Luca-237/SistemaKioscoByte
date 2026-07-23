@@ -273,7 +273,7 @@ export default function PosPage() {
                             disabled={a.stock <= 0}
                             onClick={() => agregar(a)}
                         >
-                            {a.imageUrl && <img src={a.imageUrl} alt={a.name} className="pos-card-img" />}
+                            {a.imageUrl && a.imageUrl.trim() && <img src={a.imageUrl} alt={a.name} className="pos-card-img" referrerPolicy="no-referrer" onError={(e) => { e.target.style.display = 'none'; }} />}
                             <div className="pos-card-content">
                                 {a.code && <span className="pos-card-code">#{a.code}</span>}
                                 <span className="pos-card-name">{a.name}</span>
@@ -296,7 +296,7 @@ export default function PosPage() {
                         {carrito.map((i) => (
                             <div key={i.articleId} className="pos-cart-item">
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                    {i.imageUrl && <img src={i.imageUrl} alt={i.name} style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 4 }} />}
+                                    {i.imageUrl && <img src={i.imageUrl} alt={i.name} referrerPolicy="no-referrer" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 4 }} onError={(e) => { e.target.style.display = 'none'; }} />}
                                     <div>
                                         <p>{i.name}</p>
                                         <span>{i.quantity} × {fmt(i.unitPrice)}</span>
