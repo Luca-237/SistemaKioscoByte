@@ -58,7 +58,7 @@ const getArticlesForBranch = async (models, branchId) => {
  * @returns {Promise<Object>} Artículo creado.
  * @throws {Error} 400 si faltan datos obligatorios o el precio es inválido.
  */
-const createArticle = async (models, { code, barcode, name, description, category, unit, salePrice, imageUrl }) => {
+const createArticle = async (models, { code, barcode, name, description, category, unit, salePrice, imageUrl, image_url, image }) => {
     if (!code || !name || salePrice === undefined) {
         throw new AppError(400, 'Faltan código, nombre o precio de venta');
     }
@@ -67,7 +67,7 @@ const createArticle = async (models, { code, barcode, name, description, categor
     }
     return models.Article.create({
         code: String(code).trim(), barcode, name: name.trim(),
-        description, category, unit, salePrice: Number(salePrice), imageUrl
+        description, category, unit, salePrice: Number(salePrice), imageUrl: imageUrl || image_url || image
     });
 };
 
@@ -83,10 +83,10 @@ const createArticle = async (models, { code, barcode, name, description, categor
  * @returns {Promise<Object>} Artículo actualizado.
  * @throws {Error} 404 si no existe.
  */
-const updateArticle = async (models, id, { code, barcode, name, description, category, unit, salePrice, imageUrl, active }) => {
+const updateArticle = async (models, id, { code, barcode, name, description, category, unit, salePrice, imageUrl, image_url, image, active }) => {
     const article = await models.Article.findOneAndUpdate(
         { _id: id },
-        { code, barcode, name, description, category, unit, salePrice, imageUrl, active },
+        { code, barcode, name, description, category, unit, salePrice, imageUrl: imageUrl || image_url || image, active },
         { new: true, runValidators: true }
     );
     if (!article) throw new AppError(404, 'Artículo no encontrado');

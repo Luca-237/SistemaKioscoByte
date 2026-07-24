@@ -120,7 +120,7 @@ export default function PosPage() {
                 if (item.quantity >= art.stock) return prev;
                 return prev.map((i) => i.articleId === art._id ? { ...i, quantity: i.quantity + 1 } : i);
             }
-            return [...prev, { articleId: art._id, name: art.name, unitPrice: art.salePrice, quantity: 1, stock: art.stock, imageUrl: art.imageUrl }];
+            return [...prev, { articleId: art._id, name: art.name, unitPrice: art.salePrice, quantity: 1, stock: art.stock, imageUrl: art.imageUrl || art.image_url || art.image }];
         });
     };
     const quitar = (articleId) => setCarrito((prev) => prev.filter((i) => i.articleId !== articleId));
@@ -273,7 +273,7 @@ export default function PosPage() {
                             disabled={a.stock <= 0}
                             onClick={() => agregar(a)}
                         >
-                            {a.imageUrl && a.imageUrl.trim() && <img src={a.imageUrl} alt={a.name} className="pos-card-img" referrerPolicy="no-referrer" onError={(e) => { e.target.style.display = 'none'; }} />}
+                            {(a.imageUrl || a.image_url || a.image) && (a.imageUrl || a.image_url || a.image).trim() && <img src={a.imageUrl || a.image_url || a.image} alt={a.name} className="pos-card-img" referrerPolicy="no-referrer" onError={(e) => { e.target.style.display = 'none'; }} />}
                             <div className="pos-card-content">
                                 {a.code && <span className="pos-card-code">#{a.code}</span>}
                                 <span className="pos-card-name">{a.name}</span>
