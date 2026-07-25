@@ -253,6 +253,11 @@ export default function PosPage() {
                     <button className="btn-outline" onClick={() => setShowNotas(true)}>
                         📝 Notas
                     </button>
+                    {operator?.permissions?.length > 0 && (
+                        <button className="btn-outline" onClick={() => navigate('/panel')}>
+                            🔐 Panel
+                        </button>
+                    )}
                     <button className="btn-outline" onClick={() => caja ? setModal('cerrar') : abrirModalApertura()}>
                         {caja ? 'Cerrar Caja' : 'Abrir Caja'}
                     </button>

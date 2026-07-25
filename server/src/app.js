@@ -45,7 +45,9 @@ app.use('/api/suppliers', hybridAuth, checkAccess('suppliers'), supplierRoutes);
 app.use('/api/purchases', hybridAuth, checkAccess('purchases'), purchaseRoutes);
 app.use('/api/stats', hybridAuth, checkAccess('stats'), statsRoutes);
 app.use('/api/notes', hybridAuth, checkAccess('notes'), noteRoutes);
-app.use('/api/access', hybridAuth, checkAccess('access'), accessRoutes);
+// El permiso 'access' se valida adentro de accessRoutes: /codes es de
+// lectura libre para cualquier logueado (arma el sidebar), el resto no.
+app.use('/api/access', hybridAuth, accessRoutes);
 
 // --- Rutas del OPERARIO (JWT propio): caja, ventas, catálogo con stock ---
 app.use('/api/pos', operatorAuth, posRoutes);

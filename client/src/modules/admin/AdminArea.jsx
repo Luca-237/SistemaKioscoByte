@@ -12,6 +12,7 @@ import { ContabilidadPage } from './pages/ContabilidadPage';
 import { EstadisticasPage } from './pages/EstadisticasPage';
 import { NotasPage } from './pages/NotasPage';
 import { CajasPage } from './pages/CajasPage';
+import { AccesosPage } from './pages/AccesosPage';
 
 export default function AdminArea() {
     return <AdminShell />;
@@ -56,6 +57,7 @@ function AdminShell() {
                     <NavLink to="/admin/cajas" className="nav-link">Cajas</NavLink>
                     <NavLink to="/admin/sucursales" className="nav-link">Sucursales</NavLink>
                     <NavLink to="/admin/operarios" className="nav-link">Operarios</NavLink>
+                    <NavLink to="/admin/accesos" className="nav-link">Accesos</NavLink>
                 </nav>
                 
                 <div style={{ marginTop: 'auto' }}>
@@ -78,6 +80,7 @@ function AdminShell() {
                     <Route path="notas" element={<NotasPage />} />
                     <Route path="sucursales" element={<SucursalesPage />} />
                     <Route path="operarios" element={<OperariosPage />} />
+                    <Route path="accesos" element={<AccesosPage />} />
                     <Route path="articulos" element={<ArticulosPage />} />
                     <Route path="compras" element={<ComprasPage />} />
                     <Route path="cajas" element={<CajasPage />} />

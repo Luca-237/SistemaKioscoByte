@@ -81,7 +81,8 @@ const operatorLogin = async ({ orgCode, username, password, branchId }) => {
             username: user.username,
             orgName: org.name,
             branchId: branch._id.toString(),
-            branch: { id: branch._id, name: branch.name }
+            branch: { id: branch._id, name: branch.name },
+            permissions: user.permissions
         }
     };
 };

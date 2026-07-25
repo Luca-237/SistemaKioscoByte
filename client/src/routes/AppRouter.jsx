@@ -7,6 +7,7 @@ import { LoginOperario } from '../modules/auth/LoginOperario';
 const PosPage = lazy(() => import('../modules/pos/PosPage'));
 const AdminArea = lazy(() => import('../modules/admin/AdminArea'));
 const LandingPage = lazy(() => import('../modules/landing/LandingPage'));
+const PanelOperario = lazy(() => import('../modules/panel/PanelOperario'));
 
 const Cargando = () => (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b', fontWeight: 600 }}>
@@ -28,6 +29,7 @@ export const AppRouter = () => (
 
                 <Route element={<RequireOperator />}>
                     <Route path="/pos" element={<PosPage />} />
+                    <Route path="/panel" element={<PanelOperario />} />
                 </Route>
 
                 {/* Área del propietario (Clerk se resuelve adentro) */}
