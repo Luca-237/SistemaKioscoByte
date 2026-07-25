@@ -32,7 +32,8 @@ const create = async (req, res) => {
 
 const updateStatus = async (req, res) => {
     try {
-        const data = await updateNoteStatus(req.tenantModels, req.owner, req.params.id, req.body);
+        // La ruta admite dueño u operario con acceso (hybridAuth).
+        const data = await updateNoteStatus(req.tenantModels, req.owner || req.operator, req.params.id, req.body);
         res.json({ success: true, data });
     } catch (error) {
         respondError(res, error, { context: 'notes.updateStatus', inputs: req.body });

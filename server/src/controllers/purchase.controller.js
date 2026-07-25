@@ -14,7 +14,10 @@ const getAll = async (req, res) => {
 
 const create = async (req, res) => {
     try {
-        const data = await createPurchase(req.tenantModels, req.owner.clerkUserId, req.body);
+        // La ruta admite dueño u operario con acceso (hybridAuth): el
+        // identificador de quien registra la compra sale de cualquiera de los dos.
+        const createdBy = req.owner ? req.owner.clerkUserId : req.operator.userId;
+        const data = await createPurchase(req.tenantModels, createdBy, req.body);
         res.status(201).json({ success: true, data });
     } catch (error) {
         respondError(res, error, { context: 'purchases.create', inputs: req.body });
