@@ -133,6 +133,10 @@
     background: var(--card);
 }
 .admin-form-row input:focus, .admin-form-row select:focus { border-color: var(--primary); }
+.input-error {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
 
 .admin-panel {
     background: var(--card);

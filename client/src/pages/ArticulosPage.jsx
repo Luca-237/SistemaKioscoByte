@@ -13,15 +13,18 @@ export const ArticulosPage = () => {
 
     const [form, setForm] = useState({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
     const [editando, setEditando] = useState(null);
+    const [intentado, setIntentado] = useState(false);
     const [buscandoOFF, setBuscandoOFF] = useState(false);
     const [editingStock, setEditingStock] = useState({});
     const [showCatModal, setShowCatModal] = useState(false);
     const [filtroCategoria, setFiltroCategoria] = useState('');
     const [busqueda, setBusqueda] = useState('');
 
-    const nombresCategorias = useMemo(() =>
-        categorias.map((c) => c.name).sort((a, b) => a.localeCompare(b, 'es')),
-    [categorias]);
+    const nombresCategorias = useMemo(() => {
+        const set = new Set(categorias.map((c) => c.name));
+        articulos.forEach((a) => { if (a.category) set.add(a.category); });
+        return [...set].sort((a, b) => a.localeCompare(b, 'es'));
+    }, [categorias, articulos]);
 
     const articulosFiltrados = useMemo(() => {
         let list = articulos;
@@ -56,12 +59,19 @@ export const ArticulosPage = () => {
 
     const guardar = async (e) => {
         e.preventDefault();
+        setIntentado(true);
+
+        if (!form.code.trim() || !form.name.trim() || form.salePrice === '') {
+            return; // Espera a que complete los campos resaltados
+        }
+
         try {
             const payload = { ...form, salePrice: Number(form.salePrice) };
             if (editando) await editar(editando, payload);
             else await crear(payload);
             setForm({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
             setEditando(null);
+            setIntentado(false);
         } catch (err) { alert(err.response?.data?.message || 'Error al guardar el artículo'); }
     };
 
@@ -81,6 +91,7 @@ export const ArticulosPage = () => {
 
     const cancelar = () => {
         setEditando(null);
+        setIntentado(false);
         setForm({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
     };
 
@@ -112,20 +123,20 @@ export const ArticulosPage = () => {
             </div>
 
             {/* ── Formulario ──────────────────────────────────────────── */}
-            <form className="art-form glass-panel" onSubmit={guardar}>
+            <form className="art-form glass-panel" onSubmit={guardar} noValidate>
                 <div className="art-form-grid">
-                    <input placeholder="Código *" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
+                    <input placeholder="Código *" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} className={intentado && !form.code.trim() ? 'input-error' : ''} />
                     <input placeholder="Cód. barras" value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} onBlur={(e) => buscarEnOFF(e.target.value)} />
-                    <input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="art-input-wide" />
+                    <input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={`art-input-wide ${intentado && !form.name.trim() ? 'input-error' : ''}`} />
                     <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                         <option value="">Sin categoría</option>
                         {nombresCategorias.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
-                    <input placeholder="Precio *" type="number" step="0.01" min="0" value={form.salePrice} onChange={(e) => setForm({ ...form, salePrice: e.target.value })} required />
+                    <input placeholder="Precio *" type="number" step="0.01" min="0" value={form.salePrice} onChange={(e) => setForm({ ...form, salePrice: e.target.value })} className={intentado && form.salePrice === '' ? 'input-error' : ''} />
                 </div>
                 <div className="art-form-actions">
                     {buscandoOFF && <span className="art-off-status">Buscando en OpenFoodFacts…</span>}
-                    <Button disabled={buscandoOFF}>{editando ? '💾 Guardar' : '+ Agregar'}</Button>
+                    <Button type="submit" disabled={buscandoOFF}>{editando ? '💾 Guardar' : '+ Agregar'}</Button>
                     {editando && <Button variant="outline" type="button" onClick={cancelar}>Cancelar</Button>}
                 </div>
             </form>
