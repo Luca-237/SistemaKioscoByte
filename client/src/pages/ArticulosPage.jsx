@@ -1,13 +1,15 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { fmt } from '../lib/format';
 import { useArticulos } from '../hooks/useArticulos';
-import { updateArticulo } from '../api/article.api';
 import { Button } from '../components/ui/Button';
 
 // ── Artículos: catálogo + stock + gestión de categorías ────────────────
 export const ArticulosPage = () => {
     const [branchId, setBranchId] = useState('');
-    const { articulos, sucursales, crear, editar, darDeBaja, actualizarStock } = useArticulos(branchId);
+    const {
+        articulos, sucursales, categorias, crear, editar, darDeBaja, actualizarStock,
+        crearCategoria, editarCategoria, eliminarCategoria
+    } = useArticulos(branchId);
 
     const [form, setForm] = useState({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
     const [editando, setEditando] = useState(null);
@@ -17,11 +19,9 @@ export const ArticulosPage = () => {
     const [filtroCategoria, setFiltroCategoria] = useState('');
     const [busqueda, setBusqueda] = useState('');
 
-    const categorias = useMemo(() => {
-        const set = new Set();
-        articulos.forEach((a) => { if (a.category) set.add(a.category); });
-        return [...set].sort((a, b) => a.localeCompare(b, 'es'));
-    }, [articulos]);
+    const nombresCategorias = useMemo(() =>
+        categorias.map((c) => c.name).sort((a, b) => a.localeCompare(b, 'es')),
+    [categorias]);
 
     const articulosFiltrados = useMemo(() => {
         let list = articulos;
@@ -98,7 +98,7 @@ export const ArticulosPage = () => {
                     </div>
                     <select value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)} className="art-select">
                         <option value="">Todas las categorías</option>
-                        {categorias.map((c) => <option key={c} value={c}>{c}</option>)}
+                        {nombresCategorias.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                     <select value={branchId} onChange={(e) => setBranchId(e.target.value)} className="art-select">
                         <option value="">Stock de… (sucursal)</option>
@@ -119,7 +119,7 @@ export const ArticulosPage = () => {
                     <input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="art-input-wide" />
                     <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                         <option value="">Sin categoría</option>
-                        {categorias.map((c) => <option key={c} value={c}>{c}</option>)}
+                        {nombresCategorias.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                     <input placeholder="Precio *" type="number" step="0.01" min="0" value={form.salePrice} onChange={(e) => setForm({ ...form, salePrice: e.target.value })} required />
                 </div>
@@ -190,47 +190,64 @@ export const ArticulosPage = () => {
                     articulos={articulos}
                     categorias={categorias}
                     onClose={() => setShowCatModal(false)}
-                    onCategoryRenamed={(oldName, newName) => {
-                        Promise.all(
-                            articulos.filter((a) => a.category === oldName).map((a) =>
-                                updateArticulo(a._id, { ...a, category: newName })
-                            )
-                        );
-                    }}
-                    onArticleCategoryChanged={(articleId, newCategory) => {
-                        const art = articulos.find((a) => a._id === articleId);
-                        if (art) updateArticulo(articleId, { ...art, category: newCategory });
-                    }}
+                    onCrear={crearCategoria}
+                    onEditar={editarCategoria}
+                    onEliminar={eliminarCategoria}
                 />
             )}
         </div>
     );
 };
 
-// ── Modal de categorías (sin cambios funcionales) ─────────────────────────
-function CategoriasModal({ articulos, categorias, onClose, onCategoryRenamed, onArticleCategoryChanged }) {
+// ── Modal de categorías: CRUD + vencimiento obligatorio ───────────────────
+function CategoriasModal({ articulos, categorias, onClose, onCrear, onEditar, onEliminar }) {
     const [expandida, setExpandida] = useState(null);
     const [editandoCat, setEditandoCat] = useState(null);
     const [nuevoNombre, setNuevoNombre] = useState('');
     const [nuevaCat, setNuevaCat] = useState('');
     const [creando, setCreando] = useState(false);
+    const [ocupado, setOcupado] = useState(false);
 
-    const articulosDeCat = (cat) => articulos.filter((a) => a.category === cat);
+    const articulosDeCat = (catName) => articulos.filter((a) => a.category === catName);
     const sinCategoria = articulos.filter((a) => !a.category);
 
-    const iniciarEdicion = (cat) => { setEditandoCat(cat); setNuevoNombre(cat); };
+    const iniciarEdicion = (cat) => { setEditandoCat(cat._id); setNuevoNombre(cat.name); };
 
-    const guardarEdicion = () => {
-        if (!nuevoNombre.trim() || nuevoNombre.trim() === editandoCat) { setEditandoCat(null); return; }
-        onCategoryRenamed(editandoCat, nuevoNombre.trim());
-        setEditandoCat(null);
+    const guardarEdicion = async (cat) => {
+        if (!nuevoNombre.trim() || nuevoNombre.trim() === cat.name) { setEditandoCat(null); return; }
+        setOcupado(true);
+        try {
+            await onEditar(cat._id, { name: nuevoNombre.trim() });
+        } catch (err) { alert(err.response?.data?.message || 'Error al renombrar'); }
+        finally { setOcupado(false); setEditandoCat(null); }
     };
 
-    const crearCategoria = () => {
+    const crearCategoria = async () => {
         if (!nuevaCat.trim()) return;
-        setNuevaCat('');
-        setCreando(false);
-        alert(`La categoría "${nuevaCat.trim()}" se creará al asignarla a un artículo.`);
+        setOcupado(true);
+        try {
+            await onCrear({ name: nuevaCat.trim() });
+            setNuevaCat('');
+            setCreando(false);
+        } catch (err) { alert(err.response?.data?.message || 'Error al crear categoría'); }
+        finally { setOcupado(false); }
+    };
+
+    const eliminarCategoria = async (cat) => {
+        if (!window.confirm(`¿Eliminar la categoría "${cat.name}"? Los artículos quedarán sin categoría.`)) return;
+        setOcupado(true);
+        try {
+            await onEliminar(cat._id);
+        } catch (err) { alert(err.response?.data?.message || 'Error al eliminar'); }
+        finally { setOcupado(false); }
+    };
+
+    const toggleVencimiento = async (cat) => {
+        setOcupado(true);
+        try {
+            await onEditar(cat._id, { requiereVencimiento: !cat.requiereVencimiento });
+        } catch (err) { alert(err.response?.data?.message || 'Error al actualizar'); }
+        finally { setOcupado(false); }
     };
 
     return (
@@ -245,7 +262,7 @@ function CategoriasModal({ articulos, categorias, onClose, onCategoryRenamed, on
                         {creando ? (
                             <div className="cat-new-form">
                                 <input autoFocus placeholder="Nombre de la categoría" value={nuevaCat} onChange={(e) => setNuevaCat(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') crearCategoria(); if (e.key === 'Escape') setCreando(false); }} />
-                                <Button size="sm" onClick={crearCategoria}>Crear</Button>
+                                <Button size="sm" disabled={ocupado} onClick={crearCategoria}>Crear</Button>
                                 <Button variant="outline" size="sm" onClick={() => setCreando(false)}>Cancelar</Button>
                             </div>
                         ) : (
@@ -255,23 +272,37 @@ function CategoriasModal({ articulos, categorias, onClose, onCategoryRenamed, on
                     <div className="cat-list">
                         {categorias.length === 0 && <p className="muted" style={{ textAlign: 'center', padding: 20 }}>No hay categorías aún.</p>}
                         {categorias.map((cat) => {
-                            const arts = articulosDeCat(cat);
-                            const isExpanded = expandida === cat;
+                            const arts = articulosDeCat(cat.name);
+                            const isExpanded = expandida === cat._id;
                             return (
-                                <div key={cat} className={`cat-item ${isExpanded ? 'expanded' : ''}`}>
-                                    <div className="cat-item-header" onClick={() => setExpandida(isExpanded ? null : cat)}>
+                                <div key={cat._id} className={`cat-item ${isExpanded ? 'expanded' : ''}`}>
+                                    <div className="cat-item-header" onClick={() => setExpandida(isExpanded ? null : cat._id)}>
                                         <div className="cat-item-left">
                                             <svg className={`cat-chevron ${isExpanded ? 'open' : ''}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                                            {editandoCat === cat ? (
-                                                <input autoFocus className="cat-edit-input" value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)} onBlur={guardarEdicion} onKeyDown={(e) => { if (e.key === 'Enter') guardarEdicion(); if (e.key === 'Escape') setEditandoCat(null); }} onClick={(e) => e.stopPropagation()} />
+                                            {editandoCat === cat._id ? (
+                                                <input autoFocus className="cat-edit-input" value={nuevoNombre} onChange={(e) => setNuevoNombre(e.target.value)} onBlur={() => guardarEdicion(cat)} onKeyDown={(e) => { if (e.key === 'Enter') guardarEdicion(cat); if (e.key === 'Escape') setEditandoCat(null); }} onClick={(e) => e.stopPropagation()} />
                                             ) : (
-                                                <span className="cat-name">{cat}</span>
+                                                <span className="cat-name">{cat.name}</span>
                                             )}
                                         </div>
                                         <div className="cat-item-right">
                                             <span className="cat-count">{arts.length} art.</span>
                                             <button className="btn-mini" onClick={(e) => { e.stopPropagation(); iniciarEdicion(cat); }} title="Renombrar">✏️</button>
+                                            <button className="btn-mini btn-mini-danger" onClick={(e) => { e.stopPropagation(); eliminarCategoria(cat); }} title="Eliminar">🗑️</button>
                                         </div>
+                                    </div>
+                                    {/* Toggle de vencimiento obligatorio */}
+                                    <div className="cat-venc-toggle" onClick={(e) => e.stopPropagation()}>
+                                        <label className="cat-venc-label">
+                                            <input
+                                                type="checkbox"
+                                                checked={!!cat.requiereVencimiento}
+                                                onChange={() => toggleVencimiento(cat)}
+                                                disabled={ocupado}
+                                            />
+                                            Vencimiento obligatorio
+                                        </label>
+                                        {cat.requiereVencimiento && <span className="badge-venc badge-por-vencer" style={{ marginLeft: 8, fontSize: '0.7rem' }}>Lote y fecha requeridos en compras</span>}
                                     </div>
                                     {isExpanded && (
                                         <div className="cat-products">

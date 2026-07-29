@@ -19,6 +19,7 @@ const posRoutes = require('./routes/pos.routes');
 const statsRoutes = require('./routes/stats.routes');
 const noteRoutes = require('./routes/note.routes');
 const accessRoutes = require('./routes/access.routes');
+const categoryRoutes = require('./routes/category.routes');
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/branches', hybridAuth, checkAccess('branches'), branchRoutes);
 app.use('/api/users', hybridAuth, checkAccess('users'), userRoutes);
 app.use('/api/articles', hybridAuth, checkAccess('articles'), articleRoutes);
 app.use('/api/suppliers', hybridAuth, checkAccess('suppliers'), supplierRoutes);
+app.use('/api/categories', hybridAuth, checkAccess('articles'), categoryRoutes);
 app.use('/api/purchases', hybridAuth, checkAccess('purchases'), purchaseRoutes);
 app.use('/api/stats', hybridAuth, checkAccess('stats'), statsRoutes);
 app.use('/api/notes', hybridAuth, checkAccess('notes'), noteRoutes);

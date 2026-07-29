@@ -59,7 +59,10 @@ const createPurchase = async (models, clerkUserId, { branchId, supplierId, suppl
                     branchId, articleId: art._id, quantity: qty, unitCost
                 }, session);
 
-                purchaseItems.push({ articleId: art._id, name: art.name, quantity: qty, unitCost });
+                const purchaseItem = { articleId: art._id, name: art.name, quantity: qty, unitCost };
+                if (item.lote) purchaseItem.lote = String(item.lote).trim();
+                if (item.fechaVencimiento) purchaseItem.fechaVencimiento = new Date(item.fechaVencimiento);
+                purchaseItems.push(purchaseItem);
                 total += unitCost * qty;
             }
             total = Math.round(total * 100) / 100;
