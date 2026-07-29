@@ -65,10 +65,40 @@ const createArticle = async (models, { code, barcode, name, description, categor
     if (!Number.isFinite(Number(salePrice)) || Number(salePrice) < 0) {
         throw new AppError(400, 'Precio de venta inválido');
     }
-    return models.Article.create({
-        code: String(code).trim(), barcode, name: name.trim(),
-        description, category, unit, salePrice: Number(salePrice), imageUrl: imageUrl || image_url || image
-    });
+
+    const cleanBarcode = barcode && String(barcode).trim() ? String(barcode).trim() : undefined;
+    const cleanCategory = category && String(category).trim() ? String(category).trim() : '';
+
+    if (cleanCategory && models.Category) {
+        await models.Category.updateOne(
+            { name: cleanCategory },
+            { $setOnInsert: { name: cleanCategory, requiereVencimiento: false } },
+            { upsert: true }
+        ).catch(() => {});
+    }
+
+    try {
+        return await models.Article.create({
+            code: String(code).trim(),
+            barcode: cleanBarcode,
+            name: name.trim(),
+            description,
+            category: cleanCategory,
+            unit,
+            salePrice: Number(salePrice),
+            imageUrl: imageUrl || image_url || image
+        });
+    } catch (error) {
+        if (error.code === 11000) {
+            if (error.keyPattern?.code || error.message?.includes('code')) {
+                throw new AppError(400, 'Ya existe un artículo con ese código');
+            }
+            if (error.keyPattern?.barcode || error.message?.includes('barcode')) {
+                throw new AppError(400, 'Ya existe un artículo con ese código de barras');
+            }
+        }
+        throw error;
+    }
 };
 
 // ==========================================
@@ -84,13 +114,52 @@ const createArticle = async (models, { code, barcode, name, description, categor
  * @throws {Error} 404 si no existe.
  */
 const updateArticle = async (models, id, { code, barcode, name, description, category, unit, salePrice, imageUrl, image_url, image, active }) => {
-    const article = await models.Article.findOneAndUpdate(
-        { _id: id },
-        { code, barcode, name, description, category, unit, salePrice, imageUrl: imageUrl || image_url || image, active },
-        { new: true, runValidators: true }
-    );
-    if (!article) throw new AppError(404, 'Artículo no encontrado');
-    return article;
+    const cleanBarcode = barcode && String(barcode).trim() ? String(barcode).trim() : undefined;
+    const cleanCategory = category && String(category).trim() ? String(category).trim() : '';
+
+    if (cleanCategory && models.Category) {
+        await models.Category.updateOne(
+            { name: cleanCategory },
+            { $setOnInsert: { name: cleanCategory, requiereVencimiento: false } },
+            { upsert: true }
+        ).catch(() => {});
+    }
+
+    try {
+        const updateData = {
+            code: code ? String(code).trim() : undefined,
+            barcode: cleanBarcode,
+            name: name ? String(name).trim() : undefined,
+            description,
+            category: cleanCategory,
+            unit,
+            salePrice: salePrice !== undefined ? Number(salePrice) : undefined,
+            imageUrl: imageUrl || image_url || image,
+            active
+        };
+
+        const updateDoc = cleanBarcode === undefined 
+            ? { $set: updateData, $unset: { barcode: 1 } }
+            : { $set: updateData };
+
+        const article = await models.Article.findOneAndUpdate(
+            { _id: id },
+            updateDoc,
+            { new: true, runValidators: true }
+        );
+        if (!article) throw new AppError(404, 'Artículo no encontrado');
+        return article;
+    } catch (error) {
+        if (error.code === 11000) {
+            if (error.keyPattern?.code || error.message?.includes('code')) {
+                throw new AppError(400, 'Ya existe un artículo con ese código');
+            }
+            if (error.keyPattern?.barcode || error.message?.includes('barcode')) {
+                throw new AppError(400, 'Ya existe un artículo con ese código de barras');
+            }
+        }
+        throw error;
+    }
 };
 
 // ==========================================
