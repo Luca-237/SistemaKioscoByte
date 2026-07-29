@@ -12,6 +12,7 @@ const purchaseSchema = require('../models/purchase');
 const noteSchema = require('../models/note');
 const ledgerEntrySchema = require('../models/ledgerEntry');
 const counterSchema = require('../models/counter');
+const categorySchema = require('../models/category');
 
 const tenantConnections = {};
 
@@ -43,6 +44,7 @@ const getTenantConnection = (adminId) => {
     tenantDb.model('Note', noteSchema);
     tenantDb.model('LedgerEntry', ledgerEntrySchema);
     tenantDb.model('Counter', counterSchema);
+    tenantDb.model('Category', categorySchema);
 
     tenantConnections[dbName] = tenantDb;
     return tenantDb;
@@ -65,7 +67,8 @@ const getTenantModels = (adminId) => {
         Purchase: db.model('Purchase'),
         Note: db.model('Note'),
         LedgerEntry: db.model('LedgerEntry'),
-        Counter: db.model('Counter')
+        Counter: db.model('Counter'),
+        Category: db.model('Category')
     };
 };
 

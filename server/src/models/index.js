@@ -16,5 +16,6 @@ module.exports = {
     PurchaseSchema: require('./purchase'),
     NoteSchema: require('./note'),
     LedgerEntrySchema: require('./ledgerEntry'),
-    CounterSchema: require('./counter')
+    CounterSchema: require('./counter'),
+    CategorySchema: require('./category')
 };

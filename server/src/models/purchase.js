@@ -7,7 +7,9 @@ const purchaseItemSchema = new Schema({
     articleId: { type: Schema.Types.ObjectId, ref: 'Article', required: true },
     name: String,
     quantity: { type: Number, required: true, min: 1 },
-    unitCost: { type: Number, required: true, min: 0 }
+    unitCost: { type: Number, required: true, min: 0 },
+    lote: { type: String, trim: true },
+    fechaVencimiento: { type: Date }
 }, { _id: false });
 
 const purchaseSchema = new Schema({
