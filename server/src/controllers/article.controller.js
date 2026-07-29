@@ -8,8 +8,22 @@ const { respondError } = require('../utils/logger');
 
 const getAll = async (req, res) => {
     try {
-        const data = await getAllArticles(req.tenantModels, req.query.branchId);
-        res.json({ success: true, data });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const result = await getAllArticles(req.tenantModels, req.query.branchId, page, limit);
+        
+        // Devolvemos los artículos en 'data' para no romper temporalmente
+        // el frontend actual, e incluimos la metadata de paginación extra.
+        res.json({ 
+            success: true, 
+            data: result.items, 
+            pagination: { 
+                page, 
+                limit, 
+                total: result.total, 
+                totalPages: result.totalPages 
+            } 
+        });
     } catch (error) {
         respondError(res, error, { context: 'articles.getAll' });
     }
