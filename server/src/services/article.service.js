@@ -12,13 +12,21 @@ const { AppError } = require('../middlewares/error');
  * (stock y costo promedio) de esa sucursal a cada artículo.
  * @param {Object} models Modelos del tenant.
  * @param {string} [branchId] Sucursal para la que se quiere ver el stock.
- * @returns {Promise<Array>} Artículos, con stock/avgCost si se pidió branchId.
+ * @param {number} [page=1] Página a obtener.
+ * @param {number} [limit=10] Cantidad de artículos por página.
+ * @returns {Promise<Object>} { items, total, totalPages }
  */
-const getAllArticles = async (models, branchId) => {
-    const articles = await models.Article.find({ active: true }).sort({ name: 1 }).lean();
+const getAllArticles = async (models, branchId, page = 1, limit = 10) => {
+    const skip = (page - 1) * limit;
 
-    if (branchId) {
-        const stocks = await models.BranchStock.find({ branchId }).lean();
+    const [articles, total] = await Promise.all([
+        models.Article.find({ active: true }).sort({ name: 1 }).skip(skip).limit(limit).lean(),
+        models.Article.countDocuments({ active: true })
+    ]);
+
+    if (branchId && articles.length > 0) {
+        const articleIds = articles.map(a => a._id);
+        const stocks = await models.BranchStock.find({ branchId, articleId: { $in: articleIds } }).lean();
         const porArticulo = new Map(stocks.map(s => [s.articleId.toString(), s]));
         for (const a of articles) {
             const s = porArticulo.get(a._id.toString());
@@ -26,7 +34,12 @@ const getAllArticles = async (models, branchId) => {
             a.avgCost = s?.avgCost ?? 0;
         }
     }
-    return articles;
+    
+    return {
+        items: articles,
+        total,
+        totalPages: Math.ceil(total / limit)
+    };
 };
 
 /**
