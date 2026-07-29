@@ -1,13 +1,13 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useOperatorStore } from '../store/operatorStore';
-import { LoginOperario } from '../modules/auth/LoginOperario';
+import { LoginOperario } from '../pages/LoginOperario';
 
 // Code-splitting: el POS, el admin y la landing se cargan solo cuando se usan.
-const PosPage = lazy(() => import('../modules/pos/PosPage'));
-const AdminArea = lazy(() => import('../modules/admin/AdminArea'));
-const LandingPage = lazy(() => import('../modules/landing/LandingPage'));
-const PanelOperario = lazy(() => import('../modules/panel/PanelOperario'));
+const PosPage = lazy(() => import('../pages/PosPage'));
+const AdminArea = lazy(() => import('../pages/AdminArea'));
+const LandingPage = lazy(() => import('../pages/LandingPage'));
+const PanelOperario = lazy(() => import('../pages/PanelOperario'));
 
 const Cargando = () => (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b', fontWeight: 600 }}>

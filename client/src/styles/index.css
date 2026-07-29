@@ -1,70 +1,142 @@
-/* ===== Base FitoShop ===== */
+/* ===== FitoShop — Design System Tokens ===== */
+
 :root {
-    --primary: #4f46e5;
-    --primary-dark: #4338ca;
-    --success: #16a34a;
-    --danger: #dc2626;
-    --surface: #ffffff;
-    --surface-2: #f8fafc;
-    --border: #e2e8f0;
-    --text: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
+    /* Base */
+    --background: #F8F9FA;
+    --foreground: #18181B;
+    --card: #FFFFFF;
+    --border: #E4E4E7;
+    --muted-foreground: #71717A;
+
+    /* Primary (violeta) */
+    --primary: #5A1CE4;
+    --primary-foreground: #FFFFFF;
+    --primary-hover: #7A42F4;
+
+    /* Destructive */
+    --destructive: #EF4444;
+
+    /* Success accent: botón Cobrar, chips, valores stat */
+    --success: #10B981;
+
+    /* Warning accent */
+    --warning: #F59E0B;
+
+    /* Semánticos — pares fondo/texto para badges */
+    --success-bg: #DCFCE7;
+    --success-fg: #166534;
+    --warning-bg: #FEF3C7;
+    --warning-fg: #92400E;
+    --danger-bg: #FEE2E2;
+    --danger-fg: #991B1B;
+    /* Info: sin confirmar contra Figma — valores de design-system.md */
+    --info-bg: #DBEAFE;
+    --info-fg: #1E40AF;
+
+    /* Tipografía */
+    --font-heading: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Inter Variable', Inter, system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* Layout */
     --radius: 12px;
     --radius-sm: 8px;
+    --sidebar-w: 260px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Glassmorphism (se elimina en la migración a shadcn, se mantiene por ahora) */
+    --bg-dark: #0f172a;
+    --panel-bg: rgba(255, 255, 255, 0.7);
+    --panel-border: rgba(255, 255, 255, 0.5);
 }
+
+/* Tema oscuro — listo para usar, sin toggle activo todavía */
+.dark {
+    --background: #0E0C15;
+    --foreground: #F5F3FA;
+    --card: #1A1726;
+    --border: #2A253B;
+    --muted-foreground: #9A95B0;
+
+    --primary: #5A1CE4;
+    --primary-foreground: #F5F3FA;
+    --primary-hover: #7A42F4;
+
+    --destructive: #EF4444;
+    --success: #10B981;
+    --warning: #F59E0B;
+
+    --success-bg: #064E3B;
+    --success-fg: #10B981;
+    --warning-bg: #78350F;
+    --warning-fg: #F59E0B;
+    --danger-bg: #7F1D1D;
+    --danger-fg: #EF4444;
+    /* Info oscuro: sin confirmar contra Figma */
+    --info-bg: #1E3A8A;
+    --info-fg: #3B82F6;
+}
+
+/* ===== Reset & Base ===== */
 
 * { box-sizing: border-box; }
 
 body {
     margin: 0;
-    font-family: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
-    background: var(--surface-2);
-    color: var(--text);
+    font-family: var(--font-body);
+    background: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
 }
 
 button { font-family: inherit; cursor: pointer; }
-input, select { font-family: inherit; }
+input, select, textarea { font-family: inherit; }
 
 /* ===== Login operario ===== */
+
 .login-wrapper {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+    background: linear-gradient(135deg, #eef2ff 0%, var(--background) 100%);
     padding: 20px;
 }
 
 .login-card {
-    background: var(--surface);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 36px 32px;
     width: 100%;
     max-width: 400px;
-    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 40px rgba(24, 24, 27, 0.08);
 }
 
 .login-brand { text-align: center; margin-bottom: 24px; }
-.login-brand h1 { margin: 12px 0 4px; font-size: 1.6rem; }
-.login-brand p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+.login-brand h1 { margin: 12px 0 4px; font-size: 1.6rem; font-family: var(--font-heading); }
+.login-brand p { margin: 0; color: var(--muted-foreground); font-size: 0.9rem; }
 
 .login-logo {
     display: inline-flex;
     width: 52px; height: 52px;
     align-items: center; justify-content: center;
     background: var(--primary);
-    color: white;
+    color: var(--primary-foreground);
     font-weight: 800;
     font-size: 1.2rem;
     border-radius: 14px;
+    font-family: var(--font-heading);
 }
 
 .login-form { display: flex; flex-direction: column; gap: 14px; }
 .login-form label {
     display: flex; flex-direction: column; gap: 6px;
-    font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);
+    font-size: 0.85rem; font-weight: 600; color: var(--muted-foreground);
 }
 .login-form input {
     padding: 11px 12px;
@@ -72,38 +144,41 @@ input, select { font-family: inherit; }
     border-radius: var(--radius-sm);
     font-size: 1rem;
     outline: none;
+    background: var(--card);
+    color: var(--foreground);
 }
 .login-form input:focus { border-color: var(--primary); }
 .login-form > button[type="submit"] {
     margin-top: 6px;
     padding: 12px;
     background: var(--primary);
-    color: white;
+    color: var(--primary-foreground);
     border: none;
     border-radius: var(--radius-sm);
     font-weight: 700;
     font-size: 1rem;
 }
-.login-form > button[type="submit"]:hover { background: var(--primary-dark); }
+.login-form > button[type="submit"]:hover { background: var(--primary-hover); }
 .login-form > button:disabled { opacity: 0.6; cursor: wait; }
 
-.login-error { color: var(--danger); font-size: 0.875rem; margin: 0; text-align: center; }
+.login-error { color: var(--destructive); font-size: 0.875rem; margin: 0; text-align: center; }
 
 .branch-option {
     display: flex; flex-direction: column; gap: 2px;
     padding: 14px;
     border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
-    background: var(--surface);
+    background: var(--card);
     text-align: left;
     font-size: 0.95rem;
+    color: var(--foreground);
 }
 .branch-option:hover { border-color: var(--primary); background: #eef2ff; }
-.branch-option span { color: var(--text-muted); font-size: 0.8rem; }
+.branch-option span { color: var(--muted-foreground); font-size: 0.8rem; }
 
 .btn-link {
     background: none; border: none;
-    color: var(--text-secondary);
+    color: var(--muted-foreground);
     font-size: 0.875rem;
     padding: 6px;
 }
@@ -112,65 +187,59 @@ input, select { font-family: inherit; }
     margin: 22px 0 0;
     text-align: center;
     font-size: 0.82rem;
-    color: var(--text-muted);
+    color: var(--muted-foreground);
 }
 .login-footer a { color: var(--primary); }
 
 .login-demo {
     margin-top: 16px;
     padding: 12px 14px;
-    border: 1px dashed var(--border, #cbd5e1);
+    border: 1px dashed var(--border);
     border-radius: 10px;
-    background: rgba(148, 163, 184, 0.08);
+    background: rgba(113, 113, 122, 0.08);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
     text-align: center;
     font-size: 0.8rem;
-    color: var(--text-secondary);
+    color: var(--muted-foreground);
 }
-.login-demo strong { color: var(--text-primary, #1e293b); font-size: 0.82rem; }
+.login-demo strong { color: var(--foreground); font-size: 0.82rem; }
 .login-demo code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    background: rgba(148, 163, 184, 0.22);
+    font-family: var(--font-mono);
+    background: rgba(113, 113, 122, 0.22);
     padding: 1px 5px;
     border-radius: 4px;
 }
 .login-demo .btn-link { color: var(--primary); padding: 2px; }
 
-/* ===== Admin Layout & Design System ===== */
-:root {
-    --bg-dark: #0f172a;
-    --panel-bg: rgba(255, 255, 255, 0.7);
-    --panel-border: rgba(255, 255, 255, 0.5);
-    --sidebar-w: 260px;
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* ===== Admin Layout — Glassmorphism Sidebar ===== */
 
 .admin-layout {
     display: flex;
     min-height: 100vh;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    color: var(--text);
+    background: linear-gradient(135deg, var(--background) 0%, var(--border) 100%);
+    color: var(--foreground);
 }
 
-/* Sidebar Glassmorphism */
+/* Sidebar */
 .admin-sidebar {
     width: var(--sidebar-w);
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--panel-bg);
     backdrop-filter: blur(20px);
     border-right: 1px solid var(--panel-border);
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 32px;
-    box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
 }
 
 .admin-brand {
     font-size: 1.5rem;
     font-weight: 800;
+    font-family: var(--font-heading);
     color: var(--primary);
     display: flex;
     align-items: center;
@@ -186,7 +255,7 @@ input, select { font-family: inherit; }
 .nav-link {
     padding: 12px 16px;
     border-radius: var(--radius);
-    color: var(--text-secondary);
+    color: var(--muted-foreground);
     text-decoration: none;
     font-weight: 600;
     transition: var(--transition);
@@ -203,11 +272,11 @@ input, select { font-family: inherit; }
 
 .nav-link.active {
     background: var(--primary);
-    color: white;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    color: var(--primary-foreground);
+    box-shadow: 0 4px 12px rgba(90, 28, 228, 0.3);
 }
 
-/* Main Content */
+/* Main content */
 .admin-content {
     flex: 1;
     padding: 40px;
@@ -225,12 +294,13 @@ input, select { font-family: inherit; }
     margin: 0;
     font-size: 2rem;
     font-weight: 700;
-    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    font-family: var(--font-heading);
+    background: linear-gradient(90deg, var(--primary), var(--primary-hover));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-/* Glass Panels */
+/* Glass panels */
 .glass-panel {
     background: var(--panel-bg);
     backdrop-filter: blur(24px);
@@ -246,7 +316,7 @@ input, select { font-family: inherit; }
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
 }
 
-/* Dashboard Grid */
+/* Dashboard grids */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -272,7 +342,7 @@ input, select { font-family: inherit; }
 .stat-title {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: var(--muted-foreground);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -280,28 +350,23 @@ input, select { font-family: inherit; }
 .stat-value {
     font-size: 2.5rem;
     font-weight: 800;
-    color: var(--text);
+    font-family: var(--font-heading);
+    color: var(--foreground);
 }
 
 .stat-value.success { color: var(--success); }
 .stat-value.primary { color: var(--primary); }
 
 /* Tables */
-.admin-table-container {
-    width: 100%;
-    overflow-x: auto;
-}
+.admin-table-container { width: 100%; overflow-x: auto; }
 
-.monthly-grid {
-    display: grid;
-    gap: 16px;
-}
+.monthly-grid { display: grid; gap: 16px; }
 
 .monthly-card {
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 14px;
-    background: rgba(248, 250, 252, 0.8);
+    background: rgba(248, 249, 250, 0.8);
 }
 
 .monthly-head,
@@ -320,23 +385,16 @@ input, select { font-family: inherit; }
     margin-top: 10px;
 }
 
-.mini-bars {
-    display: grid;
-    gap: 10px;
-    margin-top: 10px;
-}
+.mini-bars { display: grid; gap: 10px; margin-top: 10px; }
 
-.mini-bar-group {
-    display: grid;
-    gap: 4px;
-}
+.mini-bar-group { display: grid; gap: 4px; }
 
 .mini-bar-track,
 .expense-bar-track {
     width: 100%;
     height: 10px;
     border-radius: 999px;
-    background: rgba(148, 163, 184, 0.2);
+    background: rgba(113, 113, 122, 0.2);
     overflow: hidden;
 }
 
@@ -348,17 +406,10 @@ input, select { font-family: inherit; }
 
 .mini-bar.income,
 .expense-bar { background: linear-gradient(90deg, #10b981, #34d399); }
-.mini-bar.expense { background: linear-gradient(90deg, #ef4444, #fb7185); }
+.mini-bar.expense { background: linear-gradient(90deg, var(--destructive), #fb7185); }
 
-.expense-chart {
-    display: grid;
-    gap: 12px;
-}
-
-.expense-item {
-    display: grid;
-    gap: 6px;
-}
+.expense-chart { display: grid; gap: 12px; }
+.expense-item { display: grid; gap: 6px; }
 
 .admin-table {
     width: 100%;
@@ -368,7 +419,7 @@ input, select { font-family: inherit; }
 .admin-table th {
     text-align: left;
     padding: 16px;
-    color: var(--text-secondary);
+    color: var(--muted-foreground);
     font-weight: 600;
     border-bottom: 2px solid var(--border);
 }
@@ -376,16 +427,12 @@ input, select { font-family: inherit; }
 .admin-table td {
     padding: 16px;
     border-bottom: 1px solid var(--border);
-    color: var(--text);
+    color: var(--foreground);
 }
 
-.admin-table tbody tr {
-    transition: var(--transition);
-}
+.admin-table tbody tr { transition: var(--transition); }
 
-.admin-table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.5);
-}
+.admin-table tbody tr:hover { background: rgba(255, 255, 255, 0.5); }
 
 /* Badges */
 .badge {
@@ -395,6 +442,17 @@ input, select { font-family: inherit; }
     font-weight: 700;
     text-transform: uppercase;
 }
-.badge-success { background: #dcfce7; color: #166534; }
-.badge-danger { background: #fee2e2; color: #991b1b; }
+.badge-success { background: var(--success-bg); color: var(--success-fg); }
+.badge-danger  { background: var(--danger-bg);  color: var(--danger-fg); }
+/* badge-primary: sin token equivalente — se deja con valor original */
 .badge-primary { background: #e0e7ff; color: #3730a3; }
+
+/* Helpers */
+.muted { color: var(--muted-foreground); }
+.centro { text-align: center; }
+.der { text-align: right; }
+.verde { color: var(--success); }
+.rojo  { color: var(--destructive); }
+
+/* Cargando placeholder */
+.admin-cargando { display: flex; justify-content: center; padding: 80px; color: var(--muted-foreground); }

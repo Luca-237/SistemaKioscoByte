@@ -1,0 +1,393 @@
+﻿/* ===== Punto de Venta ===== */
+.pos-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--background);
+}
+
+.pos-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 20px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.pos-header-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 300px; }
+.pos-header-left h1 { margin: 0; font-size: 1.05rem; }
+.pos-sub { color: var(--muted-foreground); font-size: 0.78rem; }
+
+.pos-logo {
+    display: inline-flex;
+    width: 40px; height: 40px;
+    align-items: center; justify-content: center;
+    background: var(--primary);
+    color: white; font-weight: 800;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.pos-search {
+    flex: 1;
+    max-width: 420px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    outline: none;
+    font-size: 0.9rem;
+}
+.pos-search:focus { border-color: var(--primary); }
+
+.pos-header-right { display: flex; align-items: center; gap: 10px; }
+
+.btn-outline {
+    padding: 9px 14px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--muted-foreground);
+}
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+.pos-caja-chip {
+    display: flex; flex-direction: column; align-items: flex-end;
+    padding: 6px 14px;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.72rem;
+    color: var(--muted-foreground);
+}
+.pos-caja-chip strong { font-size: 0.95rem; color: var(--foreground); }
+.pos-caja-chip.abierta { border-color: var(--success); }
+.pos-caja-chip.abierta strong { color: var(--success); }
+
+/* --- Main --- */
+.pos-main {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 16px;
+    padding: 16px 20px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.pos-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    align-content: start;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.pos-card {
+    display: flex; flex-direction: column;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    text-align: left;
+    transition: border-color 0.15s, transform 0.1s;
+    overflow: hidden;
+    padding: 0;
+}
+.pos-card-img {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--border);
+    background: var(--background);
+}
+.pos-card-content {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 12px;
+}
+.pos-card:hover:not(:disabled) { border-color: var(--primary); transform: translateY(-1px); }
+.pos-card:disabled { opacity: 0.55; cursor: not-allowed; }
+.pos-card-code { font-size: 0.7rem; color: var(--muted-foreground); font-family: monospace; }
+.pos-card-name { font-weight: 600; font-size: 0.9rem; }
+.pos-card-price { font-weight: 800; color: var(--primary); font-size: 1.05rem; }
+.pos-card-stock { font-size: 0.75rem; color: var(--muted-foreground); }
+.pos-card-stock.agotado { color: var(--destructive); font-weight: 700; }
+
+/* --- Carrito --- */
+.pos-cart {
+    display: flex; flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    overflow: hidden;
+}
+.pos-cart h2 { margin: 0 0 12px; font-size: 1rem; }
+
+.pos-cart-items { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+
+.pos-cart-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 10px;
+    background: var(--background);
+    border-radius: var(--radius-sm);
+}
+.pos-cart-item p { margin: 0; font-size: 0.85rem; font-weight: 600; }
+.pos-cart-item span { font-size: 0.75rem; color: var(--muted-foreground); }
+.pos-cart-item-right { display: flex; align-items: center; gap: 8px; }
+.pos-cart-item-right button {
+    background: none; border: none; color: var(--destructive); font-size: 0.9rem; padding: 2px;
+}
+
+.pos-total {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 4px 10px;
+    border-top: 2px solid var(--border);
+    margin-top: 10px;
+    font-size: 1.05rem;
+}
+.pos-total strong { font-size: 1.35rem; color: var(--success); }
+
+.btn-cobrar {
+    padding: 14px;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+}
+.btn-cobrar:hover:not(:disabled) { filter: brightness(1.05); }
+.btn-cobrar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pos-aviso { text-align: center; color: var(--destructive); font-size: 0.78rem; font-weight: 600; margin: 8px 0 0; }
+.pos-empty { color: var(--muted-foreground); text-align: center; font-size: 0.9rem; padding: 20px 0; grid-column: 1/-1; }
+
+/* --- Modales --- */
+.pos-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50;
+}
+
+.pos-modal {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%; max-width: 360px;
+    display: flex; flex-direction: column; gap: 12px;
+}
+.pos-modal h3 { margin: 0; text-align: center; }
+.pos-modal-desc { margin: 0; text-align: center; color: var(--muted-foreground); font-size: 0.88rem; }
+.pos-modal input {
+    padding: 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 1.2rem;
+    text-align: center;
+    outline: none;
+}
+.pos-modal input:focus { border-color: var(--primary); }
+
+.pos-metodos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pos-metodos button {
+    padding: 16px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+.pos-metodos button:hover { border-color: var(--primary); background: #eef2ff; }
+
+/* --- Ticket --- */
+.pos-ticket-items { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); }
+.pos-ticket-items > div { display: flex; justify-content: space-between; font-size: 0.88rem; }
+.pos-ticket-total { display: flex; justify-content: space-between; font-size: 1rem; padding: 4px 0; }
+
+/* --- Modal Info (Ãšltimo Cierre) --- */
+.pos-modal-info {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1.5px solid #7dd3fc;
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin: 4px 0;
+    text-align: center;
+}
+.pos-modal-info-title {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #0369a1;
+    font-weight: 600;
+}
+.pos-modal-info-amount {
+    margin: 6px 0 0;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0c4a6e;
+}
+.pos-modal-info-date {
+    margin: 4px 0 0;
+    font-size: 0.75rem;
+    color: #0369a1;
+}
+
+/* --- Notas Modal --- */
+.pos-notes {
+    max-width: 560px;
+    max-height: 78vh;
+    overflow-y: auto;
+}
+
+.pos-note-form-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.pos-note-form-grid select,
+.pos-note-form-grid input,
+.pos-note-form-grid textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    outline: none;
+    background: var(--card);
+}
+
+.pos-note-form-grid textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+.pos-note-items-row {
+    display: grid;
+    grid-template-columns: 1.2fr 0.7fr 0.8fr auto;
+    gap: 8px;
+}
+
+.pos-note-items-list {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    background: var(--background);
+    border-radius: 10px;
+}
+
+.pos-note-item-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: var(--muted-foreground);
+}
+
+.pos-modal-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* --- Historial Modal --- */
+.pos-historial {
+    max-width: 520px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.pos-historial-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    margin: 8px 0;
+}
+
+.pos-historial-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 0.85rem;
+}
+
+.pos-historial-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+}
+
+.pos-historial-number {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.pos-historial-date {
+    color: var(--muted-foreground);
+    font-size: 0.78rem;
+}
+
+.pos-historial-items {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 6px 0;
+    padding: 6px;
+    background: var(--background);
+    border-radius: 4px;
+}
+
+.pos-historial-item-detail {
+    display: block;
+    color: var(--muted-foreground);
+    font-size: 0.80rem;
+    padding: 2px 0;
+}
+
+.pos-historial-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    font-weight: 600;
+}
+
+.pos-historial-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.pos-historial-method {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    text-transform: capitalize;
+}
+
+.pos-historial-total {
+    color: var(--primary);
+    font-size: 1rem;
+}
+
+@media (max-width: 860px) {
+    .pos-main { grid-template-columns: 1fr; overflow: auto; }
+    .pos-cart { min-height: 300px; }
+}
+
