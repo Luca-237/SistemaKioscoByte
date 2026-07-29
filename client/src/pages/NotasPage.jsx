@@ -2,9 +2,14 @@ import { useState, useMemo } from 'react';
 import { fmt } from '../lib/format';
 import { useNotas } from '../hooks/useNotas';
 import { Badge } from '../components/ui/Badge';
+import { Card } from '../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/Select';
 
 const tipoLabel = { compra: 'Compra', mantenimiento: 'Mantenimiento', reporte: 'Reporte', otro: 'Otro' };
 const statusLabel = { pendiente: 'Pendiente', revision: 'En revisión', aprobada: 'Aprobada', cerrada: 'Cerrada', rechazada: 'Rechazada' };
+const TODAS = '__todas__';
 
 export const NotasPage = () => {
     const [branchId, setBranchId] = useState('');
@@ -30,69 +35,74 @@ export const NotasPage = () => {
 
     return (
         <div>
-            <div className="admin-toolbar">
-                <h2>Notas y reportes</h2>
-                <select value={branchId} onChange={(e) => setBranchId(e.target.value)}>
-                    <option value="">Todas las sucursales</option>
-                    {branches.map((branch) => <option key={branch._id} value={branch._id}>{branch.name}</option>)}
-                </select>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="m-0 text-2xl font-semibold">Notas y reportes</h2>
+                <Select value={branchId || TODAS} onValueChange={(v) => setBranchId(v === TODAS ? '' : v)}>
+                    <SelectTrigger><SelectValue placeholder="Todas las sucursales" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value={TODAS}>Todas las sucursales</SelectItem>
+                        {branches.map((branch) => <SelectItem key={branch._id} value={branch._id}>{branch.name}</SelectItem>)}
+                    </SelectContent>
+                </Select>
             </div>
 
-            <div className="stats-grid">
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">Pendientes</span>
-                    <span className="stat-value primary">{resumen.pendiente}</span>
-                </div>
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">En revisión</span>
-                    <span className="stat-value">{resumen.revision}</span>
-                </div>
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">Aprobadas</span>
-                    <span className="stat-value success">{resumen.aprobada}</span>
-                </div>
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">Cerradas</span>
-                    <span className="stat-value" style={{ color: 'var(--destructive)' }}>{resumen.cerrada}</span>
-                </div>
+            <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
+                <Card className="gap-1.5 py-4">
+                    <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Pendientes</span>
+                    <span className="font-heading text-2xl font-extrabold text-primary">{resumen.pendiente}</span>
+                </Card>
+                <Card className="gap-1.5 py-4">
+                    <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">En revisión</span>
+                    <span className="font-heading text-2xl font-extrabold">{resumen.revision}</span>
+                </Card>
+                <Card className="gap-1.5 py-4">
+                    <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Aprobadas</span>
+                    <span className="font-heading text-2xl font-extrabold text-success">{resumen.aprobada}</span>
+                </Card>
+                <Card className="gap-1.5 py-4">
+                    <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Cerradas</span>
+                    <span className="font-heading text-2xl font-extrabold text-destructive">{resumen.cerrada}</span>
+                </Card>
             </div>
 
-            <div className="glass-panel">
-                <div className="admin-table-container">
-                    <table className="admin-table compacta">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th><th>Título</th><th>Operario</th>
-                                <th>Descripción</th><th>Proveedor</th><th>Total</th>
-                                <th>Estado</th><th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {notes.length === 0 && <tr><td colSpan="8" className="muted centro">No hay notas registradas.</td></tr>}
+            <Card className="overflow-hidden p-0">
+                {notes.length === 0 ? (
+                    <EmptyState message="No hay notas registradas." />
+                ) : (
+                    <Table compact>
+                        <TableHeader>
+                            <TableRow>
+                                <Th>Tipo</Th><Th>Título</Th><Th>Operario</Th>
+                                <Th>Descripción</Th><Th>Proveedor</Th><Th>Total</Th>
+                                <Th>Estado</Th><Th>Acción</Th>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {notes.map((note) => (
-                                <tr key={note._id}>
-                                    <td><Badge>{tipoLabel[note.type] || note.type}</Badge></td>
-                                    <td><strong>{note.title}</strong></td>
-                                    <td>{note.createdBy?.name || note.createdBy?.username || '—'}</td>
-                                    <td>{note.description}</td>
-                                    <td>{note.supplierName || '—'}</td>
-                                    <td>{fmt(note.total)}</td>
-                                    <td>{statusLabel[note.status] || note.status}</td>
-                                    <td>
-                                        <select value={note.status} onChange={(e) => handleEstado(note._id, e.target.value)} disabled={busy}>
-                                            <option value="pendiente">Pendiente</option>
-                                            <option value="revision">En revisión</option>
-                                            <option value="aprobada">Aprobada</option>
-                                            <option value="cerrada">Cerrada</option>
-                                            <option value="rechazada">Rechazada</option>
-                                        </select>
-                                    </td>
-                                </tr>
+                                <TableRow key={note._id}>
+                                    <Td><Badge>{tipoLabel[note.type] || note.type}</Badge></Td>
+                                    <Td><strong>{note.title}</strong></Td>
+                                    <Td>{note.createdBy?.name || note.createdBy?.username || '—'}</Td>
+                                    <Td>{note.description}</Td>
+                                    <Td>{note.supplierName || '—'}</Td>
+                                    <Td>{fmt(note.total)}</Td>
+                                    <Td>{statusLabel[note.status] || note.status}</Td>
+                                    <Td>
+                                        <Select value={note.status} onValueChange={(v) => handleEstado(note._id, v)} disabled={busy}>
+                                            <SelectTrigger size="sm"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                {Object.entries(statusLabel).map(([value, label]) => (
+                                                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </Td>
+                                </TableRow>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        </TableBody>
+                    </Table>
+                )}
+            </Card>
         </div>
     );
 };

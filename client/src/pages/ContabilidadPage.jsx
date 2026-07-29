@@ -1,77 +1,81 @@
 import { useResumen } from '../hooks/useResumen';
 import { Badge } from '../components/ui/Badge';
+import { Card } from '../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
+import { EmptyState } from '../components/ui/EmptyState';
+
+function StatCard({ title, value, className = '', style }) {
+    return (
+        <Card className="gap-2 py-5" style={style}>
+            <span className="text-sm font-semibold text-muted-foreground">{title}</span>
+            <span className={`font-heading text-3xl font-extrabold ${className}`}>{value}</span>
+        </Card>
+    );
+}
 
 export function ContabilidadPage() {
     const { resumen: stats, movimientos: movements, loading } = useResumen();
 
-    if (loading) return <div>Cargando módulo contable...</div>;
+    if (loading) return <div className="text-muted-foreground">Cargando módulo contable...</div>;
 
     return (
         <div>
-            <div className="admin-header">
-                <h2>Contabilidad &amp; Finanzas</h2>
+            <h2 className="mt-0 mb-5 text-2xl font-semibold">Contabilidad &amp; Finanzas</h2>
+
+            <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6">
+                <StatCard title="Ingresos Brutos" value={`$${stats?.ingresos?.toLocaleString() || 0}`} className="text-success" />
+                <StatCard title="Egresos / Costos" value={`$${stats?.egresos?.toLocaleString() || 0}`} className="text-destructive" />
+                <StatCard
+                    title="Saldo Neto Operativo"
+                    value={`$${stats?.saldoNeto?.toLocaleString() || 0}`}
+                    className={stats?.saldoNeto >= 0 ? 'text-success' : ''}
+                />
             </div>
 
-            <div className="stats-grid">
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">Ingresos Brutos</span>
-                    <span className="stat-value success">${stats?.ingresos?.toLocaleString() || 0}</span>
-                </div>
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">Egresos / Costos</span>
-                    <span className="stat-value" style={{ color: 'var(--destructive)' }}>${stats?.egresos?.toLocaleString() || 0}</span>
-                </div>
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">Saldo Neto Operativo</span>
-                    <span className={`stat-value ${stats?.saldoNeto >= 0 ? 'success' : ''}`}>
-                        ${stats?.saldoNeto?.toLocaleString() || 0}
-                    </span>
-                </div>
+            <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6">
+                <StatCard
+                    title="Costo de Mercadería Vendida"
+                    value={`$${stats?.ventas?.costoMercaderia?.toLocaleString() || 0}`}
+                    style={{ background: 'linear-gradient(135deg, rgba(90,28,228,0.08), rgba(122,66,244,0.08))' }}
+                />
+                <StatCard
+                    title="Margen Bruto Real"
+                    value={`$${stats?.ventas?.margenBruto?.toLocaleString() || 0}`}
+                    className="text-success"
+                    style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(52,211,153,0.08))' }}
+                />
             </div>
 
-            <div className="stats-grid">
-                <div className="glass-panel stat-card" style={{ background: 'linear-gradient(135deg, rgba(90,28,228,0.08), rgba(122,66,244,0.08))' }}>
-                    <span className="stat-title">Costo de Mercadería Vendida</span>
-                    <span className="stat-value">${stats?.ventas?.costoMercaderia?.toLocaleString() || 0}</span>
-                </div>
-                <div className="glass-panel stat-card" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(52,211,153,0.08))' }}>
-                    <span className="stat-title">Margen Bruto Real</span>
-                    <span className="stat-value success">${stats?.ventas?.margenBruto?.toLocaleString() || 0}</span>
-                </div>
-            </div>
-
-            <div className="glass-panel" style={{ marginTop: '24px' }}>
-                <h3 style={{ marginBottom: '24px', color: 'var(--muted-foreground)' }}>Libro Diario (Últimos movimientos)</h3>
-                <div className="admin-table-container">
-                    <table className="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th><th>Concepto</th><th>Tipo</th>
-                                <th>Medio</th><th style={{ textAlign: 'right' }}>Monto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {movements.length === 0 ? (
-                                <tr><td colSpan="5" style={{ textAlign: 'center', color: 'var(--muted-foreground)' }}>No hay movimientos registrados.</td></tr>
-                            ) : (
-                                movements.map((m) => (
-                                    <tr key={m._id}>
-                                        <td>{new Date(m.createdAt).toLocaleString()}</td>
-                                        <td>{m.concept}</td>
-                                        <td>
-                                            <Badge variant={m.type === 'ingreso' ? 'success' : 'danger'}>{m.type}</Badge>
-                                        </td>
-                                        <td style={{ textTransform: 'capitalize' }}>{m.paymentMethod || '-'}</td>
-                                        <td style={{ textAlign: 'right', fontWeight: 'bold', color: m.type === 'ingreso' ? 'var(--success)' : 'var(--destructive)' }}>
-                                            {m.type === 'ingreso' ? '+' : '-'}${m.amount?.toLocaleString()}
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <Card>
+                <h3 className="mt-0 mb-6 text-muted-foreground">Libro Diario (Últimos movimientos)</h3>
+                {movements.length === 0 ? (
+                    <EmptyState message="No hay movimientos registrados." />
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <Th>Fecha</Th><Th>Concepto</Th><Th>Tipo</Th>
+                                <Th>Medio</Th><Th className="text-right">Monto</Th>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {movements.map((m) => (
+                                <TableRow key={m._id}>
+                                    <Td>{new Date(m.createdAt).toLocaleString()}</Td>
+                                    <Td>{m.concept}</Td>
+                                    <Td>
+                                        <Badge variant={m.type === 'ingreso' ? 'success' : 'danger'}>{m.type}</Badge>
+                                    </Td>
+                                    <Td className="capitalize">{m.paymentMethod || '-'}</Td>
+                                    <Td className={`text-right font-bold ${m.type === 'ingreso' ? 'text-success' : 'text-destructive'}`}>
+                                        {m.type === 'ingreso' ? '+' : '-'}${m.amount?.toLocaleString()}
+                                    </Td>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+            </Card>
         </div>
     );
 }

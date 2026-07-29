@@ -1,6 +1,12 @@
 import { useState, useMemo } from 'react';
 import { fmt, fmtMes } from '../lib/format';
 import { useEstadisticas } from '../hooks/useEstadisticas';
+import { Card } from '../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/Select';
+
+const TODAS = '__todas__';
 
 export const EstadisticasPage = () => {
     const [branchId, setBranchId] = useState('');
@@ -11,138 +17,155 @@ export const EstadisticasPage = () => {
         return Math.max(...values, 0);
     }, [stats]);
 
-    if (loading) return <div className="muted">Cargando estadísticas…</div>;
+    if (loading) return <div className="text-muted-foreground">Cargando estadísticas…</div>;
 
     return (
         <div>
-            <div className="admin-toolbar">
-                <h2>Estadísticas</h2>
-                <select value={branchId} onChange={(e) => setBranchId(e.target.value)}>
-                    <option value="">Todas las sucursales</option>
-                    {branches.map((branch) => <option key={branch._id} value={branch._id}>{branch.name}</option>)}
-                </select>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="m-0 text-2xl font-semibold">Estadísticas</h2>
+                <Select value={branchId || TODAS} onValueChange={(v) => setBranchId(v === TODAS ? '' : v)}>
+                    <SelectTrigger><SelectValue placeholder="Todas las sucursales" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value={TODAS}>Todas las sucursales</SelectItem>
+                        {branches.map((branch) => <SelectItem key={branch._id} value={branch._id}>{branch.name}</SelectItem>)}
+                    </SelectContent>
+                </Select>
             </div>
 
-            <div className="stats-grid">
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">Artículos más vendidos</span>
-                    <span className="stat-value primary">{stats?.topArticles?.[0]?.name || 'Sin datos'}</span>
-                    <span className="muted">{stats?.topArticles?.[0]?.soldUnits || 0} unidades</span>
-                </div>
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">Ganancias acumuladas</span>
-                    <span className="stat-value success">{fmt(stats?.monthlySummary?.ganancias)}</span>
-                </div>
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">Pérdidas acumuladas</span>
-                    <span className="stat-value" style={{ color: 'var(--destructive)' }}>{fmt(stats?.monthlySummary?.perdidas)}</span>
-                </div>
-                <div className="glass-panel stat-card">
-                    <span className="stat-title">Balance</span>
-                    <span className={`stat-value ${stats?.monthlySummary?.balance >= 0 ? 'success' : ''}`}>
+            <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
+                <Card className="gap-1.5 py-5">
+                    <span className="text-sm font-semibold text-muted-foreground">Artículos más vendidos</span>
+                    <span className="font-heading text-2xl font-extrabold text-primary">{stats?.topArticles?.[0]?.name || 'Sin datos'}</span>
+                    <span className="text-sm text-muted-foreground">{stats?.topArticles?.[0]?.soldUnits || 0} unidades</span>
+                </Card>
+                <Card className="gap-1.5 py-5">
+                    <span className="text-sm font-semibold text-muted-foreground">Ganancias acumuladas</span>
+                    <span className="font-heading text-2xl font-extrabold text-success">{fmt(stats?.monthlySummary?.ganancias)}</span>
+                </Card>
+                <Card className="gap-1.5 py-5">
+                    <span className="text-sm font-semibold text-muted-foreground">Pérdidas acumuladas</span>
+                    <span className="font-heading text-2xl font-extrabold text-destructive">{fmt(stats?.monthlySummary?.perdidas)}</span>
+                </Card>
+                <Card className="gap-1.5 py-5">
+                    <span className="text-sm font-semibold text-muted-foreground">Balance</span>
+                    <span className={`font-heading text-2xl font-extrabold ${stats?.monthlySummary?.balance >= 0 ? 'text-success' : ''}`}>
                         {fmt(stats?.monthlySummary?.balance)}
                     </span>
-                </div>
+                </Card>
             </div>
 
-            <div className="stats-layout">
-                <section className="glass-panel stats-section">
-                    <h3>Artículos más vendidos</h3>
-                    <div className="admin-table-container">
-                        <table className="admin-table compacta">
-                            <thead><tr><th>Artículo</th><th className="der">Unidades</th><th className="der">Ventas</th><th className="der">Precio prom.</th></tr></thead>
-                            <tbody>
-                                {stats?.topArticles?.length ? stats.topArticles.map((item) => (
-                                    <tr key={item.articleId}>
-                                        <td>{item.name}</td>
-                                        <td className="der">{item.soldUnits}</td>
-                                        <td className="der">{fmt(item.revenue)}</td>
-                                        <td className="der">{fmt(item.avgSalePrice)}</td>
-                                    </tr>
-                                )) : <tr><td colSpan="4" className="muted centro">Sin ventas registradas.</td></tr>}
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] items-start gap-6">
+                <Card>
+                    <h3 className="mt-0 mb-4">Artículos más vendidos</h3>
+                    {stats?.topArticles?.length ? (
+                        <Table compact>
+                            <TableHeader>
+                                <TableRow><Th>Artículo</Th><Th className="text-right">Unidades</Th><Th className="text-right">Ventas</Th><Th className="text-right">Precio prom.</Th></TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {stats.topArticles.map((item) => (
+                                    <TableRow key={item.articleId}>
+                                        <Td>{item.name}</Td>
+                                        <Td className="text-right">{item.soldUnits}</Td>
+                                        <Td className="text-right">{fmt(item.revenue)}</Td>
+                                        <Td className="text-right">{fmt(item.avgSalePrice)}</Td>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    ) : <EmptyState message="Sin ventas registradas." />}
+                </Card>
 
-                <section className="glass-panel stats-section">
-                    <h3>Diferencia de precios históricos</h3>
-                    <div className="admin-table-container">
-                        <table className="admin-table compacta">
-                            <thead><tr><th>Artículo</th><th className="der">Compra</th><th className="der">Venta</th><th className="der">Diferencia</th><th>Proveedores</th></tr></thead>
-                            <tbody>
-                                {stats?.priceHistory?.length ? stats.priceHistory.map((item) => (
-                                    <tr key={item.articleId}>
-                                        <td>{item.name}</td>
-                                        <td className="der">{fmt(item.avgPurchasePrice)}</td>
-                                        <td className="der">{fmt(item.avgSalePrice)}</td>
-                                        <td className={`der ${item.historicalDifference >= 0 ? 'verde' : 'rojo'}`}>{fmt(item.historicalDifference)}</td>
-                                        <td>{item.suppliers.length ? item.suppliers.join(', ') : 'Sin proveedores'}</td>
-                                    </tr>
-                                )) : <tr><td colSpan="5" className="muted centro">Todavía no hay historial de precios.</td></tr>}
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                <Card>
+                    <h3 className="mt-0 mb-4">Diferencia de precios históricos</h3>
+                    {stats?.priceHistory?.length ? (
+                        <Table compact>
+                            <TableHeader>
+                                <TableRow><Th>Artículo</Th><Th className="text-right">Compra</Th><Th className="text-right">Venta</Th><Th className="text-right">Diferencia</Th><Th>Proveedores</Th></TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {stats.priceHistory.map((item) => (
+                                    <TableRow key={item.articleId}>
+                                        <Td>{item.name}</Td>
+                                        <Td className="text-right">{fmt(item.avgPurchasePrice)}</Td>
+                                        <Td className="text-right">{fmt(item.avgSalePrice)}</Td>
+                                        <Td className={`text-right ${item.historicalDifference >= 0 ? 'text-success' : 'text-destructive'}`}>{fmt(item.historicalDifference)}</Td>
+                                        <Td>{item.suppliers.length ? item.suppliers.join(', ') : 'Sin proveedores'}</Td>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    ) : <EmptyState message="Todavía no hay historial de precios." />}
+                </Card>
 
-                <section className="glass-panel stats-section">
-                    <h3>Ventas por operario</h3>
-                    <div className="admin-table-container">
-                        <table className="admin-table compacta">
-                            <thead><tr><th>Operario</th><th className="der">Tickets</th><th className="der">Total ventas</th></tr></thead>
-                            <tbody>
-                                {stats?.salesByOperator?.length ? stats.salesByOperator.map((item) => (
-                                    <tr key={item.operatorId}><td>{item.name}</td><td className="der">{item.soldTickets}</td><td className="der">{fmt(item.totalSales)}</td></tr>
-                                )) : <tr><td colSpan="3" className="muted centro">Sin ventas registradas.</td></tr>}
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                <Card>
+                    <h3 className="mt-0 mb-4">Ventas por operario</h3>
+                    {stats?.salesByOperator?.length ? (
+                        <Table compact>
+                            <TableHeader>
+                                <TableRow><Th>Operario</Th><Th className="text-right">Tickets</Th><Th className="text-right">Total ventas</Th></TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {stats.salesByOperator.map((item) => (
+                                    <TableRow key={item.operatorId}><Td>{item.name}</Td><Td className="text-right">{item.soldTickets}</Td><Td className="text-right">{fmt(item.totalSales)}</Td></TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    ) : <EmptyState message="Sin ventas registradas." />}
+                </Card>
 
-                <section className="glass-panel stats-section">
-                    <h3>Ganancias y pérdidas por mes</h3>
-                    <div className="monthly-grid">
-                        {stats?.monthlyBalance?.length ? stats.monthlyBalance.map((item) => (
-                            <div key={item.month} className="monthly-card">
-                                <div className="monthly-head">
-                                    <strong>{fmtMes(item.month)}</strong>
-                                    <span className={item.balance >= 0 ? 'verde' : 'rojo'}>{fmt(item.balance)}</span>
-                                </div>
-                                <div className="mini-bars">
-                                    <div className="mini-bar-group">
-                                        <span>Ingresos</span>
-                                        <div className="mini-bar-track"><div className="mini-bar income" style={{ width: `${Math.max((item.ingresos / Math.max(item.ingresos + item.egresos, 1)) * 100, 8)}%` }} /></div>
+                <Card>
+                    <h3 className="mt-0 mb-4">Ganancias y pérdidas por mes</h3>
+                    {stats?.monthlyBalance?.length ? (
+                        <div className="grid gap-4">
+                            {stats.monthlyBalance.map((item) => (
+                                <div key={item.month} className="rounded-xl border border-border p-3.5">
+                                    <div className="flex items-center justify-between gap-2.5">
+                                        <strong>{fmtMes(item.month)}</strong>
+                                        <span className={item.balance >= 0 ? 'text-success' : 'text-destructive'}>{fmt(item.balance)}</span>
                                     </div>
-                                    <div className="mini-bar-group">
-                                        <span>Egresos</span>
-                                        <div className="mini-bar-track"><div className="mini-bar expense" style={{ width: `${Math.max((item.egresos / Math.max(item.ingresos + item.egresos, 1)) * 100, 8)}%` }} /></div>
+                                    <div className="mt-2.5 grid gap-2.5">
+                                        <div className="grid gap-1">
+                                            <span className="text-xs text-muted-foreground">Ingresos</span>
+                                            <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted-foreground/20">
+                                                <div className="h-full rounded-full bg-[linear-gradient(90deg,#10b981,#34d399)]" style={{ width: `${Math.max((item.ingresos / Math.max(item.ingresos + item.egresos, 1)) * 100, 8)}%` }} />
+                                            </div>
+                                        </div>
+                                        <div className="grid gap-1">
+                                            <span className="text-xs text-muted-foreground">Egresos</span>
+                                            <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted-foreground/20">
+                                                <div className="h-full rounded-full bg-[linear-gradient(90deg,var(--destructive),#fb7185)]" style={{ width: `${Math.max((item.egresos / Math.max(item.ingresos + item.egresos, 1)) * 100, 8)}%` }} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-2.5 flex flex-wrap gap-2.5 text-sm">
+                                        <span className="text-success">Ganancia: {fmt(item.ganancia)}</span>
+                                        <span className="text-destructive">Pérdida: {fmt(item.perdida)}</span>
                                     </div>
                                 </div>
-                                <div className="monthly-meta">
-                                    <span className="verde">Ganancia: {fmt(item.ganancia)}</span>
-                                    <span className="rojo">Pérdida: {fmt(item.perdida)}</span>
-                                </div>
-                            </div>
-                        )) : <div className="muted">Sin información mensual.</div>}
-                    </div>
-                </section>
+                            ))}
+                        </div>
+                    ) : <EmptyState message="Sin información mensual." />}
+                </Card>
 
-                <section className="glass-panel stats-section">
-                    <h3>Gastos por concepto</h3>
-                    <div className="expense-chart">
-                        {stats?.expenseBreakdown?.length ? stats.expenseBreakdown.map((entry) => (
-                            <div key={entry.concept} className="expense-item">
-                                <div className="expense-row">
-                                    <span>{entry.concept}</span>
-                                    <strong>{fmt(entry.total)}</strong>
+                <Card>
+                    <h3 className="mt-0 mb-4">Gastos por concepto</h3>
+                    {stats?.expenseBreakdown?.length ? (
+                        <div className="grid gap-3">
+                            {stats.expenseBreakdown.map((entry) => (
+                                <div key={entry.concept} className="grid gap-1.5">
+                                    <div className="flex items-center justify-between">
+                                        <span>{entry.concept}</span>
+                                        <strong>{fmt(entry.total)}</strong>
+                                    </div>
+                                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted-foreground/20">
+                                        <div className="h-full rounded-full bg-[linear-gradient(90deg,#10b981,#34d399)]" style={{ width: `${Math.max((entry.total / Math.max(maxExpense, 1)) * 100, 8)}%` }} />
+                                    </div>
                                 </div>
-                                <div className="expense-bar-track">
-                                    <div className="expense-bar" style={{ width: `${Math.max((entry.total / Math.max(maxExpense, 1)) * 100, 8)}%` }} />
-                                </div>
-                            </div>
-                        )) : <div className="muted">Sin gastos registrados.</div>}
-                    </div>
-                </section>
+                            ))}
+                        </div>
+                    ) : <EmptyState message="Sin gastos registrados." />}
+                </Card>
             </div>
         </div>
     );

@@ -1,4 +1,7 @@
 import { useAccesos } from '../hooks/useAccesos';
+import { Card } from '../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
+import { EmptyState } from '../components/ui/EmptyState';
 
 export const AccesosPage = () => {
     const { operarios, codigos, toggle } = useAccesos();
@@ -12,38 +15,41 @@ export const AccesosPage = () => {
 
     return (
         <div>
-            <h2>Accesos</h2>
-            <p className="muted" style={{ marginTop: '-8px', marginBottom: '16px' }}>
+            <h2 className="mt-0 mb-1 text-2xl font-semibold">Accesos</h2>
+            <p className="mb-4 text-sm text-muted-foreground">
                 Elegí qué secciones del panel puede ver cada operario, además de su punto de venta.
             </p>
 
-            <table className="admin-table">
-                <thead>
-                    <tr>
-                        <th>Operario</th>
-                        {codigos.map((c) => <th key={c.code} className="centro">{c.label}</th>)}
-                    </tr>
-                </thead>
-                <tbody>
-                    {operarios.length === 0 && (
-                        <tr><td colSpan={codigos.length + 1} className="muted centro">Todavía no creaste operarios.</td></tr>
-                    )}
-                    {operarios.map((u) => (
-                        <tr key={u._id} className={u.active ? '' : 'fila-inactiva'}>
-                            <td><strong>{u.name}</strong></td>
-                            {codigos.map((c) => (
-                                <td key={c.code} className="centro">
-                                    <input
-                                        type="checkbox"
-                                        checked={u.permissions.includes(c.code)}
-                                        onChange={() => handleToggle(u, c.code)}
-                                    />
-                                </td>
+            <Card className="overflow-hidden p-0">
+                {operarios.length === 0 ? (
+                    <EmptyState message="Todavía no creaste operarios." />
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <Th>Operario</Th>
+                                {codigos.map((c) => <Th key={c.code} className="text-center">{c.label}</Th>)}
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {operarios.map((u) => (
+                                <TableRow key={u._id} className={u.active ? '' : 'opacity-50'}>
+                                    <Td><strong>{u.name}</strong></Td>
+                                    {codigos.map((c) => (
+                                        <Td key={c.code} className="text-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={u.permissions.includes(c.code)}
+                                                onChange={() => handleToggle(u, c.code)}
+                                            />
+                                        </Td>
+                                    ))}
+                                </TableRow>
                             ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+                        </TableBody>
+                    </Table>
+                )}
+            </Card>
         </div>
     );
 };

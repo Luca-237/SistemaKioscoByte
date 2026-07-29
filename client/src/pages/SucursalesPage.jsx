@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useSucursales } from '../hooks/useSucursales';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Card } from '../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
+import { EmptyState } from '../components/ui/EmptyState';
 
 export const SucursalesPage = () => {
     const { sucursales, crear, editar, darDeBaja } = useSucursales();
@@ -24,12 +28,12 @@ export const SucursalesPage = () => {
 
     return (
         <div>
-            <h2>Sucursales</h2>
+            <h2 className="mt-0 mb-4 text-2xl font-semibold">Sucursales</h2>
 
-            <form className="admin-form-row" onSubmit={guardar}>
-                <input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-                <input placeholder="Dirección" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-                <input placeholder="Teléfono" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+            <form className="mb-4 flex flex-wrap gap-2.5" onSubmit={guardar}>
+                <Input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="max-w-56" />
+                <Input placeholder="Dirección" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="max-w-56" />
+                <Input placeholder="Teléfono" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="max-w-44" />
                 <Button type="submit">{editando ? 'Guardar cambios' : '+ Agregar'}</Button>
                 {editando && (
                     <Button variant="outline" type="button" onClick={() => { setEditando(null); setForm({ name: '', address: '', phone: '' }); }}>
@@ -38,23 +42,36 @@ export const SucursalesPage = () => {
                 )}
             </form>
 
-            <table className="admin-table">
-                <thead><tr><th>Nombre</th><th>Dirección</th><th>Teléfono</th><th></th></tr></thead>
-                <tbody>
-                    {sucursales.length === 0 && <tr><td colSpan="4" className="muted centro">Todavía no cargaste sucursales.</td></tr>}
-                    {sucursales.map((b) => (
-                        <tr key={b._id}>
-                            <td><strong>{b.name}</strong></td>
-                            <td>{b.address || '—'}</td>
-                            <td>{b.phone || '—'}</td>
-                            <td className="der">
-                                <button className="btn-mini" onClick={() => { setEditando(b._id); setForm({ name: b.name, address: b.address || '', phone: b.phone || '' }); }}>Editar</button>
-                                <Button variant="destructive" onClick={() => confirmarBaja(b)}>Baja</Button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <Card className="overflow-hidden p-0">
+                {sucursales.length === 0 ? (
+                    <EmptyState message="Todavía no cargaste sucursales." />
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow><Th>Nombre</Th><Th>Dirección</Th><Th>Teléfono</Th><Th></Th></TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {sucursales.map((b) => (
+                                <TableRow key={b._id}>
+                                    <Td><strong>{b.name}</strong></Td>
+                                    <Td>{b.address || '—'}</Td>
+                                    <Td>{b.phone || '—'}</Td>
+                                    <Td className="text-right space-x-1.5 whitespace-nowrap">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => { setEditando(b._id); setForm({ name: b.name, address: b.address || '', phone: b.phone || '' }); }}
+                                        >
+                                            Editar
+                                        </Button>
+                                        <Button variant="destructive" size="sm" onClick={() => confirmarBaja(b)}>Baja</Button>
+                                    </Td>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+            </Card>
         </div>
     );
 };

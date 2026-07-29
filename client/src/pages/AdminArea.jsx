@@ -1,8 +1,23 @@
 import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import {
+    LayoutDashboard,
+    ShoppingCart,
+    Wallet,
+    BarChart3,
+    StickyNote,
+    Package,
+    Truck,
+    Banknote,
+    Building2,
+    Users,
+    ShieldCheck,
+} from 'lucide-react';
 import { useOrganizacion } from '../hooks/useOrganizacion';
 import { Sidebar } from '../components/layout/Sidebar';
-import '../styles/admin.css';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Label } from '../components/ui/Label';
 
 import { ResumenPage } from './ResumenPage';
 import { SucursalesPage } from './SucursalesPage';
@@ -17,63 +32,61 @@ import { CajasPage } from './CajasPage';
 import { AccesosPage } from './AccesosPage';
 
 const NAV_ITEMS = [
-    { href: '/admin', end: true, label: 'Resumen' },
-    { href: '/admin/venta',        label: 'Punto de Venta' },
-    { href: '/admin/contabilidad', label: 'Contabilidad' },
-    { href: '/admin/estadisticas', label: 'Estadísticas' },
-    { href: '/admin/notas',        label: 'Notas' },
-    { href: '/admin/articulos',    label: 'Artículos' },
-    { href: '/admin/compras',      label: 'Compras' },
-    { href: '/admin/cajas',        label: 'Cajas' },
-    { href: '/admin/sucursales',   label: 'Sucursales' },
-    { href: '/admin/operarios',    label: 'Operarios' },
-    { href: '/admin/accesos',      label: 'Accesos' },
+    { href: '/admin', end: true, label: 'Resumen', icon: LayoutDashboard },
+    { href: '/admin/venta',        label: 'Punto de Venta', icon: ShoppingCart },
+    { href: '/admin/contabilidad', label: 'Contabilidad', icon: Wallet },
+    { href: '/admin/estadisticas', label: 'Estadísticas', icon: BarChart3 },
+    { href: '/admin/notas',        label: 'Notas', icon: StickyNote },
+    { href: '/admin/articulos',    label: 'Artículos', icon: Package },
+    { href: '/admin/compras',      label: 'Compras', icon: Truck },
+    { href: '/admin/cajas',        label: 'Cajas', icon: Banknote },
+    { href: '/admin/sucursales',   label: 'Sucursales', icon: Building2 },
+    { href: '/admin/operarios',    label: 'Operarios', icon: Users },
+    { href: '/admin/accesos',      label: 'Accesos', icon: ShieldCheck },
 ];
 
 export default function AdminArea() {
     const { org, crear } = useOrganizacion();
 
-    if (org === undefined) return <div className="admin-cargando">Cargando…</div>;
+    if (org === undefined) {
+        return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Cargando…</div>;
+    }
     if (org === null) return <Onboarding onCrear={crear} />;
 
     return (
-        <div className="admin-layout">
-            <Sidebar
-                brand={
-                    <>
-                        <span className="login-logo">FS</span>
-                        <div>
-                            <div style={{ fontSize: '1.2rem', lineHeight: 1 }}>{org.name}</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)' }}>Cód: {org.code}</div>
-                        </div>
-                    </>
-                }
-                items={NAV_ITEMS}
-                footer={
-                    <div className="glass-panel" style={{ padding: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>AD</div>
-                        <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Admin (Modo Dev)</div>
+        <Sidebar
+            brand={
+                <>
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary font-heading text-sm font-extrabold text-primary-foreground">FS</span>
+                    <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
+                        <span className="truncate text-sm leading-tight font-semibold">{org.name}</span>
+                        <span className="truncate text-xs text-muted-foreground">Cód: {org.code}</span>
                     </div>
-                }
-            />
-
-            <main className="admin-content">
-                <Routes>
-                    <Route index element={<ResumenPage />} />
-                    <Route path="venta" element={<VentaPage />} />
-                    <Route path="contabilidad" element={<ContabilidadPage />} />
-                    <Route path="estadisticas" element={<EstadisticasPage />} />
-                    <Route path="notas" element={<NotasPage />} />
-                    <Route path="sucursales" element={<SucursalesPage />} />
-                    <Route path="operarios" element={<OperariosPage />} />
-                    <Route path="accesos" element={<AccesosPage />} />
-                    <Route path="articulos" element={<ArticulosPage />} />
-                    <Route path="compras" element={<ComprasPage />} />
-                    <Route path="cajas" element={<CajasPage />} />
-                    <Route path="*" element={<Navigate to="/admin" replace />} />
-                </Routes>
-            </main>
-        </div>
+                </>
+            }
+            items={NAV_ITEMS}
+            footer={
+                <div className="flex items-center gap-3 rounded-lg border border-sidebar-border bg-sidebar-accent/60 p-2 group-data-[collapsible=icon]:justify-center">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">AD</div>
+                    <div className="truncate text-sm font-semibold group-data-[collapsible=icon]:hidden">Admin (Modo Dev)</div>
+                </div>
+            }
+        >
+            <Routes>
+                <Route index element={<ResumenPage />} />
+                <Route path="venta" element={<VentaPage />} />
+                <Route path="contabilidad" element={<ContabilidadPage />} />
+                <Route path="estadisticas" element={<EstadisticasPage />} />
+                <Route path="notas" element={<NotasPage />} />
+                <Route path="sucursales" element={<SucursalesPage />} />
+                <Route path="operarios" element={<OperariosPage />} />
+                <Route path="accesos" element={<AccesosPage />} />
+                <Route path="articulos" element={<ArticulosPage />} />
+                <Route path="compras" element={<ComprasPage />} />
+                <Route path="cajas" element={<CajasPage />} />
+                <Route path="*" element={<Navigate to="/admin" replace />} />
+            </Routes>
+        </Sidebar>
     );
 }
 
@@ -96,26 +109,28 @@ function Onboarding({ onCrear }) {
     };
 
     return (
-        <div className="login-wrapper">
-            <form className="login-card" onSubmit={crear}>
-                <div className="login-brand">
-                    <h1>¡Bienvenido a FitoShop! 👋</h1>
-                    <p>Creá tu empresa para empezar. Después vas a poder cargar sucursales, operarios y artículos.</p>
+        <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(135deg,#eef2ff_0%,var(--background)_100%)] p-5">
+            <form onSubmit={crear} className="w-full max-w-[440px] rounded-2xl border border-border bg-card px-8 py-9 shadow-[0_10px_40px_rgba(24,24,27,0.08)]">
+                <div className="mb-6 text-center">
+                    <h1 className="mt-0 mb-2 font-heading text-xl">¡Bienvenido a FitoShop! 👋</h1>
+                    <p className="m-0 text-sm text-muted-foreground">
+                        Creá tu empresa para empezar. Después vas a poder cargar sucursales, operarios y artículos.
+                    </p>
                 </div>
 
-                <div className="login-form">
-                    <label>
-                        Nombre de la empresa *
-                        <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Ej: Kiosco San Martín" />
-                    </label>
-                    <label>
-                        CUIT (opcional)
-                        <input value={taxId} onChange={(e) => setTaxId(e.target.value)} placeholder="20-12345678-9" />
-                    </label>
-                    {error && <p className="login-error">{error}</p>}
-                    <button type="submit" disabled={ocupado}>
+                <div className="flex flex-col gap-3.5">
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="orgName">Nombre de la empresa *</Label>
+                        <Input id="orgName" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Ej: Kiosco San Martín" />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="orgTaxId">CUIT (opcional)</Label>
+                        <Input id="orgTaxId" value={taxId} onChange={(e) => setTaxId(e.target.value)} placeholder="20-12345678-9" />
+                    </div>
+                    {error && <p className="m-0 text-center text-sm text-destructive">{error}</p>}
+                    <Button type="submit" disabled={ocupado} className="mt-1.5 w-full">
                         {ocupado ? 'Creando…' : 'Crear mi empresa'}
-                    </button>
+                    </Button>
                 </div>
             </form>
         </div>

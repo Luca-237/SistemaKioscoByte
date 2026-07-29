@@ -42,38 +42,34 @@ export default function PanelOperario() {
     };
 
     return (
-        <div className="admin-layout">
-            <Sidebar
-                brand={
-                    <>
-                        <span className="login-logo">FS</span>
-                        <div>{operator?.name}</div>
-                    </>
-                }
-                items={
-                    permitidos.length === 0
-                        ? [{ key: '__empty__', label: <span className="muted">Sin accesos habilitados</span>, onClick: () => {} }]
-                        : permitidos.map((c) => ({
-                            key: c.code,
-                            label: c.label,
-                            active: activo === c.code,
-                            onClick: () => verModulo(c.code),
-                        }))
-                }
-                footer={
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <Button variant="outline" onClick={() => navigate('/pos')}>← Volver al POS</Button>
-                        <Button variant="outline" onClick={() => { logout(); navigate('/login'); }}>Salir</Button>
-                    </div>
-                }
-            />
-
-            <main className="admin-content">
-                <h2>{activo ? permitidos.find((c) => c.code === activo)?.label : 'Elegí un módulo del sidebar'}</h2>
-                {cargando && <p className="muted">Cargando…</p>}
-                {error && <p className="admin-error">{error}</p>}
-                {data && <pre className="glass-panel" style={{ overflow: 'auto' }}>{JSON.stringify(data, null, 2)}</pre>}
-            </main>
-        </div>
+        <Sidebar
+            brand={
+                <>
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary font-heading text-sm font-extrabold text-primary-foreground">FS</span>
+                    <div className="truncate text-sm font-semibold group-data-[collapsible=icon]:hidden">{operator?.name}</div>
+                </>
+            }
+            items={
+                permitidos.length === 0
+                    ? [{ key: '__empty__', label: <span className="text-muted-foreground">Sin accesos habilitados</span>, onClick: () => {} }]
+                    : permitidos.map((c) => ({
+                        key: c.code,
+                        label: c.label,
+                        active: activo === c.code,
+                        onClick: () => verModulo(c.code),
+                    }))
+            }
+            footer={
+                <div className="flex flex-col gap-2 group-data-[collapsible=icon]:items-center">
+                    <Button variant="outline" onClick={() => navigate('/pos')}>← Volver al POS</Button>
+                    <Button variant="outline" onClick={() => { logout(); navigate('/login'); }}>Salir</Button>
+                </div>
+            }
+        >
+            <h2 className="mt-0 mb-4 text-xl font-semibold">{activo ? permitidos.find((c) => c.code === activo)?.label : 'Elegí un módulo del sidebar'}</h2>
+            {cargando && <p className="text-muted-foreground">Cargando…</p>}
+            {error && <p className="text-destructive">{error}</p>}
+            {data && <pre className="overflow-auto rounded-xl border border-border bg-card p-4 text-sm">{JSON.stringify(data, null, 2)}</pre>}
+        </Sidebar>
     );
 }

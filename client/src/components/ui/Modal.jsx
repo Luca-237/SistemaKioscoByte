@@ -1,17 +1,16 @@
-// Modal genérico con overlay. Cierra al hacer click fuera del panel.
-// La API (open, onClose, children) espeja shadcn <Dialog> para facilitar
-// la migración futura.
-export function Modal({ open, onClose, className = '', children }) {
-    if (!open) return null;
+import * as React from "react"
 
+import { cn } from "@/lib/utils"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+
+// Modal genérico sobre shadcn <Dialog>. Mantiene la API anterior
+// (open, onClose, children) para no tocar a los consumidores.
+export function Modal({ open, onClose, className = '', children }) {
     return (
-        <div
-            className="pos-modal-overlay"
-            onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
-        >
-            <div className={['pos-modal', className].filter(Boolean).join(' ')}>
+        <Dialog open={open} onOpenChange={(next) => { if (!next) onClose?.(); }}>
+            <DialogContent className={cn("gap-3", className)}>
                 {children}
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

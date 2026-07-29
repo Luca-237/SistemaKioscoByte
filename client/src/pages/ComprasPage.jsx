@@ -2,8 +2,14 @@ import { useState } from 'react';
 import { fmt } from '../lib/format';
 import { useCompras } from '../hooks/useCompras';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Card } from '../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/Select';
 
 const METODOS = ['efectivo', 'transferencia', 'mercadopago', 'tarjeta'];
+const NUEVO_PROVEEDOR = '__nuevo__';
 
 // Módulo Compras: entrada de mercadería. Suma stock a la sucursal destino y
 // recalcula el costo promedio (acá se "manejan los precios de compra").
@@ -53,73 +59,81 @@ export const ComprasPage = () => {
         finally { setOcupado(false); }
     };
 
-    if (loading && !compras.length) return <div className="muted">Cargando compras…</div>;
+    if (loading && !compras.length) return <div className="text-muted-foreground">Cargando compras…</div>;
 
     return (
         <div>
-            <h2>Compras</h2>
+            <h2 className="mt-0 mb-4 text-2xl font-semibold">Compras</h2>
 
-            <div className="admin-panel">
-                <h3>Nueva compra</h3>
-                <div className="admin-form-row">
-                    <select value={cab.branchId} onChange={(e) => setCab({ ...cab, branchId: e.target.value })}>
-                        <option value="">Sucursal destino *</option>
-                        {sucursales.map((b) => <option key={b._id} value={b._id}>{b.name}</option>)}
-                    </select>
-                    <select value={cab.supplierId} onChange={(e) => {
-                        if (e.target.value === '__nuevo__') {
-                            setNuevoProv({ name: '', phone: '', cuit: '' });
-                        } else {
-                            setCab({ ...cab, supplierId: e.target.value });
-                        }
-                    }}>
-                        <option value="">Proveedor…</option>
-                        {proveedores.map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
-                        <option value="__nuevo__">+ Nuevo proveedor</option>
-                    </select>
-                    <select value={cab.paymentMethod} onChange={(e) => setCab({ ...cab, paymentMethod: e.target.value })}>
-                        {METODOS.map((m) => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                    <input placeholder="Notas (factura, remito…)" value={cab.notes} onChange={(e) => setCab({ ...cab, notes: e.target.value })} />
+            <Card className="mb-6">
+                <h3 className="mt-0 mb-3">Nueva compra</h3>
+                <div className="mb-2.5 flex flex-wrap gap-2.5">
+                    <Select value={cab.branchId} onValueChange={(v) => setCab({ ...cab, branchId: v })}>
+                        <SelectTrigger><SelectValue placeholder="Sucursal destino *" /></SelectTrigger>
+                        <SelectContent>
+                            {sucursales.map((b) => <SelectItem key={b._id} value={b._id}>{b.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                    <Select
+                        value={cab.supplierId}
+                        onValueChange={(v) => v === NUEVO_PROVEEDOR ? setNuevoProv({ name: '', phone: '', cuit: '' }) : setCab({ ...cab, supplierId: v })}
+                    >
+                        <SelectTrigger><SelectValue placeholder="Proveedor…" /></SelectTrigger>
+                        <SelectContent>
+                            {proveedores.map((p) => <SelectItem key={p._id} value={p._id}>{p.name}</SelectItem>)}
+                            <SelectItem value={NUEVO_PROVEEDOR}>+ Nuevo proveedor</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Select value={cab.paymentMethod} onValueChange={(v) => setCab({ ...cab, paymentMethod: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            {METODOS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                    <Input placeholder="Notas (factura, remito…)" value={cab.notes} onChange={(e) => setCab({ ...cab, notes: e.target.value })} className="max-w-56" />
                 </div>
 
                 {nuevoProv && (
-                    <div className="admin-form-row">
-                        <input placeholder="Nombre del proveedor *" value={nuevoProv.name} onChange={(e) => setNuevoProv({ ...nuevoProv, name: e.target.value })} />
-                        <input placeholder="Teléfono" value={nuevoProv.phone} onChange={(e) => setNuevoProv({ ...nuevoProv, phone: e.target.value })} />
-                        <input placeholder="CUIT" value={nuevoProv.cuit} onChange={(e) => setNuevoProv({ ...nuevoProv, cuit: e.target.value })} />
+                    <div className="mb-2.5 flex flex-wrap gap-2.5">
+                        <Input placeholder="Nombre del proveedor *" value={nuevoProv.name} onChange={(e) => setNuevoProv({ ...nuevoProv, name: e.target.value })} className="max-w-56" />
+                        <Input placeholder="Teléfono" value={nuevoProv.phone} onChange={(e) => setNuevoProv({ ...nuevoProv, phone: e.target.value })} className="max-w-44" />
+                        <Input placeholder="CUIT" value={nuevoProv.cuit} onChange={(e) => setNuevoProv({ ...nuevoProv, cuit: e.target.value })} className="max-w-44" />
                         <Button type="button" onClick={guardarProveedor}>Guardar proveedor</Button>
                         <Button variant="outline" type="button" onClick={() => setNuevoProv(null)}>Cancelar</Button>
                     </div>
                 )}
 
-                <div className="admin-form-row">
-                    <select value={temp.articleId} onChange={(e) => setTemp({ ...temp, articleId: e.target.value })}>
-                        <option value="">Artículo…</option>
-                        {articulos.map((a) => <option key={a._id} value={a._id}>{a.code} — {a.name}</option>)}
-                    </select>
-                    <input placeholder="Cantidad" type="number" min="1" style={{ maxWidth: 110 }} value={temp.quantity} onChange={(e) => setTemp({ ...temp, quantity: e.target.value })} />
-                    <input placeholder="Costo unit." type="number" min="0" step="0.01" style={{ maxWidth: 120 }} value={temp.unitCost} onChange={(e) => setTemp({ ...temp, unitCost: e.target.value })} />
+                <div className="mb-2.5 flex flex-wrap gap-2.5">
+                    <Select value={temp.articleId} onValueChange={(v) => setTemp({ ...temp, articleId: v })}>
+                        <SelectTrigger><SelectValue placeholder="Artículo…" /></SelectTrigger>
+                        <SelectContent>
+                            {articulos.map((a) => <SelectItem key={a._id} value={a._id}>{a.code} — {a.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                    <Input placeholder="Cantidad" type="number" min="1" className="max-w-28" value={temp.quantity} onChange={(e) => setTemp({ ...temp, quantity: e.target.value })} />
+                    <Input placeholder="Costo unit." type="number" min="0" step="0.01" className="max-w-32" value={temp.unitCost} onChange={(e) => setTemp({ ...temp, unitCost: e.target.value })} />
                     <Button variant="outline" type="button" onClick={agregarItem}>+ Ítem</Button>
                 </div>
 
                 {items.length > 0 && (
                     <>
-                        <table className="admin-table compacta">
-                            <thead><tr><th>Artículo</th><th className="der">Cant.</th><th className="der">Costo</th><th className="der">Subtotal</th><th></th></tr></thead>
-                            <tbody>
+                        <Table compact className="mb-3">
+                            <TableHeader>
+                                <TableRow><Th>Artículo</Th><Th className="text-right">Cant.</Th><Th className="text-right">Costo</Th><Th className="text-right">Subtotal</Th><Th></Th></TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {items.map((i, idx) => (
-                                    <tr key={idx}>
-                                        <td>{i.name}</td>
-                                        <td className="der">{i.quantity}</td>
-                                        <td className="der">{fmt(i.unitCost)}</td>
-                                        <td className="der">{fmt(i.quantity * i.unitCost)}</td>
-                                        <td className="der"><Button variant="destructive" onClick={() => setItems(items.filter((_, x) => x !== idx))}>✕</Button></td>
-                                    </tr>
+                                    <TableRow key={idx}>
+                                        <Td>{i.name}</Td>
+                                        <Td className="text-right">{i.quantity}</Td>
+                                        <Td className="text-right">{fmt(i.unitCost)}</Td>
+                                        <Td className="text-right">{fmt(i.quantity * i.unitCost)}</Td>
+                                        <Td className="text-right"><Button variant="destructive" size="sm" onClick={() => setItems(items.filter((_, x) => x !== idx))}>✕</Button></Td>
+                                    </TableRow>
                                 ))}
-                            </tbody>
-                        </table>
-                        <div className="admin-toolbar">
+                            </TableBody>
+                        </Table>
+                        <div className="flex flex-wrap items-center justify-between gap-3">
                             <strong>Total: {fmt(total)}</strong>
                             <Button disabled={ocupado} onClick={registrar}>
                                 {ocupado ? 'Registrando…' : 'Registrar compra'}
@@ -127,24 +141,31 @@ export const ComprasPage = () => {
                         </div>
                     </>
                 )}
-            </div>
+            </Card>
 
-            <h3>Historial</h3>
-            <table className="admin-table">
-                <thead><tr><th>Fecha</th><th>Proveedor</th><th>Ítems</th><th>Método</th><th className="der">Total</th></tr></thead>
-                <tbody>
-                    {compras.length === 0 && <tr><td colSpan="5" className="muted centro">Sin compras registradas.</td></tr>}
-                    {compras.map((c) => (
-                        <tr key={c._id}>
-                            <td>{new Date(c.createdAt).toLocaleDateString('es-AR')}</td>
-                            <td>{c.supplierName || '—'}</td>
-                            <td>{c.items.map((i) => `${i.quantity}× ${i.name}`).join(', ')}</td>
-                            <td>{c.paymentMethod}</td>
-                            <td className="der"><strong>{fmt(c.total)}</strong></td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <h3 className="mb-2.5">Historial</h3>
+            <Card className="overflow-hidden p-0">
+                {compras.length === 0 ? (
+                    <EmptyState message="Sin compras registradas." />
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow><Th>Fecha</Th><Th>Proveedor</Th><Th>Ítems</Th><Th>Método</Th><Th className="text-right">Total</Th></TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {compras.map((c) => (
+                                <TableRow key={c._id}>
+                                    <Td>{new Date(c.createdAt).toLocaleDateString('es-AR')}</Td>
+                                    <Td>{c.supplierName || '—'}</Td>
+                                    <Td>{c.items.map((i) => `${i.quantity}× ${i.name}`).join(', ')}</Td>
+                                    <Td>{c.paymentMethod}</Td>
+                                    <Td className="text-right"><strong>{fmt(c.total)}</strong></Td>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+            </Card>
         </div>
     );
 };
