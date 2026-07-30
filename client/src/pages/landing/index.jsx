@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "lenis";
 import "../../styles/landing.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -40,23 +41,23 @@ const PRODUCTOS = [
 const FAQS = [
   [
     "¿Necesito tarjeta para la prueba gratis?",
-    "Sí: asociás una tarjeta al activar la prueba, pero no se cobra nada durante los 14 días. Si cancelás antes de que termine, no pagás nada. Te avisamos por email antes del primer cobro.",
+    "Sí, asociás una tarjeta para activar la prueba, pero no se cobra nada durante los 14 días. Cancelás cuando quieras y no pagás un peso. Te avisamos por email antes de cualquier cobro.",
   ],
   [
     "¿Sirve si tengo más de un local?",
-    "Sí, es multi-sucursal desde el primer día: cada local tiene su stock y su caja, tus operarios entran con PIN propio, y vos ves todo junto desde el panel de administración.",
+    "Sí, es multi-sucursal desde el día uno: cada local tiene su stock y su caja, tus operarios entran con PIN propio, y vos ves todo junto desde un solo panel.",
   ],
   [
     "¿Necesito instalar algo o comprar equipos?",
-    "No. FitoShop funciona en el navegador: sirve la compu, notebook o tablet que ya tenés en el mostrador. Si tenés lector de código de barras USB, funciona directo.",
+    "No. FitoShop anda en el navegador: te sirve la compu, notebook o tablet que ya tenés en el mostrador. Si tenés lector de código de barras USB, lo conectás y funciona directo.",
   ],
   [
     "¿Qué pasa con mis datos si dejo de pagar?",
-    "Tus datos son tuyos. Si cancelás, podés exportar tus productos, ventas e historial antes de cerrar la cuenta, y los guardamos 90 días por si querés volver.",
+    "Tus datos son tuyos. Si cancelás, exportás tus productos, ventas e historial antes de cerrar la cuenta, y los guardamos 90 días por si te arrepentís.",
   ],
   [
     "¿Es difícil de aprender para mis empleados?",
-    "El punto de venta tiene una sola pantalla: buscar, tocar, cobrar. Una persona que nunca lo usó cobra su primera venta en minutos, sin capacitación.",
+    "El punto de venta tiene una sola pantalla: buscar, tocar, cobrar. Alguien que nunca lo vio en su vida cobra su primera venta en minutos, sin capacitación.",
   ],
 ];
 
@@ -81,6 +82,13 @@ export default function LandingPage() {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) return;
+
+    const lenis = new Lenis({ duration: 1.2 });
+    lenis.on("scroll", ScrollTrigger.update);
+
+    const syncLenis = (time) => lenis.raf(time * 1000);
+    gsap.ticker.add(syncLenis);
+    gsap.ticker.lagSmoothing(0);
 
     const ctx = gsap.context(() => {
 
@@ -137,7 +145,11 @@ export default function LandingPage() {
 
     }, root);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      gsap.ticker.remove(syncLenis);
+      lenis.destroy();
+    };
   }, []);
 
   return (
@@ -245,11 +257,11 @@ export default function LandingPage() {
           <div className="wrap">
             <div className="sec-head reveal">
               <span className="eyebrow">Funciones</span>
-              <h2>Todo lo que hoy hacés a mano, automático</h2>
-              <p>Cada función existe porque un kiosquero la necesita todos los días. Nada de módulos que nunca vas a abrir.</p>
+              <h2>Simplificá la gestión diaria de tu kiosco</h2>
+              <p>Cobrá, controlá stock y cerrá caja en minutos, no en horas.</p>
             </div>
             <div className="feat-grid reveal-group">
-              <article className="feat feat-wide">
+              <article className="feat">
                 <span className="feat-ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M2 8h2M1.5 12h2M2 16h2" /><rect x="7" y="5" width="15" height="14" rx="1.5" />
@@ -258,7 +270,7 @@ export default function LandingPage() {
                 </span>
                 <div className="feat-body">
                   <h3>Cobrá en segundos</h3>
-                  <p>Buscás o escaneás el código de barras, tocás cobrar y listo. Efectivo o transferencia, con el ticket armado solo.</p>
+                  <p>Buscás o escaneás el código de barras, tocás cobrar y listo. Efectivo, transferencia o los dos, con el ticket armado solo.</p>
                 </div>
               </article>
 
@@ -271,7 +283,7 @@ export default function LandingPage() {
                 </span>
                 <div className="feat-body">
                   <h3>Stock que se actualiza solo</h3>
-                  <p>Cada venta descuenta stock al instante. Te avisamos cuando un producto está por agotarse.</p>
+                  <p>Cada venta descuenta stock al instante. Te avisamos antes de que la góndola se quede vacía, no cuando ya es tarde.</p>
                 </div>
               </article>
 
@@ -285,7 +297,7 @@ export default function LandingPage() {
                 </span>
                 <div className="feat-body">
                   <h3>Caja clara, cierres sin sorpresas</h3>
-                  <p>Apertura y cierre de caja con historial completo. Sabés cuánto tiene que haber en el cajón.</p>
+                  <p>Apertura y cierre de caja con historial completo. Bajás la persiana sabiendo exactamente cuánto tiene que haber, sin contar dos veces.</p>
                 </div>
               </article>
 
@@ -299,7 +311,7 @@ export default function LandingPage() {
                 </span>
                 <div className="feat-body">
                   <h3>Más de un local, una sola cuenta</h3>
-                  <p>Cada sucursal con su stock y su caja. Tus operarios entran con PIN propio.</p>
+                  <p>Cada sucursal con su stock y su caja, separados. Tus operarios entran con PIN propio, y vos ves todo junto.</p>
                 </div>
               </article>
 
@@ -311,11 +323,11 @@ export default function LandingPage() {
                 </span>
                 <div className="feat-body">
                   <h3>Sabés dónde está la plata</h3>
-                  <p>Cuánto vendiste, cuánto te costó y cuánto ganaste, por día, por producto y por sucursal.</p>
+                  <p>Cuánto vendiste, cuánto te costó y cuánto ganaste: por día, por producto y por sucursal. Sin esperar a fin de mes para enterarte.</p>
                 </div>
               </article>
 
-              <article className="feat feat-wide feat-ia">
+              <article className="feat feat-ia">
                 <span className="tag-ia">Plan IA</span>
                 <span className="feat-ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -325,7 +337,7 @@ export default function LandingPage() {
                 </span>
                 <div className="feat-body">
                   <h3>Un asistente que conoce tu negocio</h3>
-                  <p>Preguntale "¿qué me conviene reponer esta semana?" y te responde con tus propios datos: qué se vende, qué se frena y dónde está tu margen.</p>
+                  <p>Preguntale qué te conviene reponer esta semana y te responde con tus propios datos: qué se vende, qué se frena y dónde está tu margen.</p>
                 </div>
               </article>
             </div>
@@ -336,8 +348,8 @@ export default function LandingPage() {
           <div className="wrap">
             <div className="sec-head reveal">
               <span className="eyebrow">Por qué FitoShop</span>
-              <h2>Hecho para el mostrador, no para la oficina</h2>
-              <p>Los sistemas de gestión suelen estar pensados para supermercados con encargado de sistemas. FitoShop está pensado para vos.</p>
+              <h2>Hecho para el mostrador, no para una oficina de sistemas</h2>
+              <p>Los sistemas de gestión de supermercados están pensados para alguien que nunca atendió un mostrador. Este lo hizo alguien que conoce el rubro.</p>
             </div>
             <div className="stats reveal-group">
               <div className="stat">
@@ -346,15 +358,15 @@ export default function LandingPage() {
               </div>
               <div className="stat">
                 <b>0 papeles</b>
-                <span>ventas, stock, compras y cierres quedan guardados en la nube.</span>
+                <span>ventas, stock, compras y cierres, todo guardado solo, sin cuadernos ni planillas.</span>
               </div>
               <div className="stat">
                 <b>24/7</b>
-                <span>mirá cómo va el kiosco desde el celular, estés donde estés.</span>
+                <span>mirá cómo va tu kiosco desde el celular, aunque no estés atrás del mostrador.</span>
               </div>
               <div className="stat">
                 <b>5 min</b>
-                <span>es lo que tarda un empleado nuevo en cobrar su primera venta.</span>
+                <span>tarda un empleado nuevo en cobrar su primera venta, sin capacitación.</span>
               </div>
             </div>
           </div>
@@ -364,20 +376,26 @@ export default function LandingPage() {
           <div className="wrap">
             <div className="sec-head reveal">
               <span className="eyebrow">Cómo empezar</span>
-              <h2>En tres pasos estás vendiendo</h2>
+              <h2>En tres pasos estás vendiendo, sin vueltas</h2>
             </div>
             <div className="steps3 reveal-group">
               <article className="paso">
-                <h3>Creá tu cuenta</h3>
-                <p>Registrate con tu email, poné el nombre de tu kiosco y cargá tus productos (o pedinos ayuda para importarlos).</p>
+                <div className="paso-body">
+                  <h3>Creá tu cuenta</h3>
+                  <p>Registrate con tu email, poné el nombre de tu kiosco y cargá tus productos (o pedinos ayuda para importarlos).</p>
+                </div>
               </article>
               <article className="paso">
-                <h3>Activá tu prueba gratis</h3>
-                <p>Asociás una tarjeta y tenés 14 días con todo incluido. Si no te convence, cancelás antes y no se te cobra nada.</p>
+                <div className="paso-body">
+                  <h3>Activá tu prueba gratis</h3>
+                  <p>Asociás una tarjeta y tenés 14 días con todo incluido. Si no te convence, cancelás antes y no se te cobra nada.</p>
+                </div>
               </article>
               <article className="paso">
-                <h3>Cobrá tu primera venta</h3>
-                <p>Abrís la caja y empezás a vender el mismo día. Esa noche ya vas a saber exactamente cuánto ganaste.</p>
+                <div className="paso-body">
+                  <h3>Cobrá tu primera venta</h3>
+                  <p>Abrís la caja y arrancás a vender el mismo día. Esa noche, cuando bajes la persiana, ya sabés exactamente cuánto ganaste.</p>
+                </div>
               </article>
             </div>
           </div>
