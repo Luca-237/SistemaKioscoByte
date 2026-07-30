@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import "../styles/landing.css";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import "../../styles/landing.css";
 
-// Landing pública de FitoShop (ruta "/"). Diseño según docs/design-system.md:
-// tokens violeta #5A1CE4, temas claro/oscuro con toggle local y assets de /public.
+gsap.registerPlugin(ScrollTrigger);
 
 const Logo = ({ size = 36 }) => (
   <img
@@ -16,44 +17,24 @@ const Logo = ({ size = 36 }) => (
   />
 );
 
+const MARQUEE_ITEMS = [
+  "Kioscos",
+  "Almacenes",
+  "Maxikioscos",
+  "Drugstores",
+  "Despensas",
+  "Vendé más rápido",
+  "Stock automático",
+  "Caja clara",
+];
+
 const PRODUCTOS = [
-  {
-    code: "779123456",
-    name: "Alfajor Jorgito",
-    price: "$1.500",
-    stock: "Stock: 45 u.",
-    sel: true,
-  },
-  {
-    code: "779555001",
-    name: "Coca-Cola 500ml",
-    price: "$2.200",
-    stock: "Stock: 18 u.",
-  },
-  {
-    code: "779332210",
-    name: "Chicles Beldent",
-    price: "$800",
-    stock: "Stock: 3 u.",
-  },
-  {
-    code: "779808011",
-    name: "Papas Lays 85g",
-    price: "$2.900",
-    stock: "Stock: 22 u.",
-  },
-  {
-    code: "779114003",
-    name: "Agua Villavicencio",
-    price: "$1.400",
-    stock: "Stock: 30 u.",
-  },
-  {
-    code: "779660870",
-    name: "Turrón Arcor",
-    price: "$600",
-    stock: "Stock: 51 u.",
-  },
+  { code: "779123456", name: "Alfajor Jorgito",     price: "$1.500", stock: "Stock: 45 u.", sel: true },
+  { code: "779555001", name: "Coca-Cola 500ml",      price: "$2.200", stock: "Stock: 18 u." },
+  { code: "779332210", name: "Chicles Beldent",      price: "$800",   stock: "Stock: 3 u." },
+  { code: "779808011", name: "Papas Lays 85g",       price: "$2.900", stock: "Stock: 22 u." },
+  { code: "779114003", name: "Agua Villavicencio",   price: "$1.400", stock: "Stock: 30 u." },
+  { code: "779660870", name: "Turrón Arcor",         price: "$600",   stock: "Stock: 51 u." },
 ];
 
 const FAQS = [
@@ -79,43 +60,89 @@ const FAQS = [
   ],
 ];
 
+function splitWords(text) {
+  return text.split(" ").flatMap((word, i, arr) => [
+    <span key={i} className="ld-word">
+      <span className="ld-word-inner">{word}</span>
+    </span>,
+    i < arr.length - 1 ? " " : "",
+  ]);
+}
+
 export default function LandingPage() {
   const [theme, setTheme] = useState(() =>
-    window.matchMedia?.("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light",
+    window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"
   );
   const rootRef = useRef(null);
 
-  // Animaciones de aparición al scrollear (respetan prefers-reduced-motion vía CSS).
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-    root.classList.add("js");
-    const targets = root.querySelectorAll(".reveal, .reveal-group");
-    if (!("IntersectionObserver" in window)) {
-      targets.forEach((el) => el.classList.add("in"));
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("in");
-            io.unobserve(e.target);
-          }
-        }),
-      { threshold: 0.12, rootMargin: "0px 0px -50px" },
-    );
-    targets.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    const ctx = gsap.context(() => {
+
+      gsap.timeline({ delay: 0.12 })
+        .from(".hero-badge", {
+          y: 20, opacity: 0, duration: 0.6, ease: "power2.out",
+        })
+        .from(".ld-word-inner", {
+          yPercent: 110, duration: 0.9, ease: "power4.out", stagger: 0.065,
+        }, "-=0.28")
+        .from(".hero-sub", {
+          y: 26, opacity: 0, duration: 0.65, ease: "power2.out",
+        }, "-=0.52")
+        .from(".hero-ctas > *", {
+          y: 18, opacity: 0, duration: 0.5, ease: "power2.out", stagger: 0.1,
+        }, "-=0.38")
+        .from(".hero-fine", {
+          opacity: 0, duration: 0.4,
+        }, "-=0.18")
+        .from(".mock", {
+          y: 68, opacity: 0, duration: 1, ease: "power3.out",
+        }, "-=0.58")
+        .to(".mock", {
+          y: -12, duration: 2.8, ease: "sine.inOut", yoyo: true, repeat: -1,
+        }, "+=0.25");
+
+      gsap.to(".ld-marquee-track", {
+        xPercent: -50,
+        ease: "none",
+        duration: 32,
+        repeat: -1,
+      });
+
+      gsap.utils.toArray(".reveal").forEach((el) => {
+        gsap.from(el, {
+          y: 42,
+          opacity: 0,
+          duration: 0.72,
+          ease: "power2.out",
+          scrollTrigger: { trigger: el, start: "top 88%" },
+        });
+      });
+
+      gsap.utils.toArray(".reveal-group").forEach((group) => {
+        gsap.from([...group.children], {
+          y: 38,
+          opacity: 0,
+          duration: 0.62,
+          ease: "power2.out",
+          stagger: 0.1,
+          scrollTrigger: { trigger: group, start: "top 82%" },
+        });
+      });
+
+    }, root);
+
+    return () => ctx.revert();
   }, []);
 
   return (
     <div className="landing" data-theme={theme} ref={rootRef}>
-      <a className="skip" href="#main">
-        Saltar al contenido
-      </a>
+      <a className="skip" href="#main">Saltar al contenido</a>
 
       <header className="nav">
         <div className="wrap nav-in">
@@ -134,11 +161,7 @@ export default function LandingPage() {
             <button
               className="theme-btn"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              aria-label={
-                theme === "dark"
-                  ? "Cambiar a tema claro"
-                  : "Cambiar a tema oscuro"
-              }
+              aria-label={theme === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
             >
               {theme === "dark" ? "☀" : "☾"}
             </button>
@@ -150,29 +173,28 @@ export default function LandingPage() {
       </header>
 
       <main id="main">
-        {/* ============ HERO ============ */}
+
         <section className="hero" id="top">
           <div className="wrap hero-in">
             <span className="hero-badge">14 días de prueba gratis</span>
-            <h1>
-              Sabé cuánto ganó tu kiosco, <em>hoy mismo</em>
+
+            <h1 aria-label="Sabé cuánto ganó tu kiosco, hoy mismo">
+              {splitWords("Sabé cuánto ganó tu kiosco,")}
+              {" "}
+              <em>{splitWords("hoy mismo")}</em>
             </h1>
+
             <p className="hero-sub">
               Cobrá más rápido, sabé cuánto stock te queda y mirá cuánto ganaste
               hoy — sin cuadernos, sin planillas. FitoShop es el sistema de
               gestión pensado para kioscos y almacenes.
             </p>
             <div className="hero-ctas">
-              <Link className="btn btn-primary" to="/admin">
-                Probar 14 días gratis
-              </Link>
-              <a className="btn btn-outline" href="#funciones">
-                Ver cómo funciona
-              </a>
+              <Link className="btn btn-primary" to="/admin">Probar 14 días gratis</Link>
+              <a className="btn btn-outline" href="#funciones">Ver cómo funciona</a>
             </div>
             <p className="hero-fine">
-              Asociás tu tarjeta, probás gratis y cancelás cuando quieras. Sin
-              permanencia.
+              Asociás tu tarjeta, probás gratis y cancelás cuando quieras. Sin permanencia.
             </p>
 
             <div
@@ -188,10 +210,7 @@ export default function LandingPage() {
               <div className="mock-main">
                 <div className="mock-grid">
                   {PRODUCTOS.map((p) => (
-                    <div
-                      key={p.code}
-                      className={`mock-prod${p.sel ? " sel" : ""}`}
-                    >
+                    <div key={p.code} className={`mock-prod${p.sel ? " sel" : ""}`}>
                       <span className="mp-code">{p.code}</span>
                       <span className="mp-name">{p.name}</span>
                       <span className="mp-price">{p.price}</span>
@@ -201,15 +220,9 @@ export default function LandingPage() {
                 </div>
                 <div className="mock-cart">
                   <h3>Ticket actual</h3>
-                  <div className="mc-item">
-                    <span>2 × Alfajor Jorgito</span>$3.000
-                  </div>
-                  <div className="mc-item">
-                    <span>1 × Coca-Cola 500ml</span>$2.200
-                  </div>
-                  <div className="mc-total">
-                    Total <strong>$5.200</strong>
-                  </div>
+                  <div className="mc-item"><span>2 × Alfajor Jorgito</span>$3.000</div>
+                  <div className="mc-item"><span>1 × Coca-Cola 500ml</span>$2.200</div>
+                  <div className="mc-total">Total <strong>$5.200</strong></div>
                   <div className="mc-cobrar">COBRAR</div>
                 </div>
               </div>
@@ -217,121 +230,88 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ============ RUBROS ============ */}
-        <div className="rubros">
-          <div className="wrap rubros-in reveal">
-            <span className="rubros-label">Pensado para</span>
-            {[
-              "Kioscos",
-              "Maxikioscos",
-              "Almacenes",
-              "Drugstores",
-              "Despensas",
-            ].map((r) => (
-              <span key={r} className="rubro">
-                {r}
+        <div className="ld-marquee" aria-hidden="true">
+          <div className="ld-marquee-track">
+            {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
+              <span key={i} className="ld-marquee-item">
+                {item}
+                <span className="ld-marquee-sep">·</span>
               </span>
             ))}
           </div>
         </div>
 
-        {/* ============ FUNCIONES ============ */}
         <section id="funciones">
           <div className="wrap">
             <div className="sec-head reveal">
               <span className="eyebrow">Funciones</span>
               <h2>Todo lo que hoy hacés a mano, automático</h2>
-              <p>
-                Cada función existe porque un kiosquero la necesita todos los
-                días. Nada de módulos que nunca vas a abrir.
-              </p>
+              <p>Cada función existe porque un kiosquero la necesita todos los días. Nada de módulos que nunca vas a abrir.</p>
             </div>
             <div className="feat-grid reveal-group">
               <article className="feat feat-wide">
                 <span className="feat-ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2 8h2M1.5 12h2M2 16h2" />
-                    <rect x="7" y="5" width="15" height="14" rx="1.5" />
+                    <path d="M2 8h2M1.5 12h2M2 16h2" /><rect x="7" y="5" width="15" height="14" rx="1.5" />
                     <path d="M10 8v8M13 8v8M16 8v8M19 8v8" />
                   </svg>
                 </span>
                 <div className="feat-body">
                   <h3>Cobrá en segundos</h3>
-                  <p>
-                    Buscás o escaneás el código de barras, tocás cobrar y listo.
-                    Efectivo o transferencia, con el ticket armado solo.
-                  </p>
+                  <p>Buscás o escaneás el código de barras, tocás cobrar y listo. Efectivo o transferencia, con el ticket armado solo.</p>
                 </div>
               </article>
 
               <article className="feat">
                 <span className="feat-ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 8l9-4 9 4-9 4-9-4z" />
-                    <path d="M3 8v8l9 4 9-4V8" />
-                    <path d="M12 12v8" />
-                    <path d="M17.5 2.5a3 3 0 1 1-3 3" />
-                    <path d="M17.5 2.5l-1.2 1M17.5 2.5l1 1.3" />
+                    <path d="M3 8l9-4 9 4-9 4-9-4z" /><path d="M3 8v8l9 4 9-4V8" /><path d="M12 12v8" />
+                    <path d="M17.5 2.5a3 3 0 1 1-3 3" /><path d="M17.5 2.5l-1.2 1M17.5 2.5l1 1.3" />
                   </svg>
                 </span>
                 <div className="feat-body">
                   <h3>Stock que se actualiza solo</h3>
-                  <p>
-                    Cada venta descuenta stock al instante. Te avisamos cuando
-                    un producto está por agotarse.
-                  </p>
+                  <p>Cada venta descuenta stock al instante. Te avisamos cuando un producto está por agotarse.</p>
                 </div>
               </article>
 
               <article className="feat">
                 <span className="feat-ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="7" width="20" height="13" rx="1.5" />
-                    <path d="M2 12h20" />
+                    <rect x="2" y="7" width="20" height="13" rx="1.5" /><path d="M2 12h20" />
                     <circle cx="12" cy="12" r="2.4" />
                     <path d="M6 7V5.5A2.5 2.5 0 0 1 8.5 3h7A2.5 2.5 0 0 1 18 5.5V7" />
                   </svg>
                 </span>
                 <div className="feat-body">
                   <h3>Caja clara, cierres sin sorpresas</h3>
-                  <p>
-                    Apertura y cierre de caja con historial completo. Sabés
-                    cuánto tiene que haber en el cajón.
-                  </p>
+                  <p>Apertura y cierre de caja con historial completo. Sabés cuánto tiene que haber en el cajón.</p>
                 </div>
               </article>
 
               <article className="feat">
                 <span className="feat-ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 10l1.2-5h13.6L20 10" />
-                    <path d="M4 10v9h16v-9" />
+                    <path d="M4 10l1.2-5h13.6L20 10" /><path d="M4 10v9h16v-9" />
                     <path d="M4 10a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0" />
                     <path d="M10 19v-5h4v5" />
                   </svg>
                 </span>
                 <div className="feat-body">
                   <h3>Más de un local, una sola cuenta</h3>
-                  <p>
-                    Cada sucursal con su stock y su caja. Tus operarios entran
-                    con PIN propio.
-                  </p>
+                  <p>Cada sucursal con su stock y su caja. Tus operarios entran con PIN propio.</p>
                 </div>
               </article>
 
               <article className="feat">
                 <span className="feat-ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 20V13M10 20V9M16 20V5M22 20H2" />
-                    <path d="M13.5 6.5L16 4l2.2 2.2" />
+                    <path d="M4 20V13M10 20V9M16 20V5M22 20H2" /><path d="M13.5 6.5L16 4l2.2 2.2" />
                   </svg>
                 </span>
                 <div className="feat-body">
                   <h3>Sabés dónde está la plata</h3>
-                  <p>
-                    Cuánto vendiste, cuánto te costó y cuánto ganaste, por día,
-                    por producto y por sucursal.
-                  </p>
+                  <p>Cuánto vendiste, cuánto te costó y cuánto ganaste, por día, por producto y por sucursal.</p>
                 </div>
               </article>
 
@@ -345,27 +325,19 @@ export default function LandingPage() {
                 </span>
                 <div className="feat-body">
                   <h3>Un asistente que conoce tu negocio</h3>
-                  <p>
-                    Preguntale "¿qué me conviene reponer esta semana?" y te
-                    responde con tus propios datos: qué se vende, qué se frena y
-                    dónde está tu margen.
-                  </p>
+                  <p>Preguntale "¿qué me conviene reponer esta semana?" y te responde con tus propios datos: qué se vende, qué se frena y dónde está tu margen.</p>
                 </div>
               </article>
             </div>
           </div>
         </section>
 
-        {/* ============ POR QUÉ ============ */}
         <section id="porque" className="sec-tight">
           <div className="wrap">
             <div className="sec-head reveal">
               <span className="eyebrow">Por qué FitoShop</span>
               <h2>Hecho para el mostrador, no para la oficina</h2>
-              <p>
-                Los sistemas de gestión suelen estar pensados para supermercados
-                con encargado de sistemas. FitoShop está pensado para vos.
-              </p>
+              <p>Los sistemas de gestión suelen estar pensados para supermercados con encargado de sistemas. FitoShop está pensado para vos.</p>
             </div>
             <div className="stats reveal-group">
               <div className="stat">
@@ -388,7 +360,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ============ PASOS ============ */}
         <section id="pasos" className="sec-tight">
           <div className="wrap">
             <div className="sec-head reveal">
@@ -398,39 +369,26 @@ export default function LandingPage() {
             <div className="steps3 reveal-group">
               <article className="paso">
                 <h3>Creá tu cuenta</h3>
-                <p>
-                  Registrate con tu email, poné el nombre de tu kiosco y cargá
-                  tus productos (o pedinos ayuda para importarlos).
-                </p>
+                <p>Registrate con tu email, poné el nombre de tu kiosco y cargá tus productos (o pedinos ayuda para importarlos).</p>
               </article>
               <article className="paso">
                 <h3>Activá tu prueba gratis</h3>
-                <p>
-                  Asociás una tarjeta y tenés 14 días con todo incluido. Si no
-                  te convence, cancelás antes y no se te cobra nada.
-                </p>
+                <p>Asociás una tarjeta y tenés 14 días con todo incluido. Si no te convence, cancelás antes y no se te cobra nada.</p>
               </article>
               <article className="paso">
                 <h3>Cobrá tu primera venta</h3>
-                <p>
-                  Abrís la caja y empezás a vender el mismo día. Esa noche ya
-                  vas a saber exactamente cuánto ganaste.
-                </p>
+                <p>Abrís la caja y empezás a vender el mismo día. Esa noche ya vas a saber exactamente cuánto ganaste.</p>
               </article>
             </div>
           </div>
         </section>
 
-        {/* ============ PRECIOS ============ */}
         <section id="precios" className="sec-tight">
           <div className="wrap">
             <div className="sec-head reveal">
               <span className="eyebrow">Precios</span>
               <h2>Dos planes, cero letra chica</h2>
-              <p>
-                Los dos incluyen los 14 días de prueba gratis y todas las
-                sucursales que necesites.
-              </p>
+              <p>Los dos incluyen los 14 días de prueba gratis y todas las sucursales que necesités.</p>
             </div>
             <div className="plans reveal-group">
               <article className="plan">
@@ -438,10 +396,7 @@ export default function LandingPage() {
                   <h3>Esencial</h3>
                   <p className="plan-desc">La gestión completa del kiosco, todos los días.</p>
                 </div>
-                <p className="plan-price">
-                  <b>$19.999</b>
-                  <span>/ mes</span>
-                </p>
+                <p className="plan-price"><b>$19.999</b><span>/ mes</span></p>
                 <ul>
                   <li>Punto de venta con código de barras</li>
                   <li>Stock automático y avisos de faltantes</li>
@@ -450,9 +405,7 @@ export default function LandingPage() {
                   <li>Reportes de ventas, costos y margen</li>
                   <li className="no">Asistente con inteligencia artificial</li>
                 </ul>
-                <Link className="btn btn-outline" to="/admin">
-                  Empezar prueba gratis
-                </Link>
+                <Link className="btn btn-outline" to="/admin">Empezar prueba gratis</Link>
                 <p className="plan-fine">Luego $19.999/mes. Cancelás cuando quieras.</p>
               </article>
               <article className="plan destacado">
@@ -461,10 +414,7 @@ export default function LandingPage() {
                   <h3>Esencial + IA</h3>
                   <p className="plan-desc">Todo lo del plan Esencial, más un asistente que piensa con vos.</p>
                 </div>
-                <p className="plan-price">
-                  <b>$29.999</b>
-                  <span>/ mes</span>
-                </p>
+                <p className="plan-price"><b>$29.999</b><span>/ mes</span></p>
                 <ul>
                   <li>Todo lo del plan Esencial</li>
                   <li>Asistente IA sobre tus propios datos</li>
@@ -472,16 +422,13 @@ export default function LandingPage() {
                   <li>Detección de productos que se frenan</li>
                   <li>Resumen del día en lenguaje simple</li>
                 </ul>
-                <Link className="btn btn-primary" to="/admin">
-                  Empezar prueba gratis
-                </Link>
+                <Link className="btn btn-primary" to="/admin">Empezar prueba gratis</Link>
                 <p className="plan-fine">Luego $29.999/mes. Cancelás cuando quieras.</p>
               </article>
             </div>
           </div>
         </section>
 
-        {/* ============ FAQ ============ */}
         <section id="faq" className="sec-tight">
           <div className="wrap">
             <div className="sec-head reveal">
@@ -499,29 +446,21 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ============ CTA FINAL ============ */}
         <section className="sec-tight">
           <div className="wrap">
             <div className="cta-final reveal">
               <h2>Esta noche podés saber cuánto ganaste hoy</h2>
-              <p>
-                Creá tu cuenta, cargá tus productos y probalo 14 días gratis en
-                tu propio kiosco.
-              </p>
-              <Link className="btn btn-primary" to="/admin">
-                Probar FitoShop gratis
-              </Link>
+              <p>Creá tu cuenta, cargá tus productos y probalo 14 días gratis en tu propio kiosco.</p>
+              <Link className="btn btn-primary" to="/admin">Probar FitoShop gratis</Link>
             </div>
           </div>
         </section>
+
       </main>
 
       <footer>
         <div className="wrap foot">
-          <a className="brand brand-sm" href="#top">
-            <Logo size={26} />
-            <span>FitoShop</span>
-          </a>
+          <a className="brand brand-sm" href="#top"><Logo size={26} /><span>FitoShop</span></a>
           <nav aria-label="Enlaces del pie">
             <a href="#funciones">Funciones</a>
             <a href="#precios">Precios</a>

@@ -1,6 +1,6 @@
-import { useResumen } from '../hooks/useResumen';
-import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
+import { useResumen } from '../../../hooks/useResumen';
+import { Card } from '../../../components/ui/Card';
+import { Button } from '../../../components/ui/Button';
 
 function StatCard({ title, value, className = '' }) {
     return (
@@ -11,10 +11,10 @@ function StatCard({ title, value, className = '' }) {
     );
 }
 
-export function VentaPage() {
+export function VentasPage() {
     const { resumen, loading } = useResumen();
 
-    if (loading) return <div className="text-muted-foreground">Cargando estadísticas de venta...</div>;
+    if (loading) return <div className="text-muted-foreground">Cargando estadísticas de ventas...</div>;
 
     return (
         <div>
@@ -29,9 +29,9 @@ export function VentaPage() {
             <Card className="mt-8">
                 <h3 className="mt-0 mb-2">Ir al Punto de Venta</h3>
                 <p className="mb-4 text-sm text-muted-foreground">
-                    Para registrar ventas como operario, ingresá a la terminal de Punto de Venta (POS).
+                    Para registrar ventas como empleado, ingresá a la terminal de caja.
                 </p>
-                <Button onClick={() => window.open('/login', '_blank')}>Abrir Terminal POS</Button>
+                <Button onClick={() => window.open('/login', '_blank')}>Abrir Terminal de Caja</Button>
             </Card>
         </div>
     );

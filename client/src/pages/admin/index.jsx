@@ -13,23 +13,23 @@ import {
     Users,
     ShieldCheck,
 } from 'lucide-react';
-import { useOrganizacion } from '../hooks/useOrganizacion';
-import { Sidebar } from '../components/layout/Sidebar';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Label } from '../components/ui/Label';
+import { useOrganizacion } from '../../hooks/useOrganizacion';
+import { Sidebar } from '../../components/layout/Sidebar';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { Label } from '../../components/ui/Label';
 
-import { ResumenPage } from './ResumenPage';
-import { SucursalesPage } from './SucursalesPage';
-import { OperariosPage } from './OperariosPage';
-import { ArticulosPage } from './ArticulosPage';
-import { ComprasPage } from './ComprasPage';
-import { VentaPage } from './VentaPage';
-import { ContabilidadPage } from './ContabilidadPage';
-import { EstadisticasPage } from './EstadisticasPage';
-import { NotasPage } from './NotasPage';
-import { CajasPage } from './CajasPage';
-import { AccesosPage } from './AccesosPage';
+import { ResumenPage } from './resumen';
+import { LocalesPage } from './locales';
+import { EmpleadosPage } from './empleados';
+import { ProductosPage } from './productos';
+import { ComprasPage } from './compras';
+import { VentasPage } from './ventas';
+import { FinanzasPage } from './finanzas';
+import { EstadisticasPage } from './estadisticas';
+import { ReportesPage } from './reportes';
+import { HistorialCajaPage } from './historial-caja';
+import { AccesosPage } from './accesos';
 
 const NAV_ITEMS = [
     { href: '/admin', end: true, label: 'Resumen', icon: LayoutDashboard },
@@ -74,23 +74,22 @@ export default function AdminArea() {
         >
             <Routes>
                 <Route index element={<ResumenPage />} />
-                <Route path="venta" element={<VentaPage />} />
-                <Route path="contabilidad" element={<ContabilidadPage />} />
+                <Route path="venta" element={<VentasPage />} />
+                <Route path="contabilidad" element={<FinanzasPage />} />
                 <Route path="estadisticas" element={<EstadisticasPage />} />
-                <Route path="notas" element={<NotasPage />} />
-                <Route path="sucursales" element={<SucursalesPage />} />
-                <Route path="operarios" element={<OperariosPage />} />
+                <Route path="notas" element={<ReportesPage />} />
+                <Route path="sucursales" element={<LocalesPage />} />
+                <Route path="operarios" element={<EmpleadosPage />} />
                 <Route path="accesos" element={<AccesosPage />} />
-                <Route path="articulos" element={<ArticulosPage />} />
+                <Route path="articulos" element={<ProductosPage />} />
                 <Route path="compras" element={<ComprasPage />} />
-                <Route path="cajas" element={<CajasPage />} />
+                <Route path="cajas" element={<HistorialCajaPage />} />
                 <Route path="*" element={<Navigate to="/admin" replace />} />
             </Routes>
         </Sidebar>
     );
 }
 
-// Primer ingreso del propietario: crea su empresa.
 function Onboarding({ onCrear }) {
     const [name, setName] = useState('');
     const [taxId, setTaxId] = useState('');

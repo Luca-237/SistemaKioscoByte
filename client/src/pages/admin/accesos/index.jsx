@@ -1,7 +1,7 @@
-import { useAccesos } from '../hooks/useAccesos';
-import { Card } from '../components/ui/Card';
-import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
-import { EmptyState } from '../components/ui/EmptyState';
+import { useAccesos } from '../../../hooks/useAccesos';
+import { Card } from '../../../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../components/ui/Table';
+import { EmptyState } from '../../../components/ui/EmptyState';
 
 export const AccesosPage = () => {
     const { operarios, codigos, toggle } = useAccesos();

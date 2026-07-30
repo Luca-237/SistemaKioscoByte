@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
-import { fmt, fmtMes } from '../lib/format';
-import { useEstadisticas } from '../hooks/useEstadisticas';
-import { Card } from '../components/ui/Card';
-import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
-import { EmptyState } from '../components/ui/EmptyState';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/Select';
+import { fmt, fmtMes } from '../../../lib/format';
+import { useEstadisticas } from '../../../hooks/useEstadisticas';
+import { Card } from '../../../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../components/ui/Table';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../components/ui/Select';
 
 const TODAS = '__todas__';
 

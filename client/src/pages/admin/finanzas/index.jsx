@@ -1,8 +1,8 @@
-import { useResumen } from '../hooks/useResumen';
-import { Badge } from '../components/ui/Badge';
-import { Card } from '../components/ui/Card';
-import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
-import { EmptyState } from '../components/ui/EmptyState';
+import { useResumen } from '../../../hooks/useResumen';
+import { Badge } from '../../../components/ui/Badge';
+import { Card } from '../../../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../components/ui/Table';
+import { EmptyState } from '../../../components/ui/EmptyState';
 
 function StatCard({ title, value, className = '', style }) {
     return (
@@ -13,14 +13,14 @@ function StatCard({ title, value, className = '', style }) {
     );
 }
 
-export function ContabilidadPage() {
+export function FinanzasPage() {
     const { resumen: stats, movimientos: movements, loading } = useResumen();
 
-    if (loading) return <div className="text-muted-foreground">Cargando módulo contable...</div>;
+    if (loading) return <div className="text-muted-foreground">Cargando finanzas...</div>;
 
     return (
         <div>
-            <h2 className="mt-0 mb-5 text-2xl font-semibold">Contabilidad &amp; Finanzas</h2>
+            <h2 className="mt-0 mb-5 text-2xl font-semibold">Finanzas</h2>
 
             <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6">
                 <StatCard title="Ingresos Brutos" value={`$${stats?.ingresos?.toLocaleString() || 0}`} className="text-success" />

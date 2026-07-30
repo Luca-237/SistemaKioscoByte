@@ -1,17 +1,17 @@
 import { useState, useMemo } from 'react';
-import { fmt } from '../lib/format';
-import { useNotas } from '../hooks/useNotas';
-import { Badge } from '../components/ui/Badge';
-import { Card } from '../components/ui/Card';
-import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
-import { EmptyState } from '../components/ui/EmptyState';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/Select';
+import { fmt } from '../../../lib/format';
+import { useNotas } from '../../../hooks/useNotas';
+import { Badge } from '../../../components/ui/Badge';
+import { Card } from '../../../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../components/ui/Table';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../components/ui/Select';
 
 const tipoLabel = { compra: 'Compra', mantenimiento: 'Mantenimiento', reporte: 'Reporte', otro: 'Otro' };
 const statusLabel = { pendiente: 'Pendiente', revision: 'En revisión', aprobada: 'Aprobada', cerrada: 'Cerrada', rechazada: 'Rechazada' };
 const TODAS = '__todas__';
 
-export const NotasPage = () => {
+export const ReportesPage = () => {
     const [branchId, setBranchId] = useState('');
     const { notes, branches, actualizarEstado } = useNotas(branchId);
     const [busy, setBusy] = useState(false);
@@ -27,7 +27,7 @@ export const NotasPage = () => {
         try {
             await actualizarEstado(id, status);
         } catch (error) {
-            alert(error.response?.data?.message || 'No se pudo actualizar la nota');
+            alert(error.response?.data?.message || 'No se pudo actualizar el reporte');
         } finally {
             setBusy(false);
         }
@@ -36,11 +36,11 @@ export const NotasPage = () => {
     return (
         <div>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="m-0 text-2xl font-semibold">Notas y reportes</h2>
+                <h2 className="m-0 text-2xl font-semibold">Reportes y notas</h2>
                 <Select value={branchId || TODAS} onValueChange={(v) => setBranchId(v === TODAS ? '' : v)}>
-                    <SelectTrigger><SelectValue placeholder="Todas las sucursales" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Todos los locales" /></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value={TODAS}>Todas las sucursales</SelectItem>
+                        <SelectItem value={TODAS}>Todos los locales</SelectItem>
                         {branches.map((branch) => <SelectItem key={branch._id} value={branch._id}>{branch.name}</SelectItem>)}
                     </SelectContent>
                 </Select>
@@ -67,12 +67,12 @@ export const NotasPage = () => {
 
             <Card className="overflow-hidden p-0">
                 {notes.length === 0 ? (
-                    <EmptyState message="No hay notas registradas." />
+                    <EmptyState message="No hay reportes registrados." />
                 ) : (
                     <Table compact>
                         <TableHeader>
                             <TableRow>
-                                <Th>Tipo</Th><Th>Título</Th><Th>Operario</Th>
+                                <Th>Tipo</Th><Th>Título</Th><Th>Empleado</Th>
                                 <Th>Descripción</Th><Th>Proveedor</Th><Th>Total</Th>
                                 <Th>Estado</Th><Th>Acción</Th>
                             </TableRow>

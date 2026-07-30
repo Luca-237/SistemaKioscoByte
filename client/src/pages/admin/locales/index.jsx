@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useSucursales } from '../hooks/useSucursales';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Card } from '../components/ui/Card';
-import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
-import { EmptyState } from '../components/ui/EmptyState';
+import { useSucursales } from '../../../hooks/useSucursales';
+import { Button } from '../../../components/ui/Button';
+import { Input } from '../../../components/ui/Input';
+import { Card } from '../../../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../components/ui/Table';
+import { EmptyState } from '../../../components/ui/EmptyState';
 
-export const SucursalesPage = () => {
+export const LocalesPage = () => {
     const { sucursales, crear, editar, darDeBaja } = useSucursales();
     const [form, setForm] = useState({ name: '', address: '', phone: '' });
     const [editando, setEditando] = useState(null);
@@ -22,13 +22,13 @@ export const SucursalesPage = () => {
     };
 
     const confirmarBaja = async (b) => {
-        if (!window.confirm(`¿Dar de baja "${b.name}"? Los operarios asignados dejarán de verla.`)) return;
+        if (!window.confirm(`¿Dar de baja "${b.name}"? Los empleados asignados dejarán de verlo.`)) return;
         await darDeBaja(b._id);
     };
 
     return (
         <div>
-            <h2 className="mt-0 mb-4 text-2xl font-semibold">Sucursales</h2>
+            <h2 className="mt-0 mb-4 text-2xl font-semibold">Locales</h2>
 
             <form className="mb-4 flex flex-wrap gap-2.5" onSubmit={guardar}>
                 <Input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="max-w-56" />
@@ -44,7 +44,7 @@ export const SucursalesPage = () => {
 
             <Card className="overflow-hidden p-0">
                 {sucursales.length === 0 ? (
-                    <EmptyState message="Todavía no cargaste sucursales." />
+                    <EmptyState message="Todavía no cargaste locales." />
                 ) : (
                     <Table>
                         <TableHeader>

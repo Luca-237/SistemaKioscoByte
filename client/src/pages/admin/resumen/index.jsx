@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { fmt, fmtFecha } from '../lib/format';
-import { useResumen } from '../hooks/useResumen';
-import { Card } from '../components/ui/Card';
-import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
-import { EmptyState } from '../components/ui/EmptyState';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/Select';
+import { fmt, fmtFecha } from '../../../lib/format';
+import { useResumen } from '../../../hooks/useResumen';
+import { Card } from '../../../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../components/ui/Table';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../components/ui/Select';
 
 const TODAS = '__todas__';
 

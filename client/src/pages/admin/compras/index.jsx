@@ -1,18 +1,16 @@
 import { useState } from 'react';
-import { fmt } from '../lib/format';
-import { useCompras } from '../hooks/useCompras';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Card } from '../components/ui/Card';
-import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../components/ui/Table';
-import { EmptyState } from '../components/ui/EmptyState';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/Select';
+import { fmt } from '../../../lib/format';
+import { useCompras } from '../../../hooks/useCompras';
+import { Button } from '../../../components/ui/Button';
+import { Input } from '../../../components/ui/Input';
+import { Card } from '../../../components/ui/Card';
+import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../components/ui/Table';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../components/ui/Select';
 
 const METODOS = ['efectivo', 'transferencia', 'mercadopago', 'tarjeta'];
 const NUEVO_PROVEEDOR = '__nuevo__';
 
-// Módulo Compras: entrada de mercadería. Suma stock a la sucursal destino y
-// recalcula el costo promedio (acá se "manejan los precios de compra").
 export const ComprasPage = () => {
     const { compras, articulos, sucursales, proveedores, loading, registrarCompra, crearProveedor } = useCompras();
 
@@ -21,8 +19,7 @@ export const ComprasPage = () => {
     const [temp, setTemp] = useState({ articleId: '', quantity: '', unitCost: '' });
     const [ocupado, setOcupado] = useState(false);
 
-    // Alta rápida de proveedor sin salir de la carga de la compra
-    const [nuevoProv, setNuevoProv] = useState(null); // null = cerrado
+    const [nuevoProv, setNuevoProv] = useState(null);
 
     const total = items.reduce((a, i) => a + i.quantity * i.unitCost, 0);
 

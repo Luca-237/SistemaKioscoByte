@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useOperatorStore } from '../store/operatorStore';
+import { useOperatorStore } from '../../../store/operatorStore';
 import {
     getPosArticulos, getPosCaja, getPosVentas, getPosSuppliers,
     getPosUltimoCierre, getPosVentasRecientes,
     abrirCaja, cerrarCaja, registrarVenta, createPosNote
-} from '../api/pos.api';
-import { Button } from '../components/ui/Button';
-import '../styles/pos.css';
+} from '../../../api/pos.api';
+import { fmt } from '../../../lib/format';
+import { Button } from '../../../components/ui/Button';
+import { ModalMonto } from './components/ModalMonto';
+import '../../../styles/pos.css';
 
 const METODOS = [
     { id: 'efectivo', label: 'Efectivo' },
@@ -16,9 +18,7 @@ const METODOS = [
     { id: 'tarjeta', label: 'Tarjeta' }
 ];
 
-const fmt = (n) => `$${Number(n).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-export default function PosPage() {
+export default function CajaPage() {
     const navigate = useNavigate();
     const { operator, logout } = useOperatorStore();
     const branchId = operator?.branchId || operator?.branch?.id;
@@ -116,7 +116,6 @@ export default function PosPage() {
 
     useEffect(() => { cargar(); }, [cargar]);
 
-    // --- Carrito ---
     const agregar = (art) => {
         if (art.stock <= 0) return;
         setCarrito((prev) => {
@@ -131,7 +130,6 @@ export default function PosPage() {
     const quitar = (articleId) => setCarrito((prev) => prev.filter((i) => i.articleId !== articleId));
     const total = useMemo(() => carrito.reduce((a, i) => a + i.unitPrice * i.quantity, 0), [carrito]);
 
-    // --- Caja ---
     const handleAbrirCaja = async (monto) => {
         setOcupado(true);
         try {
@@ -160,7 +158,6 @@ export default function PosPage() {
         finally { setOcupado(false); }
     };
 
-    // --- Venta ---
     const cobrar = async (paymentMethod) => {
         if (ocupado) return;
         setOcupado(true);
@@ -246,16 +243,10 @@ export default function PosPage() {
                     />
                 </div>
                 <div className="pos-header-right">
-                    <Button variant="outline" onClick={cargarHistorialVentas}>
-                        📊 Historial
-                    </Button>
-                    <Button variant="outline" onClick={() => setShowNotas(true)}>
-                        📝 Notas
-                    </Button>
+                    <Button variant="outline" onClick={cargarHistorialVentas}>📊 Historial</Button>
+                    <Button variant="outline" onClick={() => setShowNotas(true)}>📝 Notas</Button>
                     {operator?.permissions?.length > 0 && (
-                        <Button variant="outline" onClick={() => navigate('/panel')}>
-                            🔐 Panel
-                        </Button>
+                        <Button variant="outline" onClick={() => navigate('/panel')}>🔐 Panel</Button>
                     )}
                     <Button variant="outline" onClick={() => caja ? setModal('cerrar') : abrirModalApertura()}>
                         {caja ? 'Cerrar Caja' : 'Abrir Caja'}
@@ -355,6 +346,7 @@ export default function PosPage() {
                     onClose={() => setModal(null)}
                 />
             )}
+
             {modal === 'cobrar' && (
                 <div className="pos-modal-overlay" onClick={() => setModal(null)}>
                     <div className="pos-modal" onClick={(e) => e.stopPropagation()}>
@@ -371,6 +363,7 @@ export default function PosPage() {
                     </div>
                 </div>
             )}
+
             {ultimaVenta && (
                 <div className="pos-modal-overlay" onClick={() => setUltimaVenta(null)}>
                     <div className="pos-modal pos-ticket" onClick={(e) => e.stopPropagation()}>
@@ -394,6 +387,7 @@ export default function PosPage() {
                     </div>
                 </div>
             )}
+
             {ventaSeleccionada && (
                 <div className="pos-modal-overlay" onClick={() => setVentaSeleccionada(null)}>
                     <div className="pos-modal pos-ticket" onClick={(e) => e.stopPropagation()}>
@@ -418,6 +412,7 @@ export default function PosPage() {
                     </div>
                 </div>
             )}
+
             {showHistorial && (
                 <div className="pos-modal-overlay" onClick={() => setShowHistorial(false)}>
                     <div className="pos-modal pos-historial" onClick={(e) => e.stopPropagation()}>
@@ -510,51 +505,6 @@ export default function PosPage() {
                     </div>
                 </div>
             )}
-        </div>
-    );
-}
-
-// Modal genérico para pedir un monto (apertura/cierre de caja).
-function ModalMonto({ titulo, descripcion, accion, ocupado, ultimoCierre, onConfirm, onClose }) {
-    const [monto, setMonto] = useState('');
-    const fmtLocal = (n) => `$${Number(n).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-    return (
-        <div className="pos-modal-overlay" onClick={onClose}>
-            <div className="pos-modal" onClick={(e) => e.stopPropagation()}>
-                <h3>{titulo}</h3>
-                <p className="pos-modal-desc">{descripcion}</p>
-
-                {titulo === 'Abrir caja' && ultimoCierre?.closingAmount !== undefined && (
-                    <div className="pos-modal-info">
-                        <p className="pos-modal-info-title">📋 Último cierre:</p>
-                        <p className="pos-modal-info-amount">{fmtLocal(ultimoCierre.closingAmount)}</p>
-                        {ultimoCierre.closedAt && (
-                            <p className="pos-modal-info-date">
-                                {new Date(ultimoCierre.closedAt).toLocaleString('es-AR')}
-                            </p>
-                        )}
-                    </div>
-                )}
-
-                <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    autoFocus
-                    value={monto}
-                    onChange={(e) => setMonto(e.target.value)}
-                    placeholder="0.00"
-                />
-                <Button
-                    variant="success"
-                    disabled={ocupado || monto === ''}
-                    onClick={() => onConfirm(Number(monto))}
-                >
-                    {ocupado ? 'Procesando…' : accion}
-                </Button>
-                <Button variant="link" onClick={onClose}>Cancelar</Button>
-            </div>
         </div>
     );
 }

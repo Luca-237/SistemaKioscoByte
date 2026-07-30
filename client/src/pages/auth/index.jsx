@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { loginOperario } from '../api/auth.api';
-import { useOperatorStore } from '../store/operatorStore';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Label } from '../components/ui/Label';
+import { loginOperario } from '../../api/auth.api';
+import { useOperatorStore } from '../../store/operatorStore';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { Label } from '../../components/ui/Label';
 
-// Login de OPERARIOS: código de empresa + usuario + clave.
-// Si el operario tiene varias sucursales, el backend devuelve la lista y
-// se muestra el paso de selección antes de emitir el token definitivo.
-export const LoginOperario = () => {
+export const AccesoEmpleadosPage = () => {
     const navigate = useNavigate();
     const login = useOperatorStore((s) => s.login);
 
@@ -18,7 +15,7 @@ export const LoginOperario = () => {
         username: '',
         password: ''
     });
-    const [branches, setBranches] = useState(null);   // null = paso credenciales
+    const [branches, setBranches] = useState(null);
     const [error, setError] = useState(null);
     const [cargando, setCargando] = useState(false);
 
@@ -50,7 +47,7 @@ export const LoginOperario = () => {
                 <div className="mb-6 text-center">
                     <span className="inline-flex size-13 items-center justify-center rounded-2xl bg-primary font-heading text-xl font-extrabold text-primary-foreground">FS</span>
                     <h1 className="mt-3 mb-1 font-heading text-2xl">FitoShop</h1>
-                    <p className="m-0 text-sm text-muted-foreground">Acceso de operarios</p>
+                    <p className="m-0 text-sm text-muted-foreground">Acceso de empleados</p>
                 </div>
 
                 {!branches ? (
@@ -114,7 +111,7 @@ export const LoginOperario = () => {
                 ) : (
                     <div className="flex flex-col gap-3.5">
                         <p className="m-0 text-center text-muted-foreground">
-                            ¿En qué sucursal vas a operar hoy?
+                            ¿En qué local vas a operar hoy?
                         </p>
                         {branches.map((b) => (
                             <button

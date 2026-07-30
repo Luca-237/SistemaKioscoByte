@@ -1,13 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCodigosAccesoPos } from '../api/access.api';
-import { getPanelModulo } from '../api/panel.api';
-import { useOperatorStore } from '../store/operatorStore';
-import { Sidebar } from '../components/layout/Sidebar';
-import { Button } from '../components/ui/Button';
-
-// Panel del operario: sidebar dinámico según permisos + vista cruda del módulo.
-// Es una prueba de conexión con el sistema de accesos; sin diseño definitivo.
+import { getCodigosAccesoPos } from '../../../api/access.api';
+import { getPanelModulo } from '../../../api/panel.api';
+import { useOperatorStore } from '../../../store/operatorStore';
+import { Sidebar } from '../../../components/layout/Sidebar';
+import { Button } from '../../../components/ui/Button';
 
 export default function PanelOperario() {
     const navigate = useNavigate();
