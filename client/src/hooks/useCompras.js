@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getCompras, createCompra } from '../api/purchase.api';
-import { getArticulos } from '../api/article.api';
+import { getArticulos, createArticulo } from '../api/article.api';
 import { getBranches } from '../api/branch.api';
 import { getSuppliers, createSupplier } from '../api/supplier.api';
 import { getCategories } from '../api/category.api';
@@ -20,7 +20,7 @@ export function useCompras() {
         try {
             const [c, a, b, p, cat] = await Promise.all([
                 getCompras(),
-                getArticulos(),
+                getArticulos({ limit: 5000 }),
                 getBranches(),
                 getSuppliers(),
                 getCategories()
@@ -50,5 +50,11 @@ export function useCompras() {
         return r.data.data;
     };
 
-    return { compras, articulos, sucursales, proveedores, categorias, loading, error, refresh, registrarCompra, crearProveedor };
+    const crearArticulo = async (payload) => {
+        const r = await createArticulo(payload);
+        await refresh();
+        return r.data.data;
+    };
+
+    return { compras, articulos, sucursales, proveedores, categorias, loading, error, refresh, registrarCompra, crearProveedor, crearArticulo };
 }

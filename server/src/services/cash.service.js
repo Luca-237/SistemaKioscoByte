@@ -1,4 +1,5 @@
 const { AppError } = require('../middlewares/error');
+const { syncMissingImagesForBranch } = require('./article.service');
 
 // Caja de una sucursal: apertura, cierre y consulta de estado.
 
@@ -157,6 +158,12 @@ const closeCash = async (models, operator, { closingAmount }) => {
                 }], { session });
             }
         });
+
+        // Tarea en background: intentar autocompletar imágenes faltantes con OFF
+        syncMissingImagesForBranch(models, operator.branchId).catch(err => {
+            console.error('Error en background task syncMissingImagesForBranch:', err);
+        });
+
         return caja;
     } finally {
         session.endSession();

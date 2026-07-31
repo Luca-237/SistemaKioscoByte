@@ -45,6 +45,10 @@ const createPurchase = async (models, clerkUserId, { branchId, supplierId, suppl
             const articulos = await models.Article.find({ _id: { $in: ids } }).session(session);
             const porId = new Map(articulos.map(a => [a._id.toString(), a]));
 
+            const categoryNames = [...new Set(articulos.map(a => a.category).filter(Boolean))];
+            const categories = await models.Category.find({ name: { $in: categoryNames } }).session(session);
+            const catReqVto = new Map(categories.map(c => [c.name, c.requiereVencimiento]));
+
             const purchaseItems = [];
             let total = 0;
             for (const item of items) {
@@ -58,6 +62,16 @@ const createPurchase = async (models, clerkUserId, { branchId, supplierId, suppl
                 await addStockFromPurchase(models, {
                     branchId, articleId: art._id, quantity: qty, unitCost
                 }, session);
+
+                const reqVto = art.category ? catReqVto.get(art.category) : false;
+                if (reqVto) {
+                    if (!item.lote || !String(item.lote).trim()) {
+                        throw new AppError(400, `El artículo ${art.name} requiere especificar el lote obligatoriamente`);
+                    }
+                    if (!item.fechaVencimiento) {
+                        throw new AppError(400, `El artículo ${art.name} requiere especificar la fecha de vencimiento obligatoriamente`);
+                    }
+                }
 
                 const purchaseItem = { articleId: art._id, name: art.name, quantity: qty, unitCost };
                 if (item.lote) purchaseItem.lote = String(item.lote).trim();

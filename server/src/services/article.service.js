@@ -195,4 +195,63 @@ const deactivateArticle = async (models, id) => {
     if (!article) throw new AppError(404, 'Artículo no encontrado');
 };
 
-module.exports = { getAllArticles, getArticlesForBranch, createArticle, updateArticle, deactivateArticle };
+// ==========================================
+// BACKGROUND TASKS
+// ==========================================
+
+/**
+ * Busca artículos activos de la sucursal que tengan código de barras pero sin imagen.
+ * Consulta OpenFoodFacts y autocompleta la imagen si la encuentra.
+ * Diseñado para correr en background sin bloquear la ejecución.
+ * @param {Object} models Modelos del tenant.
+ * @param {string} branchId Sucursal de donde sacar los artículos.
+ */
+const syncMissingImagesForBranch = async (models, branchId) => {
+    try {
+        const branchStocks = await models.BranchStock.find({ branchId }).select('articleId').lean();
+        const articleIds = branchStocks.map(s => s.articleId);
+
+        if (articleIds.length === 0) return;
+
+        const articles = await models.Article.find({
+            _id: { $in: articleIds },
+            active: true,
+            $or: [
+                { imageUrl: { $exists: false } },
+                { imageUrl: '' },
+                { imageUrl: null }
+            ]
+        });
+
+        for (const article of articles) {
+            let rawCode = '';
+            try {
+                // El código de barras a veces lo cargan en `code` si lo crean rápido en la compra,
+                // y los scanners a veces agregan texto basura como "(EAN / EAN-13)".
+                rawCode = article.barcode || article.code || '';
+                const cleanCode = rawCode.replace(/\D/g, '');
+                
+                if (cleanCode.length < 8) continue; // No parece un código de barras válido
+
+                const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${cleanCode}.json`);
+                if (!response.ok) continue;
+                const data = await response.json();
+                
+                if (data.status === 1 && data.product) {
+                    const imgUrl = data.product.image_url || data.product.image_front_url;
+                    if (imgUrl) {
+                        article.imageUrl = imgUrl;
+                        await article.save();
+                        console.log(`✅ [OFF Sync] Imagen descargada para "${article.name}" (${cleanCode})`);
+                    }
+                }
+            } catch (err) {
+                console.error(`❌ [OFF Sync] Error buscando imagen para código ${rawCode}:`, err.message);
+            }
+        }
+    } catch (err) {
+        console.error('Error en syncMissingImagesForBranch:', err);
+    }
+};
+
+module.exports = { getAllArticles, getArticlesForBranch, createArticle, updateArticle, deactivateArticle, syncMissingImagesForBranch };

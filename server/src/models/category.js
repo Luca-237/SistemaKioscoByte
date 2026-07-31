@@ -4,7 +4,8 @@ const { Schema } = require('mongoose');
 // como si el lote y la fecha de vencimiento son obligatorios al cargar compras.
 const categorySchema = new Schema({
     name: { type: String, required: true, trim: true },
-    requiereVencimiento: { type: Boolean, default: false }
+    requiereVencimiento: { type: Boolean, default: false },
+    active: { type: Boolean, default: true }
 }, { timestamps: true });
 
 categorySchema.index({ name: 1 }, { unique: true });

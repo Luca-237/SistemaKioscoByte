@@ -1,5 +1,5 @@
 const {
-    getAllCategories, createCategory, updateCategory, deleteCategory
+    getAllCategories, createCategory, updateCategory, toggleCategoryActive, deleteCategory
 } = require('../services/category.service');
 const { respondError } = require('../utils/logger');
 
@@ -32,6 +32,15 @@ const update = async (req, res) => {
     }
 };
 
+const toggleActive = async (req, res) => {
+    try {
+        const data = await toggleCategoryActive(req.tenantModels, req.params.id, req.body.active);
+        res.json({ success: true, data });
+    } catch (error) {
+        respondError(res, error, { context: 'categories.toggleActive' });
+    }
+};
+
 const remove = async (req, res) => {
     try {
         await deleteCategory(req.tenantModels, req.params.id);
@@ -41,4 +50,4 @@ const remove = async (req, res) => {
     }
 };
 
-module.exports = { getAll, create, update, remove };
+module.exports = { getAll, create, update, toggleActive, remove };

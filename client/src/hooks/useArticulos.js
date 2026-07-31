@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getArticulos, createArticulo, updateArticulo, deleteArticulo, updateStock } from '../api/article.api';
 import { getBranches } from '../api/branch.api';
-import { getCategories, createCategory as apiCreateCat, updateCategory as apiUpdateCat, deleteCategory as apiDeleteCat } from '../api/category.api';
+import { getCategories, createCategory as apiCreateCat, updateCategory as apiUpdateCat, toggleCategoryActive as apiToggleCat, deleteCategory as apiDeleteCat } from '../api/category.api';
 
 export function useArticulos(branchId = '') {
     const [articulos, setArticulos] = useState([]);
@@ -14,7 +14,7 @@ export function useArticulos(branchId = '') {
         setLoading(true);
         setError(null);
         try {
-            const params = branchId ? { branchId } : {};
+            const params = branchId ? { branchId, limit: 5000 } : { limit: 5000 };
             const [a, b, c] = await Promise.all([getArticulos(params), getBranches(), getCategories()]);
             setArticulos(a.data.data);
             setSucursales(b.data.data);
@@ -65,10 +65,15 @@ export function useArticulos(branchId = '') {
         await refresh();
     };
 
+    const toggleCategoria = async (id, active) => {
+        await apiToggleCat(id, active);
+        await refresh();
+    };
+
     return {
         articulos, sucursales, categorias, loading, error, refresh,
         crear, editar, darDeBaja, actualizarStock,
-        crearCategoria, editarCategoria, eliminarCategoria
+        crearCategoria, editarCategoria, eliminarCategoria, toggleCategoria
     };
 }
 

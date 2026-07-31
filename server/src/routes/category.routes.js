@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAll, create, update, remove } = require('../controllers/category.controller');
+const { getAll, create, update, toggleActive, remove } = require('../controllers/category.controller');
 
 const router = express.Router();
 
@@ -8,6 +8,7 @@ const router = express.Router();
 router.get('/', getAll);
 router.post('/', create);
 router.put('/:id', update);
+router.patch('/:id/active', toggleActive);
 router.delete('/:id', remove);
 
 module.exports = router;

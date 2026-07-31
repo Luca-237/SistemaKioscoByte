@@ -16,7 +16,7 @@ const SIN_CATEGORIA = '__sin_categoria__';
 
 export const ProductosPage = () => {
     const [branchId, setBranchId] = useState('');
-    const { articulos, sucursales, crear, editar, darDeBaja, actualizarStock } = useArticulos(branchId);
+    const { articulos, sucursales, categorias: categoriasData, loading, error, refresh, crear, editar, darDeBaja, actualizarStock, crearCategoria, editarCategoria, toggleCategoria } = useArticulos(branchId);
 
     const [form, setForm] = useState({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
     const [editando, setEditando] = useState(null);
@@ -26,11 +26,19 @@ export const ProductosPage = () => {
     const [filtroCategoria, setFiltroCategoria] = useState('');
     const [busqueda, setBusqueda] = useState('');
 
+    // Categorías activas para los selects (alta/edición de artículos)
+    const categoriasActivas = useMemo(() => {
+        return (categoriasData || []).filter((c) => c.active !== false).map((c) => c.name).sort((a, b) => a.localeCompare(b, 'es'));
+    }, [categoriasData]);
+
+    // Todas las categorías con nombre (para filtros del listado, incluye inactivas)
     const categorias = useMemo(() => {
         const set = new Set();
         articulos.forEach((a) => { if (a.category) set.add(a.category); });
+        // Agregar también las de categoriasData para que aparezcan en el filtro
+        (categoriasData || []).forEach((c) => set.add(c.name));
         return [...set].sort((a, b) => a.localeCompare(b, 'es'));
-    }, [articulos]);
+    }, [articulos, categoriasData]);
 
     const articulosFiltrados = useMemo(() => {
         let list = articulos;
@@ -140,7 +148,7 @@ export const ProductosPage = () => {
                             <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value={SIN_CATEGORIA}>Sin categoría</SelectItem>
-                                {categorias.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                {categoriasActivas.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                             </SelectContent>
                         </Select>
                         <Input placeholder="Precio *" type="number" step="0.01" min="0" value={form.salePrice} onChange={(e) => setForm({ ...form, salePrice: e.target.value })} required />
@@ -220,7 +228,7 @@ export const ProductosPage = () => {
             {showCatModal && (
                 <CategoriasModal
                     articulos={articulos}
-                    categorias={categorias}
+                    categorias={categoriasData || []}
                     onClose={() => setShowCatModal(false)}
                     onCategoryRenamed={(oldName, newName) => {
                         Promise.all(
@@ -233,6 +241,10 @@ export const ProductosPage = () => {
                         const art = articulos.find((a) => a._id === articleId);
                         if (art) updateArticulo(articleId, { ...art, category: newCategory });
                     }}
+                    onToggleActive={async (catId, active) => {
+                        await toggleCategoria(catId, active);
+                    }}
+                    onCreateCategory={crearCategoria}
                 />
             )}
         </div>

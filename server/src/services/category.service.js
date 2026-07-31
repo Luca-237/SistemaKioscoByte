@@ -82,6 +82,30 @@ const updateCategory = async (models, id, { name, requiereVencimiento }) => {
 };
 
 // ==========================================
+// BAJA (soft-delete)
+// ==========================================
+
+/**
+ * Da de baja una categoría: pone active = false para que no aparezca
+ * como opción en la carga/compra de productos, pero los artículos que
+ * ya la tenían asignada la conservan.
+ * @param {Object} models Modelos del tenant.
+ * @param {string} id ObjectId de la categoría.
+ * @param {boolean} active Nuevo estado (true = reactivar, false = baja).
+ * @returns {Promise<Object>} Categoría actualizada.
+ * @throws {Error} 404 si no existe.
+ */
+const toggleCategoryActive = async (models, id, active) => {
+    const cat = await models.Category.findOneAndUpdate(
+        { _id: id },
+        { active: !!active },
+        { new: true }
+    );
+    if (!cat) throw new AppError(404, 'Categoría no encontrada');
+    return cat;
+};
+
+// ==========================================
 // ELIMINACIÓN
 // ==========================================
 
@@ -104,4 +128,4 @@ const deleteCategory = async (models, id) => {
     await models.Category.deleteOne({ _id: id });
 };
 
-module.exports = { getAllCategories, createCategory, updateCategory, deleteCategory };
+module.exports = { getAllCategories, createCategory, updateCategory, toggleCategoryActive, deleteCategory };
