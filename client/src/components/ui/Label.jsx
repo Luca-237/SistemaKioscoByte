@@ -1,9 +1,21 @@
-// Label con estilo de campo admin. Envuelve su contenido en .admin-field para
-// el espaciado y tipografía definidos en admin.css.
-export function Label({ children, className = '', ...props }) {
-    return (
-        <label className={['admin-field', className].filter(Boolean).join(' ')} {...props}>
-            {children}
-        </label>
-    );
+import * as React from "react"
+import { Label as LabelPrimitive } from "radix-ui"
+
+import { cn } from "@/lib/utils"
+
+function Label({
+  className,
+  ...props
+}) {
+  return (
+    <LabelPrimitive.Root
+      data-slot="label"
+      className={cn(
+        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+        className
+      )}
+      {...props} />
+  );
 }
+
+export { Label }
