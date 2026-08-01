@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Tags, Pencil } from 'lucide-react';
+import { Search, Tags, Plus } from 'lucide-react';
 import { fmt } from '../../../lib/format';
 import { useArticulos } from '../../../hooks/useArticulos';
 import { updateArticulo } from '../../../api';
@@ -10,6 +10,7 @@ import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../compon
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../components/ui/Select';
 import { CategoriasModal } from './components/CategoriasModal';
+import { ProductoModal } from './components/ProductoModal';
 
 const TODAS_CATS = '__todas__';
 const SIN_CATEGORIA = '__sin_categoria__';
@@ -23,6 +24,7 @@ export const ProductosPage = () => {
     const [buscandoOFF, setBuscandoOFF] = useState(false);
     const [editingStock, setEditingStock] = useState({});
     const [showCatModal, setShowCatModal] = useState(false);
+    const [showProdModal, setShowProdModal] = useState(false);
     const [filtroCategoria, setFiltroCategoria] = useState('');
     const [busqueda, setBusqueda] = useState('');
 
@@ -71,14 +73,38 @@ export const ProductosPage = () => {
         finally { setBuscandoOFF(false); }
     };
 
+    const abrirNuevo = () => {
+        setEditando(null);
+        setForm({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
+        setShowProdModal(true);
+    };
+
+    const abrirEdicion = (a) => {
+        setEditando(a._id);
+        setForm({
+            code: a.code,
+            barcode: a.barcode || '',
+            name: a.name,
+            category: a.category || '',
+            salePrice: a.salePrice,
+            imageUrl: imgUrl(a)
+        });
+        setShowProdModal(true);
+    };
+
+    const cerrarProdModal = () => {
+        setShowProdModal(false);
+        setEditando(null);
+        setForm({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
+    };
+
     const guardar = async (e) => {
         e.preventDefault();
         try {
             const payload = { ...form, salePrice: Number(form.salePrice) };
             if (editando) await editar(editando, payload);
             else await crear(payload);
-            setForm({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
-            setEditando(null);
+            cerrarProdModal();
         } catch (err) { alert(err.response?.data?.message || 'Error al guardar el artículo'); }
     };
 
@@ -94,11 +120,6 @@ export const ProductosPage = () => {
             await actualizarStock(articleId, Number(qty));
             setEditingStock((prev) => { const n = { ...prev }; delete n[articleId]; return n; });
         } catch (err) { alert(err.response?.data?.message || 'Error al actualizar stock'); }
-    };
-
-    const cancelar = () => {
-        setEditando(null);
-        setForm({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
     };
 
     const imgUrl = (a) => a.imageUrl || a.image_url || a.image || '';
@@ -131,35 +152,16 @@ export const ProductosPage = () => {
                             {sucursales.map((b) => <SelectItem key={b._id} value={b._id}>{b.name}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                    <Button type="button" onClick={() => setShowCatModal(true)}>
+                    <Button type="button" variant="outline" onClick={() => setShowCatModal(true)}>
                         <Tags size={16} />
                         Categorías
                     </Button>
+                    <Button type="button" onClick={abrirNuevo}>
+                        <Plus size={16} />
+                        Agregar
+                    </Button>
                 </div>
             </div>
-
-            <Card>
-                <form onSubmit={guardar}>
-                    <div className="grid grid-cols-[100px_130px_1fr_140px_110px] gap-2.5 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
-                        <Input placeholder="Código *" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
-                        <Input placeholder="Cód. barras" value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} onBlur={(e) => buscarEnOFF(e.target.value)} />
-                        <Input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-                        <Select value={form.category || SIN_CATEGORIA} onValueChange={(v) => setForm({ ...form, category: v === SIN_CATEGORIA ? '' : v })}>
-                            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={SIN_CATEGORIA}>Sin categoría</SelectItem>
-                                {categoriasActivas.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Input placeholder="Precio *" type="number" step="0.01" min="0" value={form.salePrice} onChange={(e) => setForm({ ...form, salePrice: e.target.value })} required />
-                    </div>
-                    <div className="mt-2.5 flex items-center gap-2.5">
-                        {buscandoOFF && <span className="animate-pulse text-sm text-muted-foreground">Buscando en OpenFoodFacts…</span>}
-                        <Button disabled={buscandoOFF}>{editando ? '💾 Guardar' : '+ Agregar'}</Button>
-                        {editando && <Button variant="outline" type="button" onClick={cancelar}>Cancelar</Button>}
-                    </div>
-                </form>
-            </Card>
 
             <Card className="overflow-hidden p-0">
                 {articulosFiltrados.length === 0 ? (
@@ -168,8 +170,9 @@ export const ProductosPage = () => {
                     <Table compact>
                         <TableHeader>
                             <TableRow>
-                                <Th>Código</Th><Th>Barras</Th><Th>Nombre</Th><Th>Categoría</Th>
+                                <Th>Nombre</Th><Th>Categoría</Th>
                                 <Th className="text-right">Precio</Th>
+                                <Th>Código</Th><Th>Barras</Th>
                                 {branchId && <Th className="text-right">Stock</Th>}
                                 {branchId && <Th className="text-right">Costo prom.</Th>}
                                 <Th className="text-right">Acciones</Th>
@@ -178,15 +181,15 @@ export const ProductosPage = () => {
                         <TableBody>
                             {articulosFiltrados.map((a) => (
                                 <TableRow key={a._id}>
-                                    <Td className="font-mono text-xs">{a.code}</Td>
-                                    <Td className="font-mono text-xs">{a.barcode || '—'}</Td>
                                     <Td><strong>{a.name}</strong></Td>
                                     <Td>
                                         {a.category
-                                            ? <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-primary">{a.category}</span>
+                                            ? <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-sm font-semibold whitespace-nowrap text-primary">{a.category}</span>
                                             : <span className="text-muted-foreground">—</span>}
                                     </Td>
                                     <Td className="text-right">{fmt(a.salePrice)}</Td>
+                                    <Td className="font-mono text-sm">{a.code}</Td>
+                                    <Td className="font-mono text-sm">{a.barcode || '—'}</Td>
                                     {branchId && (
                                         <Td className="text-right">
                                             <div className="flex items-center justify-end gap-1">
@@ -208,7 +211,7 @@ export const ProductosPage = () => {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={() => { setEditando(a._id); setForm({ code: a.code, barcode: a.barcode || '', name: a.name, category: a.category || '', salePrice: a.salePrice, imageUrl: imgUrl(a) }); }}
+                                                onClick={() => abrirEdicion(a)}
                                             >
                                                 Editar
                                             </Button>
@@ -224,6 +227,19 @@ export const ProductosPage = () => {
                     <span className="text-sm text-muted-foreground">{articulosFiltrados.length} producto{articulosFiltrados.length !== 1 ? 's' : ''}</span>
                 </div>
             </Card>
+
+            <ProductoModal
+                open={showProdModal}
+                onClose={cerrarProdModal}
+                form={form}
+                setForm={setForm}
+                editando={editando}
+                guardar={guardar}
+                buscandoOFF={buscandoOFF}
+                buscarEnOFF={buscarEnOFF}
+                categoriasActivas={categoriasActivas}
+                SIN_CATEGORIA={SIN_CATEGORIA}
+            />
 
             {showCatModal && (
                 <CategoriasModal
