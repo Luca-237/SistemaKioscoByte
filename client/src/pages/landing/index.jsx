@@ -90,6 +90,36 @@ export default function LandingPage() {
     gsap.ticker.add(syncLenis);
     gsap.ticker.lagSmoothing(0);
 
+    // Los links con #ancla deben ir por Lenis: si el navegador salta solo,
+    // Lenis lo pisa en el siguiente frame y la sección queda mal ubicada.
+    // Calculamos el scrollY absoluto nosotros mismos (en vez de pasarle un
+    // elemento + offset a Lenis) porque esa combinación daba un resultado
+    // consistentemente ~76px corto del target real — más simple y confiable
+    // resolver la matemática acá y pasarle un número final a scrollTo.
+    const scrollToId = (id, immediate = false) => {
+      const target = document.getElementById(id);
+      if (!target) return;
+      const nav = root.querySelector(".nav");
+      const navOffset = (nav?.offsetHeight ?? 68) - 32;
+      const y = target.getBoundingClientRect().top + window.scrollY - navOffset;
+      lenis.scrollTo(y, { immediate });
+    };
+
+    const handleAnchorClick = (e) => {
+      const anchor = e.target.closest('a[href^="#"]');
+      if (!anchor) return;
+      e.preventDefault();
+      scrollToId(anchor.getAttribute("href").slice(1));
+    };
+    root.addEventListener("click", handleAnchorClick);
+
+    // Si la página carga con un #ancla en la URL (recarga, link compartido,
+    // volver con el botón atrás), Lenis todavía no existía cuando el
+    // navegador hizo su salto nativo — lo re-alineamos ya inicializado.
+    if (window.location.hash) {
+      requestAnimationFrame(() => scrollToId(window.location.hash.slice(1), true));
+    }
+
     const ctx = gsap.context(() => {
 
       gsap.timeline({ delay: 0.12 })
@@ -147,6 +177,7 @@ export default function LandingPage() {
 
     return () => {
       ctx.revert();
+      root.removeEventListener("click", handleAnchorClick);
       gsap.ticker.remove(syncLenis);
       lenis.destroy();
     };
