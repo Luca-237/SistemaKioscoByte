@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getCashSessions, getCashSessionSales } from '../api/stats.api';
+import { getCashSessions, getCashSessionSales } from '../api';
 
 export function useCajas() {
     const [cajas, setCajas] = useState([]);

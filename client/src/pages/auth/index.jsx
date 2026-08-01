@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { loginOperario } from '../../api/auth.api';
+import { loginOperario } from '../../api';
 import { useOperatorStore } from '../../store/operatorStore';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';

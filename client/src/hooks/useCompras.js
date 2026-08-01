@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getCompras, createCompra } from '../api/purchase.api';
-import { getArticulos, createArticulo } from '../api/article.api';
-import { getBranches } from '../api/branch.api';
-import { getSuppliers, createSupplier } from '../api/supplier.api';
-import { getCategories } from '../api/category.api';
+import {
+    getCompras, createCompra, getArticulos, createArticulo, getBranches,
+    getSuppliers, createSupplier, getCategories,
+} from '../api';
 
 export function useCompras() {
     const [compras, setCompras] = useState([]);

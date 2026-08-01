@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getAnalytics } from '../api/stats.api';
-import { getBranches } from '../api/branch.api';
+import { getAnalytics, getBranches } from '../api';
 
 export function useEstadisticas(branchId = '') {
     const [stats, setStats] = useState(null);

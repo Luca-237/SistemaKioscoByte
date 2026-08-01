@@ -352,7 +352,7 @@ html.lenis-smooth:has(.landing) { scroll-behavior: auto !important; }
 @media (max-width: 720px) { .landing .plans { grid-template-columns: 1fr; } }
 .landing .plan {
     background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
-    padding: 30px 28px; display: flex; flex-direction: column; gap: 18px; box-shadow: var(--shadow-card);
+    padding: 22px 24px; display: flex; flex-direction: column; gap: 13px; box-shadow: var(--shadow-card);
 }
 .landing .plan.destacado { border: 2px solid var(--primary); position: relative; }
 .landing .plan-flag {
@@ -360,17 +360,17 @@ html.lenis-smooth:has(.landing) { scroll-behavior: auto !important; }
     background: var(--primary); color: #fff; font-size: 0.68rem; font-weight: 800;
     letter-spacing: 0.06em; text-transform: uppercase; border-radius: 999px; padding: 4px 14px; white-space: nowrap;
 }
-.landing .plan h3 { font-size: 1.15rem; font-weight: 800; }
-.landing .plan-desc { font-size: 0.86rem; color: var(--muted); }
+.landing .plan h3 { font-size: 1.1rem; font-weight: 800; }
+.landing .plan-desc { font-size: 0.84rem; color: var(--muted); }
 .landing .plan-price { display: flex; align-items: baseline; gap: 6px; }
-.landing .plan-price b { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.landing .plan-price b { font-family: var(--font-display); font-size: 1.9rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .landing .plan-price span { color: var(--muted); font-size: 0.85rem; }
-.landing .plan ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; font-size: 0.9rem; }
-.landing .plan li { display: flex; gap: 10px; align-items: flex-start; }
+.landing .plan ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; }
+.landing .plan li { display: flex; gap: 8px; align-items: flex-start; }
 .landing .plan li::before { content: "✓"; color: var(--success); font-weight: 800; flex-shrink: 0; }
 .landing .plan li.no { color: var(--muted); }
 .landing .plan li.no::before { content: "—"; color: var(--muted); }
-.landing .plan .btn { margin-top: auto; }
+.landing .plan .btn { margin-top: auto; height: 44px; }
 .landing .plan-fine { font-size: 0.74rem; color: var(--muted); text-align: center; }
 
 /* ===== FAQ ===== */

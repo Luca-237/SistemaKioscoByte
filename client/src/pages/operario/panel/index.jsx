@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCodigosAccesoPos } from '../../../api/access.api';
-import { getPanelModulo } from '../../../api/panel.api';
+import { getCodigosAccesoPos, getPanelModulo } from '../../../api';
 import { useOperatorStore } from '../../../store/operatorStore';
 import { Sidebar } from '../../../components/layout/Sidebar';
 import { Button } from '../../../components/ui/Button';

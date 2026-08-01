@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Search, Tags, Pencil } from 'lucide-react';
 import { fmt } from '../../../lib/format';
 import { useArticulos } from '../../../hooks/useArticulos';
-import { updateArticulo } from '../../../api/article.api';
+import { updateArticulo } from '../../../api';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Card } from '../../../components/ui/Card';

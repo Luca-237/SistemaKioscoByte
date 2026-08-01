@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getOrganizacion, bootstrapOrganizacion } from '../api/organization.api';
+import { getOrganizacion, bootstrapOrganizacion } from '../api';
 
 export function useOrganizacion() {
     const [org, setOrg] = useState(undefined); // undefined = cargando, null = sin org

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getUsers, createUser, updateUser } from '../api/user.api';
-import { getBranches } from '../api/branch.api';
+import { getUsers, createUser, updateUser, getBranches } from '../api';
 
 export function useOperarios() {
     const [operarios, setOperarios] = useState([]);
