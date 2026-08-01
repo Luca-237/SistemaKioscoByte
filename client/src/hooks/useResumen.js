@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getSummary, getMovements } from '../api/stats.api';
-import { getBranches } from '../api/branch.api';
+import { getSummary, getMovements, getBranches } from '../api';
 
 export function useResumen(branchId = '') {
     const [resumen, setResumen] = useState(null);

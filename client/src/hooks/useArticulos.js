@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getArticulos, createArticulo, updateArticulo, deleteArticulo, updateStock } from '../api/article.api';
-import { getBranches } from '../api/branch.api';
+import { getArticulos, createArticulo, updateArticulo, deleteArticulo, updateStock, getBranches } from '../api';
 
 export function useArticulos(branchId = '') {
     const [articulos, setArticulos] = useState([]);

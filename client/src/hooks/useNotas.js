@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getNotes, updateNoteStatus } from '../api/note.api';
-import { getBranches } from '../api/branch.api';
+import { getNotes, updateNoteStatus, getBranches } from '../api';
 
 export function useNotas(branchId = '') {
     const [notes, setNotes] = useState([]);

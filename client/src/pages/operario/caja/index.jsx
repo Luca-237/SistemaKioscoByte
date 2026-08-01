@@ -5,7 +5,7 @@ import {
     getPosArticulos, getPosCaja, getPosVentas, getPosSuppliers,
     getPosUltimoCierre, getPosVentasRecientes,
     abrirCaja, cerrarCaja, registrarVenta, createPosNote
-} from '../../../api/pos.api';
+} from '../../../api';
 import { fmt } from '../../../lib/format';
 import { Button } from '../../../components/ui/Button';
 import { ModalMonto } from './components/ModalMonto';

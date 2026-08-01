@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getOperadoresAcceso, getCodigosAcceso, toggleAcceso as toggleAccesoApi } from '../api/access.api';
+import { getOperadoresAcceso, getCodigosAcceso, toggleAcceso as toggleAccesoApi } from '../api';
 
 export function useAccesos() {
     const [operarios, setOperarios] = useState([]);

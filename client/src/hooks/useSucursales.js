@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getBranches, createBranch, updateBranch, deleteBranch } from '../api/branch.api';
+import { getBranches, createBranch, updateBranch, deleteBranch } from '../api';
 
 export function useSucursales() {
     const [sucursales, setSucursales] = useState([]);
