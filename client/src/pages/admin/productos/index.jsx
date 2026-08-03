@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Tags, Pencil } from 'lucide-react';
+import { Search, Tags, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fmt } from '../../../lib/format';
 import { useArticulos } from '../../../hooks/useArticulos';
 import { updateArticulo } from '../../../api';
@@ -10,9 +10,11 @@ import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../compon
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../components/ui/Select';
 import { CategoriasModal } from './components/CategoriasModal';
+import { ProductoModal } from './components/ProductoModal';
 
 const TODAS_CATS = '__todas__';
 const SIN_CATEGORIA = '__sin_categoria__';
+const ITEMS_PER_PAGE = 10;
 
 export const ProductosPage = () => {
     const [branchId, setBranchId] = useState('');
@@ -23,8 +25,10 @@ export const ProductosPage = () => {
     const [buscandoOFF, setBuscandoOFF] = useState(false);
     const [editingStock, setEditingStock] = useState({});
     const [showCatModal, setShowCatModal] = useState(false);
+    const [showProdModal, setShowProdModal] = useState(false);
     const [filtroCategoria, setFiltroCategoria] = useState('');
     const [busqueda, setBusqueda] = useState('');
+    const [paginaActual, setPaginaActual] = useState(1);
 
     // Categorías activas para los selects (alta/edición de artículos)
     const categoriasActivas = useMemo(() => {
@@ -52,6 +56,33 @@ export const ProductosPage = () => {
         return list;
     }, [articulos, filtroCategoria, busqueda]);
 
+    const totalPaginas = Math.ceil(articulosFiltrados.length / ITEMS_PER_PAGE) || 1;
+    const inicio = (paginaActual - 1) * ITEMS_PER_PAGE;
+    const articulosPaginados = articulosFiltrados.slice(inicio, inicio + ITEMS_PER_PAGE);
+
+    const obtenerPaginas = () => {
+        if (totalPaginas <= 5) {
+            return Array.from({ length: totalPaginas }, (_, i) => i + 1);
+        }
+        const start = Math.max(1, Math.min(paginaActual - 2, totalPaginas - 4));
+        return Array.from({ length: 5 }, (_, i) => start + i);
+    };
+
+    const handleBusqueda = (val) => {
+        setBusqueda(val);
+        setPaginaActual(1);
+    };
+
+    const handleFiltroCategoria = (val) => {
+        setFiltroCategoria(val === TODAS_CATS ? '' : val);
+        setPaginaActual(1);
+    };
+
+    const handleBranchChange = (val) => {
+        setBranchId(val === TODAS_CATS ? '' : val);
+        setPaginaActual(1);
+    };
+
     const buscarEnOFF = async (barcode) => {
         if (!barcode || barcode.length < 8) return;
         setBuscandoOFF(true);
@@ -71,14 +102,38 @@ export const ProductosPage = () => {
         finally { setBuscandoOFF(false); }
     };
 
+    const abrirNuevo = () => {
+        setEditando(null);
+        setForm({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
+        setShowProdModal(true);
+    };
+
+    const abrirEdicion = (a) => {
+        setEditando(a._id);
+        setForm({
+            code: a.code,
+            barcode: a.barcode || '',
+            name: a.name,
+            category: a.category || '',
+            salePrice: a.salePrice,
+            imageUrl: imgUrl(a)
+        });
+        setShowProdModal(true);
+    };
+
+    const cerrarProdModal = () => {
+        setShowProdModal(false);
+        setEditando(null);
+        setForm({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
+    };
+
     const guardar = async (e) => {
         e.preventDefault();
         try {
             const payload = { ...form, salePrice: Number(form.salePrice) };
             if (editando) await editar(editando, payload);
             else await crear(payload);
-            setForm({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
-            setEditando(null);
+            cerrarProdModal();
         } catch (err) { alert(err.response?.data?.message || 'Error al guardar el artículo'); }
     };
 
@@ -96,134 +151,167 @@ export const ProductosPage = () => {
         } catch (err) { alert(err.response?.data?.message || 'Error al actualizar stock'); }
     };
 
-    const cancelar = () => {
-        setEditando(null);
-        setForm({ code: '', barcode: '', name: '', category: '', salePrice: '', imageUrl: '' });
-    };
-
     const imgUrl = (a) => a.imageUrl || a.image_url || a.image || '';
 
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="m-0 text-2xl font-semibold">Productos</h2>
+                <h2 className="m-0 text-2xl font-semibold text-foreground">Productos</h2>
                 <div className="flex flex-wrap items-center gap-2.5">
                     <div className="flex min-w-[180px] items-center gap-1.5 rounded-md border border-input bg-card px-3 py-2 text-muted-foreground focus-within:border-primary focus-within:text-foreground">
                         <Search size={15} />
                         <input
                             placeholder="Buscar producto…"
                             value={busqueda}
-                            onChange={(e) => setBusqueda(e.target.value)}
+                            onChange={(e) => handleBusqueda(e.target.value)}
                             className="w-full border-none bg-transparent text-sm text-foreground outline-none"
                         />
                     </div>
-                    <Select value={filtroCategoria || TODAS_CATS} onValueChange={(v) => setFiltroCategoria(v === TODAS_CATS ? '' : v)}>
+                    <Select value={filtroCategoria || TODAS_CATS} onValueChange={handleFiltroCategoria}>
                         <SelectTrigger><SelectValue placeholder="Todas las categorías" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value={TODAS_CATS}>Todas las categorías</SelectItem>
                             {categorias.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                    <Select value={branchId || TODAS_CATS} onValueChange={(v) => setBranchId(v === TODAS_CATS ? '' : v)}>
+                    <Select value={branchId || TODAS_CATS} onValueChange={handleBranchChange}>
                         <SelectTrigger><SelectValue placeholder="Stock de… (local)" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value={TODAS_CATS}>Stock de… (local)</SelectItem>
                             {sucursales.map((b) => <SelectItem key={b._id} value={b._id}>{b.name}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                    <Button type="button" onClick={() => setShowCatModal(true)}>
+                    <Button type="button" variant="outline" onClick={() => setShowCatModal(true)}>
                         <Tags size={16} />
                         Categorías
                     </Button>
+                    <Button type="button" onClick={abrirNuevo}>
+                        <Plus size={16} />
+                        Agregar
+                    </Button>
                 </div>
             </div>
-
-            <Card>
-                <form onSubmit={guardar}>
-                    <div className="grid grid-cols-[100px_130px_1fr_140px_110px] gap-2.5 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
-                        <Input placeholder="Código *" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
-                        <Input placeholder="Cód. barras" value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} onBlur={(e) => buscarEnOFF(e.target.value)} />
-                        <Input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-                        <Select value={form.category || SIN_CATEGORIA} onValueChange={(v) => setForm({ ...form, category: v === SIN_CATEGORIA ? '' : v })}>
-                            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={SIN_CATEGORIA}>Sin categoría</SelectItem>
-                                {categoriasActivas.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Input placeholder="Precio *" type="number" step="0.01" min="0" value={form.salePrice} onChange={(e) => setForm({ ...form, salePrice: e.target.value })} required />
-                    </div>
-                    <div className="mt-2.5 flex items-center gap-2.5">
-                        {buscandoOFF && <span className="animate-pulse text-sm text-muted-foreground">Buscando en OpenFoodFacts…</span>}
-                        <Button disabled={buscandoOFF}>{editando ? '💾 Guardar' : '+ Agregar'}</Button>
-                        {editando && <Button variant="outline" type="button" onClick={cancelar}>Cancelar</Button>}
-                    </div>
-                </form>
-            </Card>
 
             <Card className="overflow-hidden p-0">
                 {articulosFiltrados.length === 0 ? (
                     <EmptyState message={articulos.length === 0 ? 'Catálogo vacío.' : 'Sin resultados para el filtro.'} />
                 ) : (
-                    <Table compact>
-                        <TableHeader>
-                            <TableRow>
-                                <Th>Código</Th><Th>Barras</Th><Th>Nombre</Th><Th>Categoría</Th>
-                                <Th className="text-right">Precio</Th>
-                                {branchId && <Th className="text-right">Stock</Th>}
-                                {branchId && <Th className="text-right">Costo prom.</Th>}
-                                <Th className="text-right">Acciones</Th>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {articulosFiltrados.map((a) => (
-                                <TableRow key={a._id}>
-                                    <Td className="font-mono text-xs">{a.code}</Td>
-                                    <Td className="font-mono text-xs">{a.barcode || '—'}</Td>
-                                    <Td><strong>{a.name}</strong></Td>
-                                    <Td>
-                                        {a.category
-                                            ? <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-primary">{a.category}</span>
-                                            : <span className="text-muted-foreground">—</span>}
-                                    </Td>
-                                    <Td className="text-right">{fmt(a.salePrice)}</Td>
-                                    {branchId && (
-                                        <Td className="text-right">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <Input
-                                                    type="number" min="0" className="h-7 w-16 px-1.5 text-right"
-                                                    value={editingStock[a._id] !== undefined ? editingStock[a._id] : (a.stock ?? '')}
-                                                    onChange={(e) => setEditingStock((prev) => ({ ...prev, [a._id]: e.target.value }))}
-                                                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); guardarStock(a._id); } }}
-                                                />
-                                                {editingStock[a._id] !== undefined && String(editingStock[a._id]) !== String(a.stock) && (
-                                                    <Button variant="outline" size="sm" onClick={() => guardarStock(a._id)} title="Guardar stock">✓</Button>
-                                                )}
+                    <>
+                        <Table compact>
+                            <TableHeader>
+                                <TableRow>
+                                    <Th>Nombre</Th><Th>Categoría</Th>
+                                    <Th className="text-right">Precio</Th>
+                                    <Th>Código</Th><Th>Barras</Th>
+                                    {branchId && <Th className="text-right">Stock</Th>}
+                                    {branchId && <Th className="text-right">Costo prom.</Th>}
+                                    <Th className="text-right">Acciones</Th>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {articulosPaginados.map((a) => (
+                                    <TableRow key={a._id}>
+                                        <Td><strong>{a.name}</strong></Td>
+                                        <Td>
+                                            {a.category
+                                                ? <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-sm font-semibold whitespace-nowrap text-primary">{a.category}</span>
+                                                : <span className="text-muted-foreground">—</span>}
+                                        </Td>
+                                        <Td className="text-right">{fmt(a.salePrice)}</Td>
+                                        <Td className="font-mono text-sm">{a.code}</Td>
+                                        <Td className="font-mono text-sm">{a.barcode || '—'}</Td>
+                                        {branchId && (
+                                            <Td className="text-right">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <Input
+                                                        type="number" min="0" className="h-7 w-16 px-1.5 text-right"
+                                                        value={editingStock[a._id] !== undefined ? editingStock[a._id] : (a.stock ?? '')}
+                                                        onChange={(e) => setEditingStock((prev) => ({ ...prev, [a._id]: e.target.value }))}
+                                                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); guardarStock(a._id); } }}
+                                                    />
+                                                    {editingStock[a._id] !== undefined && String(editingStock[a._id]) !== String(a.stock) && (
+                                                        <Button variant="outline" size="sm" onClick={() => guardarStock(a._id)} title="Guardar stock">✓</Button>
+                                                    )}
+                                                </div>
+                                            </Td>
+                                        )}
+                                        {branchId && <Td className="text-right">{fmt(a.avgCost)}</Td>}
+                                        <Td className="text-right whitespace-nowrap">
+                                            <div className="flex justify-end gap-1.5">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => abrirEdicion(a)}
+                                                >
+                                                    Editar
+                                                </Button>
+                                                <Button variant="destructive" size="sm" onClick={() => confirmarBaja(a)}>Baja</Button>
                                             </div>
                                         </Td>
-                                    )}
-                                    {branchId && <Td className="text-right">{fmt(a.avgCost)}</Td>}
-                                    <Td className="text-right whitespace-nowrap">
-                                        <div className="flex justify-end gap-1.5">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => { setEditando(a._id); setForm({ code: a.code, barcode: a.barcode || '', name: a.name, category: a.category || '', salePrice: a.salePrice, imageUrl: imgUrl(a) }); }}
-                                            >
-                                                Editar
-                                            </Button>
-                                            <Button variant="destructive" size="sm" onClick={() => confirmarBaja(a)}>Baja</Button>
-                                        </div>
-                                    </Td>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-2 text-xs text-muted-foreground">
+                            <span>
+                                Mostrando {articulosFiltrados.length > 0 ? inicio + 1 : 0} a {Math.min(inicio + ITEMS_PER_PAGE, articulosFiltrados.length)} de {articulosFiltrados.length} productos
+                            </span>
+
+                            {totalPaginas > 1 && (
+                                <div className="flex items-center gap-1">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={paginaActual === 1}
+                                        onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+                                        className="h-7 px-2 text-xs"
+                                        title="Página anterior"
+                                    >
+                                        <ChevronLeft size={14} />
+                                    </Button>
+
+                                    {obtenerPaginas().map((num) => (
+                                        <Button
+                                            key={num}
+                                            variant={paginaActual === num ? 'default' : 'outline'}
+                                            size="sm"
+                                            onClick={() => setPaginaActual(num)}
+                                            className="h-7 w-7 p-0 text-xs"
+                                        >
+                                            {num}
+                                        </Button>
+                                    ))}
+
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={paginaActual >= totalPaginas}
+                                        onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
+                                        className="h-7 px-2 text-xs"
+                                        title="Página siguiente"
+                                    >
+                                        <ChevronRight size={14} />
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </>
                 )}
-                <div className="border-t border-border px-4 py-2.5">
-                    <span className="text-sm text-muted-foreground">{articulosFiltrados.length} producto{articulosFiltrados.length !== 1 ? 's' : ''}</span>
-                </div>
             </Card>
+
+            <ProductoModal
+                open={showProdModal}
+                onClose={cerrarProdModal}
+                form={form}
+                setForm={setForm}
+                editando={editando}
+                guardar={guardar}
+                buscandoOFF={buscandoOFF}
+                buscarEnOFF={buscarEnOFF}
+                categoriasActivas={categoriasActivas}
+                SIN_CATEGORIA={SIN_CATEGORIA}
+            />
 
             {showCatModal && (
                 <CategoriasModal

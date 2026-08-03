@@ -15,7 +15,7 @@ export const AccesosPage = () => {
 
     return (
         <div>
-            <h2 className="mt-0 mb-1 text-2xl font-semibold">Accesos</h2>
+            <h2 className="m-0 mb-1 text-2xl font-semibold text-foreground">Accesos</h2>
             <p className="mb-4 text-sm text-muted-foreground">
                 Elegí qué secciones del panel puede ver cada operario, además de su punto de venta.
             </p>
