@@ -11,10 +11,10 @@ const ITEMS_PER_PAGE = 10;
 
 function StatCard({ title, value, subtitle, className = '', style }) {
     return (
-        <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 px-4 py-3" style={style}>
+        <Card className="flex-1 min-w-[220px] max-w-[280px] gap-1.5 px-5 py-4" style={style}>
             <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">{title}</h4>
             <div className="flex items-baseline justify-between gap-2">
-                <span className={`text-xl font-bold ${className}`}>{value}</span>
+                <span className={`text-2xl font-bold ${className}`}>{value}</span>
                 {subtitle && <span className="text-xs text-muted-foreground whitespace-nowrap">{subtitle}</span>}
             </div>
         </Card>

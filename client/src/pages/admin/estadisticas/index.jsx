@@ -35,36 +35,36 @@ export const EstadisticasPage = () => {
 
             {/* Tarjetas KPI Superiores compactas siguiendo el modelo de Resumen */}
             <div className="flex flex-wrap gap-3.5">
-                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-primary px-4 py-3">
+                <Card className="flex-[1.4] min-w-[280px] max-w-[380px] gap-1.5 border-l-4 border-l-primary px-5 py-4">
                     <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Artículos más vendidos</h4>
                     <div className="flex items-baseline justify-between gap-2">
-                        <span className="truncate text-xl font-bold text-foreground" title={stats?.topArticles?.[0]?.name}>
+                        <span className="truncate text-2xl font-bold text-foreground" title={stats?.topArticles?.[0]?.name}>
                             {stats?.topArticles?.[0]?.name || 'Sin datos'}
                         </span>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">{stats?.topArticles?.[0]?.soldUnits || 0} unid.</span>
                     </div>
                 </Card>
 
-                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-success px-4 py-3">
+                <Card className="flex-1 min-w-[220px] max-w-[280px] gap-1.5 border-l-4 border-l-success px-5 py-4">
                     <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Ganancias acumuladas</h4>
                     <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-xl font-bold text-foreground">{fmt(stats?.monthlySummary?.ganancias)}</span>
+                        <span className="text-2xl font-bold text-foreground">{fmt(stats?.monthlySummary?.ganancias)}</span>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">Acumulado</span>
                     </div>
                 </Card>
 
-                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-destructive px-4 py-3">
+                <Card className="flex-1 min-w-[220px] max-w-[280px] gap-1.5 border-l-4 border-l-destructive px-5 py-4">
                     <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Pérdidas acumuladas</h4>
                     <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-xl font-bold text-foreground">{fmt(stats?.monthlySummary?.perdidas)}</span>
+                        <span className="text-2xl font-bold text-foreground">{fmt(stats?.monthlySummary?.perdidas)}</span>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">Acumulado</span>
                     </div>
                 </Card>
 
-                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-warning px-4 py-3">
+                <Card className="flex-1 min-w-[220px] max-w-[280px] gap-1.5 border-l-4 border-l-warning px-5 py-4">
                     <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Balance</h4>
                     <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-xl font-bold text-foreground">
+                        <span className="text-2xl font-bold text-foreground">
                             {fmt(stats?.monthlySummary?.balance)}
                         </span>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">Neto</span>

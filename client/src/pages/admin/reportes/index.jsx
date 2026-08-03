@@ -47,34 +47,34 @@ export const ReportesPage = () => {
             </div>
 
             <div className="mb-6 flex flex-wrap gap-3.5">
-                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-primary px-4 py-3">
+                <Card className="flex-1 min-w-[220px] max-w-[280px] gap-1.5 border-l-4 border-l-primary px-5 py-4">
                     <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Pendientes</h4>
                     <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-xl font-bold text-primary">{resumen.pendiente}</span>
+                        <span className="text-2xl font-bold text-primary">{resumen.pendiente}</span>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">Notas</span>
                     </div>
                 </Card>
 
-                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-warning px-4 py-3">
+                <Card className="flex-1 min-w-[220px] max-w-[280px] gap-1.5 border-l-4 border-l-warning px-5 py-4">
                     <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">En revisión</h4>
                     <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-xl font-bold text-foreground">{resumen.revision}</span>
+                        <span className="text-2xl font-bold text-foreground">{resumen.revision}</span>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">Notas</span>
                     </div>
                 </Card>
 
-                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-success px-4 py-3">
+                <Card className="flex-1 min-w-[220px] max-w-[280px] gap-1.5 border-l-4 border-l-success px-5 py-4">
                     <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Aprobadas</h4>
                     <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-xl font-bold text-success">{resumen.aprobada}</span>
+                        <span className="text-2xl font-bold text-success">{resumen.aprobada}</span>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">Notas</span>
                     </div>
                 </Card>
 
-                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-destructive px-4 py-3">
+                <Card className="flex-1 min-w-[220px] max-w-[280px] gap-1.5 border-l-4 border-l-destructive px-5 py-4">
                     <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Cerradas</h4>
                     <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-xl font-bold text-destructive">{resumen.cerrada}</span>
+                        <span className="text-2xl font-bold text-destructive">{resumen.cerrada}</span>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">Notas</span>
                     </div>
                 </Card>
