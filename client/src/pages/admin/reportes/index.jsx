@@ -36,7 +36,7 @@ export const ReportesPage = () => {
     return (
         <div>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="m-0 text-2xl font-semibold">Reportes y notas</h2>
+                <h2 className="m-0 text-2xl font-semibold text-foreground">Reportes y notas</h2>
                 <Select value={branchId || TODAS} onValueChange={(v) => setBranchId(v === TODAS ? '' : v)}>
                     <SelectTrigger><SelectValue placeholder="Todos los locales" /></SelectTrigger>
                     <SelectContent>
@@ -46,22 +46,37 @@ export const ReportesPage = () => {
                 </Select>
             </div>
 
-            <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
-                <Card className="gap-1.5 py-4">
-                    <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Pendientes</span>
-                    <span className="font-heading text-2xl font-extrabold text-primary">{resumen.pendiente}</span>
+            <div className="mb-6 flex flex-wrap gap-3.5">
+                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-primary px-4 py-3">
+                    <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Pendientes</h4>
+                    <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-xl font-bold text-primary">{resumen.pendiente}</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">Notas</span>
+                    </div>
                 </Card>
-                <Card className="gap-1.5 py-4">
-                    <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">En revisión</span>
-                    <span className="font-heading text-2xl font-extrabold">{resumen.revision}</span>
+
+                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-warning px-4 py-3">
+                    <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">En revisión</h4>
+                    <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-xl font-bold text-foreground">{resumen.revision}</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">Notas</span>
+                    </div>
                 </Card>
-                <Card className="gap-1.5 py-4">
-                    <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Aprobadas</span>
-                    <span className="font-heading text-2xl font-extrabold text-success">{resumen.aprobada}</span>
+
+                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-success px-4 py-3">
+                    <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Aprobadas</h4>
+                    <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-xl font-bold text-success">{resumen.aprobada}</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">Notas</span>
+                    </div>
                 </Card>
-                <Card className="gap-1.5 py-4">
-                    <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Cerradas</span>
-                    <span className="font-heading text-2xl font-extrabold text-destructive">{resumen.cerrada}</span>
+
+                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-destructive px-4 py-3">
+                    <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Cerradas</h4>
+                    <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-xl font-bold text-destructive">{resumen.cerrada}</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">Notas</span>
+                    </div>
                 </Card>
             </div>
 

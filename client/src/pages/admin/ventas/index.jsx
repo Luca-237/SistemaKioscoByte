@@ -18,7 +18,7 @@ export function VentasPage() {
 
     return (
         <div>
-            <h2 className="mt-0 mb-5 text-2xl font-semibold">Panel de Ventas</h2>
+            <h2 className="m-0 mb-5 text-2xl font-semibold text-foreground">Panel de Ventas</h2>
 
             <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6">
                 <StatCard title="Facturación Total" value={`$${resumen?.ventas?.facturado?.toLocaleString() || 0}`} className="text-primary" />
@@ -27,7 +27,7 @@ export function VentasPage() {
             </div>
 
             <Card className="mt-8">
-                <h3 className="mt-0 mb-2">Ir al Punto de Venta</h3>
+                <h3 className="m-0 mb-2 text-base font-semibold text-foreground">Ir al Punto de Venta</h3>
                 <p className="mb-4 text-sm text-muted-foreground">
                     Para registrar ventas como empleado, ingresá a la terminal de caja.
                 </p>

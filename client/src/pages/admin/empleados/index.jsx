@@ -1,14 +1,17 @@
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useOperarios } from '../../../hooks/useOperarios';
 import { Button } from '../../../components/ui/Button';
-import { Input } from '../../../components/ui/Input';
 import { Card } from '../../../components/ui/Card';
 import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../components/ui/Table';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { EmpleadoModal } from './components/EmpleadoModal';
 
 export const EmpleadosPage = () => {
     const { operarios, sucursales, crear, actualizar } = useOperarios();
     const [form, setForm] = useState({ name: '', username: '', password: '', branchIds: [] });
+    const [showModal, setShowModal] = useState(false);
+    const [editando, setEditando] = useState(null);
 
     const toggleBranchForm = (id) => {
         setForm((f) => ({
@@ -17,16 +20,34 @@ export const EmpleadosPage = () => {
         }));
     };
 
+    const abrirNuevo = () => {
+        setEditando(null);
+        setForm({ name: '', username: '', password: '', branchIds: [] });
+        setShowModal(true);
+    };
+
+    const cerrarModal = () => {
+        setShowModal(false);
+        setEditando(null);
+        setForm({ name: '', username: '', password: '', branchIds: [] });
+    };
+
     const handleCrear = async (e) => {
         e.preventDefault();
         try {
-            await crear(form);
-            setForm({ name: '', username: '', password: '', branchIds: [] });
-        } catch (err) { alert(err.response?.data?.message || 'Error al crear el empleado'); }
+            if (editando) {
+                const payload = { ...form };
+                if (!payload.password) delete payload.password;
+                await actualizar(editando, payload);
+            } else {
+                await crear(form);
+            }
+            cerrarModal();
+        } catch (err) { alert(err.response?.data?.message || 'Error al guardar el empleado'); }
     };
 
     const toggleBranchUser = async (user, branchId) => {
-        const actuales = user.branchIds.map((b) => b._id);
+        const actuales = user.branchIds.map((b) => b._id || b);
         const nuevas = actuales.includes(branchId) ? actuales.filter((x) => x !== branchId) : [...actuales, branchId];
         await actualizar(user._id, { branchIds: nuevas });
     };
@@ -46,26 +67,13 @@ export const EmpleadosPage = () => {
 
     return (
         <div>
-            <h2 className="mt-0 mb-4 text-2xl font-semibold">Empleados</h2>
-
-            <Card className="mb-6">
-                <h3 className="mt-0 mb-3">Nuevo empleado</h3>
-                <form className="flex flex-wrap gap-2.5" onSubmit={handleCrear}>
-                    <Input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="max-w-56" />
-                    <Input placeholder="Usuario *" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required className="max-w-48" />
-                    <Input type="password" placeholder="Contraseña *" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required className="max-w-48" />
-                    <Button type="submit">+ Agregar</Button>
-                </form>
-                <div className="mt-2.5 flex flex-wrap items-center gap-4 text-sm">
-                    <span className="font-semibold text-muted-foreground">Locales iniciales:</span>
-                    {sucursales.map((b) => (
-                        <label key={b._id} className="flex cursor-pointer items-center gap-1.5">
-                            <input type="checkbox" checked={form.branchIds.includes(b._id)} onChange={() => toggleBranchForm(b._id)} />
-                            {b.name}
-                        </label>
-                    ))}
-                </div>
-            </Card>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="m-0 text-2xl font-semibold text-foreground">Empleados</h2>
+                <Button onClick={abrirNuevo}>
+                    <Plus size={16} />
+                    Agregar operario
+                </Button>
+            </div>
 
             <Card className="overflow-hidden p-0">
                 {operarios.length === 0 ? (
@@ -75,7 +83,7 @@ export const EmpleadosPage = () => {
                         <TableHeader>
                             <TableRow>
                                 <Th>Nombre</Th><Th>Usuario</Th><Th>Estado</Th>
-                                <Th>Locales</Th><Th>Acciones</Th>
+                                <Th>Locales</Th><Th className="text-right">Acciones</Th>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -98,7 +106,7 @@ export const EmpleadosPage = () => {
                                             ))}
                                         </div>
                                     </Td>
-                                    <Td className="space-x-1.5 whitespace-nowrap">
+                                    <Td className="text-right space-x-1.5 whitespace-nowrap">
                                         <Button variant="outline" size="sm" onClick={() => toggleActivo(u)}>
                                             {u.active ? 'Desactivar' : 'Activar'}
                                         </Button>
@@ -110,6 +118,17 @@ export const EmpleadosPage = () => {
                     </Table>
                 )}
             </Card>
+
+            <EmpleadoModal
+                open={showModal}
+                onClose={cerrarModal}
+                form={form}
+                setForm={setForm}
+                editando={editando}
+                guardar={handleCrear}
+                sucursales={sucursales}
+                toggleBranchForm={toggleBranchForm}
+            />
         </div>
     );
 };

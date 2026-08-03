@@ -20,11 +20,12 @@ export const EstadisticasPage = () => {
     if (loading) return <div className="text-muted-foreground">Cargando estadísticas…</div>;
 
     return (
-        <div>
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="m-0 text-2xl font-semibold">Estadísticas</h2>
+        <div className="flex flex-col gap-6">
+            {/* Header y Filtro */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="m-0 text-2xl font-semibold text-foreground">Estadísticas</h2>
                 <Select value={branchId || TODAS} onValueChange={(v) => setBranchId(v === TODAS ? '' : v)}>
-                    <SelectTrigger><SelectValue placeholder="Todas las sucursales" /></SelectTrigger>
+                    <SelectTrigger className="w-[200px]"><SelectValue placeholder="Todas las sucursales" /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value={TODAS}>Todas las sucursales</SelectItem>
                         {branches.map((branch) => <SelectItem key={branch._id} value={branch._id}>{branch.name}</SelectItem>)}
@@ -32,141 +33,198 @@ export const EstadisticasPage = () => {
                 </Select>
             </div>
 
-            <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
-                <Card className="gap-1.5 py-5">
-                    <span className="text-sm font-semibold text-muted-foreground">Artículos más vendidos</span>
-                    <span className="font-heading text-2xl font-extrabold text-primary">{stats?.topArticles?.[0]?.name || 'Sin datos'}</span>
-                    <span className="text-sm text-muted-foreground">{stats?.topArticles?.[0]?.soldUnits || 0} unidades</span>
+            {/* Tarjetas KPI Superiores compactas siguiendo el modelo de Resumen */}
+            <div className="flex flex-wrap gap-3.5">
+                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-primary px-4 py-3">
+                    <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Artículos más vendidos</h4>
+                    <div className="flex items-baseline justify-between gap-2">
+                        <span className="truncate text-xl font-bold text-foreground" title={stats?.topArticles?.[0]?.name}>
+                            {stats?.topArticles?.[0]?.name || 'Sin datos'}
+                        </span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">{stats?.topArticles?.[0]?.soldUnits || 0} unid.</span>
+                    </div>
                 </Card>
-                <Card className="gap-1.5 py-5">
-                    <span className="text-sm font-semibold text-muted-foreground">Ganancias acumuladas</span>
-                    <span className="font-heading text-2xl font-extrabold text-success">{fmt(stats?.monthlySummary?.ganancias)}</span>
+
+                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-success px-4 py-3">
+                    <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Ganancias acumuladas</h4>
+                    <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-xl font-bold text-foreground">{fmt(stats?.monthlySummary?.ganancias)}</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">Acumulado</span>
+                    </div>
                 </Card>
-                <Card className="gap-1.5 py-5">
-                    <span className="text-sm font-semibold text-muted-foreground">Pérdidas acumuladas</span>
-                    <span className="font-heading text-2xl font-extrabold text-destructive">{fmt(stats?.monthlySummary?.perdidas)}</span>
+
+                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-destructive px-4 py-3">
+                    <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Pérdidas acumuladas</h4>
+                    <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-xl font-bold text-foreground">{fmt(stats?.monthlySummary?.perdidas)}</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">Acumulado</span>
+                    </div>
                 </Card>
-                <Card className="gap-1.5 py-5">
-                    <span className="text-sm font-semibold text-muted-foreground">Balance</span>
-                    <span className={`font-heading text-2xl font-extrabold ${stats?.monthlySummary?.balance >= 0 ? 'text-success' : ''}`}>
-                        {fmt(stats?.monthlySummary?.balance)}
-                    </span>
+
+                <Card className="flex-1 min-w-[200px] max-w-[260px] gap-1 border-l-4 border-l-warning px-4 py-3">
+                    <h4 className="m-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Balance</h4>
+                    <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-xl font-bold text-foreground">
+                            {fmt(stats?.monthlySummary?.balance)}
+                        </span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">Neto</span>
+                    </div>
                 </Card>
             </div>
 
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(360px,1fr))] items-start gap-6">
-                <Card>
-                    <h3 className="mt-0 mb-4">Artículos más vendidos</h3>
-                    {stats?.topArticles?.length ? (
-                        <Table compact>
-                            <TableHeader>
-                                <TableRow><Th>Artículo</Th><Th className="text-right">Unidades</Th><Th className="text-right">Ventas</Th><Th className="text-right">Precio prom.</Th></TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {stats.topArticles.map((item) => (
-                                    <TableRow key={item.articleId}>
-                                        <Td>{item.name}</Td>
-                                        <Td className="text-right">{item.soldUnits}</Td>
-                                        <Td className="text-right">{fmt(item.revenue)}</Td>
-                                        <Td className="text-right">{fmt(item.avgSalePrice)}</Td>
+            {/* Fila 1: Tablas de Ventas (Artículos más vendidos + Ventas por operario) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="h-full flex flex-col justify-between">
+                    <div>
+                        <h3 className="m-0 mb-3 text-base font-semibold text-foreground">Artículos más vendidos</h3>
+                        {stats?.topArticles?.length ? (
+                            <Table compact>
+                                <TableHeader>
+                                    <TableRow>
+                                        <Th>Artículo</Th>
+                                        <Th className="text-right">Unidades</Th>
+                                        <Th className="text-right">Ventas</Th>
+                                        <Th className="text-right">Precio prom.</Th>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    ) : <EmptyState message="Sin ventas registradas." />}
+                                </TableHeader>
+                                <TableBody>
+                                    {stats.topArticles.map((item) => (
+                                        <TableRow key={item.articleId}>
+                                            <Td><strong>{item.name}</strong></Td>
+                                            <Td className="text-right font-mono text-sm">{item.soldUnits}</Td>
+                                            <Td className="text-right font-mono text-sm font-semibold text-success">{fmt(item.revenue)}</Td>
+                                            <Td className="text-right font-mono text-sm">{fmt(item.avgSalePrice)}</Td>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : <EmptyState message="Sin ventas registradas." />}
+                    </div>
                 </Card>
 
-                <Card>
-                    <h3 className="mt-0 mb-4">Diferencia de precios históricos</h3>
+                <Card className="h-full flex flex-col justify-between">
+                    <div>
+                        <h3 className="m-0 mb-3 text-base font-semibold text-foreground">Ventas por operario</h3>
+                        {stats?.salesByOperator?.length ? (
+                            <Table compact>
+                                <TableHeader>
+                                    <TableRow>
+                                        <Th>Operario</Th>
+                                        <Th className="text-right">Tickets</Th>
+                                        <Th className="text-right">Total ventas</Th>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {stats.salesByOperator.map((item) => (
+                                        <TableRow key={item.operatorId}>
+                                            <Td><strong>{item.name}</strong></Td>
+                                            <Td className="text-right font-mono text-sm">{item.soldTickets}</Td>
+                                            <Td className="text-right font-mono text-sm font-bold text-success">{fmt(item.totalSales)}</Td>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : <EmptyState message="Sin ventas registradas." />}
+                    </div>
+                </Card>
+            </div>
+
+            {/* Fila 2: Desgloses (Ganancias/Pérdidas por mes + Gastos por concepto) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="h-full flex flex-col justify-between">
+                    <div>
+                        <h3 className="m-0 mb-3 text-base font-semibold text-foreground">Ganancias y pérdidas por mes</h3>
+                        {stats?.monthlyBalance?.length ? (
+                            <div className="grid gap-3">
+                                {stats.monthlyBalance.map((item) => (
+                                    <div key={item.month} className="rounded-xl border border-border p-3.5 bg-background/50">
+                                        <div className="flex items-center justify-between gap-2.5">
+                                            <strong className="text-sm">{fmtMes(item.month)}</strong>
+                                            <span className={`font-mono text-sm font-bold ${item.balance >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                                {fmt(item.balance)}
+                                            </span>
+                                        </div>
+                                        <div className="mt-2.5 grid gap-2">
+                                            <div className="grid gap-1">
+                                                <span className="text-xs text-muted-foreground">Ingresos</span>
+                                                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                                                    <div className="h-full rounded-full bg-success" style={{ width: `${Math.max((item.ingresos / Math.max(item.ingresos + item.egresos, 1)) * 100, 5)}%` }} />
+                                                </div>
+                                            </div>
+                                            <div className="grid gap-1">
+                                                <span className="text-xs text-muted-foreground">Egresos</span>
+                                                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                                                    <div className="h-full rounded-full bg-destructive" style={{ width: `${Math.max((item.egresos / Math.max(item.ingresos + item.egresos, 1)) * 100, 5)}%` }} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="mt-2.5 flex flex-wrap justify-between text-xs text-muted-foreground">
+                                            <span>Ganancia: <strong className="text-success">{fmt(item.ganancia)}</strong></span>
+                                            <span>Pérdida: <strong className="text-destructive">{fmt(item.perdida)}</strong></span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : <EmptyState message="Sin información mensual." />}
+                    </div>
+                </Card>
+
+                <Card className="h-full flex flex-col justify-between">
+                    <div>
+                        <h3 className="m-0 mb-3 text-base font-semibold text-foreground">Gastos por concepto</h3>
+                        {stats?.expenseBreakdown?.length ? (
+                            <div className="grid gap-3">
+                                {stats.expenseBreakdown.map((entry) => (
+                                    <div key={entry.concept} className="grid gap-1.5">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span>{entry.concept}</span>
+                                            <strong className="font-mono">{fmt(entry.total)}</strong>
+                                        </div>
+                                        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                                            <div className="h-full rounded-full bg-primary" style={{ width: `${Math.max((entry.total / Math.max(maxExpense, 1)) * 100, 5)}%` }} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : <EmptyState message="Sin gastos registrados." />}
+                    </div>
+                </Card>
+            </div>
+
+            {/* Fila Inferior a Ancho Completo: Historial Completo de Precios */}
+            <Card>
+                <h3 className="m-0 text-base font-semibold text-foreground">Diferencia de precios históricos</h3>
+                <div className="overflow-x-auto">
                     {stats?.priceHistory?.length ? (
                         <Table compact>
                             <TableHeader>
-                                <TableRow><Th>Artículo</Th><Th className="text-right">Compra</Th><Th className="text-right">Venta</Th><Th className="text-right">Diferencia</Th><Th>Proveedores</Th></TableRow>
+                                <TableRow>
+                                    <Th>Artículo</Th>
+                                    <Th className="text-right">Compra</Th>
+                                    <Th className="text-right">Venta</Th>
+                                    <Th className="text-right">Dif.</Th>
+                                    <Th>Proveedores</Th>
+                                </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {stats.priceHistory.map((item) => (
                                     <TableRow key={item.articleId}>
-                                        <Td>{item.name}</Td>
-                                        <Td className="text-right">{fmt(item.avgPurchasePrice)}</Td>
-                                        <Td className="text-right">{fmt(item.avgSalePrice)}</Td>
-                                        <Td className={`text-right ${item.historicalDifference >= 0 ? 'text-success' : 'text-destructive'}`}>{fmt(item.historicalDifference)}</Td>
-                                        <Td>{item.suppliers.length ? item.suppliers.join(', ') : 'Sin proveedores'}</Td>
+                                        <Td><strong>{item.name}</strong></Td>
+                                        <Td className="text-right font-mono text-sm">{fmt(item.avgPurchasePrice)}</Td>
+                                        <Td className="text-right font-mono text-sm">{fmt(item.avgSalePrice)}</Td>
+                                        <Td className={`text-right font-mono text-sm font-bold ${item.historicalDifference >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                            {fmt(item.historicalDifference)}
+                                        </Td>
+                                        <Td className="text-xs text-muted-foreground">
+                                            {item.suppliers.length ? item.suppliers.join(', ') : '—'}
+                                        </Td>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     ) : <EmptyState message="Todavía no hay historial de precios." />}
-                </Card>
-
-                <Card>
-                    <h3 className="mt-0 mb-4">Ventas por operario</h3>
-                    {stats?.salesByOperator?.length ? (
-                        <Table compact>
-                            <TableHeader>
-                                <TableRow><Th>Operario</Th><Th className="text-right">Tickets</Th><Th className="text-right">Total ventas</Th></TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {stats.salesByOperator.map((item) => (
-                                    <TableRow key={item.operatorId}><Td>{item.name}</Td><Td className="text-right">{item.soldTickets}</Td><Td className="text-right">{fmt(item.totalSales)}</Td></TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    ) : <EmptyState message="Sin ventas registradas." />}
-                </Card>
-
-                <Card>
-                    <h3 className="mt-0 mb-4">Ganancias y pérdidas por mes</h3>
-                    {stats?.monthlyBalance?.length ? (
-                        <div className="grid gap-4">
-                            {stats.monthlyBalance.map((item) => (
-                                <div key={item.month} className="rounded-xl border border-border p-3.5">
-                                    <div className="flex items-center justify-between gap-2.5">
-                                        <strong>{fmtMes(item.month)}</strong>
-                                        <span className={item.balance >= 0 ? 'text-success' : 'text-destructive'}>{fmt(item.balance)}</span>
-                                    </div>
-                                    <div className="mt-2.5 grid gap-2.5">
-                                        <div className="grid gap-1">
-                                            <span className="text-xs text-muted-foreground">Ingresos</span>
-                                            <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted-foreground/20">
-                                                <div className="h-full rounded-full bg-[linear-gradient(90deg,#10b981,#34d399)]" style={{ width: `${Math.max((item.ingresos / Math.max(item.ingresos + item.egresos, 1)) * 100, 8)}%` }} />
-                                            </div>
-                                        </div>
-                                        <div className="grid gap-1">
-                                            <span className="text-xs text-muted-foreground">Egresos</span>
-                                            <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted-foreground/20">
-                                                <div className="h-full rounded-full bg-[linear-gradient(90deg,var(--destructive),#fb7185)]" style={{ width: `${Math.max((item.egresos / Math.max(item.ingresos + item.egresos, 1)) * 100, 8)}%` }} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="mt-2.5 flex flex-wrap gap-2.5 text-sm">
-                                        <span className="text-success">Ganancia: {fmt(item.ganancia)}</span>
-                                        <span className="text-destructive">Pérdida: {fmt(item.perdida)}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : <EmptyState message="Sin información mensual." />}
-                </Card>
-
-                <Card>
-                    <h3 className="mt-0 mb-4">Gastos por concepto</h3>
-                    {stats?.expenseBreakdown?.length ? (
-                        <div className="grid gap-3">
-                            {stats.expenseBreakdown.map((entry) => (
-                                <div key={entry.concept} className="grid gap-1.5">
-                                    <div className="flex items-center justify-between">
-                                        <span>{entry.concept}</span>
-                                        <strong>{fmt(entry.total)}</strong>
-                                    </div>
-                                    <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted-foreground/20">
-                                        <div className="h-full rounded-full bg-[linear-gradient(90deg,#10b981,#34d399)]" style={{ width: `${Math.max((entry.total / Math.max(maxExpense, 1)) * 100, 8)}%` }} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : <EmptyState message="Sin gastos registrados." />}
-                </Card>
-            </div>
+                </div>
+            </Card>
         </div>
     );
 };

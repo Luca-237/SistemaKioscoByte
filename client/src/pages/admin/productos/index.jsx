@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Tags, Plus } from 'lucide-react';
+import { Search, Tags, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fmt } from '../../../lib/format';
 import { useArticulos } from '../../../hooks/useArticulos';
 import { updateArticulo } from '../../../api';
@@ -14,6 +14,7 @@ import { ProductoModal } from './components/ProductoModal';
 
 const TODAS_CATS = '__todas__';
 const SIN_CATEGORIA = '__sin_categoria__';
+const ITEMS_PER_PAGE = 10;
 
 export const ProductosPage = () => {
     const [branchId, setBranchId] = useState('');
@@ -27,6 +28,7 @@ export const ProductosPage = () => {
     const [showProdModal, setShowProdModal] = useState(false);
     const [filtroCategoria, setFiltroCategoria] = useState('');
     const [busqueda, setBusqueda] = useState('');
+    const [paginaActual, setPaginaActual] = useState(1);
 
     // Categorías activas para los selects (alta/edición de artículos)
     const categoriasActivas = useMemo(() => {
@@ -53,6 +55,33 @@ export const ProductosPage = () => {
         }
         return list;
     }, [articulos, filtroCategoria, busqueda]);
+
+    const totalPaginas = Math.ceil(articulosFiltrados.length / ITEMS_PER_PAGE) || 1;
+    const inicio = (paginaActual - 1) * ITEMS_PER_PAGE;
+    const articulosPaginados = articulosFiltrados.slice(inicio, inicio + ITEMS_PER_PAGE);
+
+    const obtenerPaginas = () => {
+        if (totalPaginas <= 5) {
+            return Array.from({ length: totalPaginas }, (_, i) => i + 1);
+        }
+        const start = Math.max(1, Math.min(paginaActual - 2, totalPaginas - 4));
+        return Array.from({ length: 5 }, (_, i) => start + i);
+    };
+
+    const handleBusqueda = (val) => {
+        setBusqueda(val);
+        setPaginaActual(1);
+    };
+
+    const handleFiltroCategoria = (val) => {
+        setFiltroCategoria(val === TODAS_CATS ? '' : val);
+        setPaginaActual(1);
+    };
+
+    const handleBranchChange = (val) => {
+        setBranchId(val === TODAS_CATS ? '' : val);
+        setPaginaActual(1);
+    };
 
     const buscarEnOFF = async (barcode) => {
         if (!barcode || barcode.length < 8) return;
@@ -127,25 +156,25 @@ export const ProductosPage = () => {
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="m-0 text-2xl font-semibold">Productos</h2>
+                <h2 className="m-0 text-2xl font-semibold text-foreground">Productos</h2>
                 <div className="flex flex-wrap items-center gap-2.5">
                     <div className="flex min-w-[180px] items-center gap-1.5 rounded-md border border-input bg-card px-3 py-2 text-muted-foreground focus-within:border-primary focus-within:text-foreground">
                         <Search size={15} />
                         <input
                             placeholder="Buscar producto…"
                             value={busqueda}
-                            onChange={(e) => setBusqueda(e.target.value)}
+                            onChange={(e) => handleBusqueda(e.target.value)}
                             className="w-full border-none bg-transparent text-sm text-foreground outline-none"
                         />
                     </div>
-                    <Select value={filtroCategoria || TODAS_CATS} onValueChange={(v) => setFiltroCategoria(v === TODAS_CATS ? '' : v)}>
+                    <Select value={filtroCategoria || TODAS_CATS} onValueChange={handleFiltroCategoria}>
                         <SelectTrigger><SelectValue placeholder="Todas las categorías" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value={TODAS_CATS}>Todas las categorías</SelectItem>
                             {categorias.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                    <Select value={branchId || TODAS_CATS} onValueChange={(v) => setBranchId(v === TODAS_CATS ? '' : v)}>
+                    <Select value={branchId || TODAS_CATS} onValueChange={handleBranchChange}>
                         <SelectTrigger><SelectValue placeholder="Stock de… (local)" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value={TODAS_CATS}>Stock de… (local)</SelectItem>
@@ -167,65 +196,108 @@ export const ProductosPage = () => {
                 {articulosFiltrados.length === 0 ? (
                     <EmptyState message={articulos.length === 0 ? 'Catálogo vacío.' : 'Sin resultados para el filtro.'} />
                 ) : (
-                    <Table compact>
-                        <TableHeader>
-                            <TableRow>
-                                <Th>Nombre</Th><Th>Categoría</Th>
-                                <Th className="text-right">Precio</Th>
-                                <Th>Código</Th><Th>Barras</Th>
-                                {branchId && <Th className="text-right">Stock</Th>}
-                                {branchId && <Th className="text-right">Costo prom.</Th>}
-                                <Th className="text-right">Acciones</Th>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {articulosFiltrados.map((a) => (
-                                <TableRow key={a._id}>
-                                    <Td><strong>{a.name}</strong></Td>
-                                    <Td>
-                                        {a.category
-                                            ? <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-sm font-semibold whitespace-nowrap text-primary">{a.category}</span>
-                                            : <span className="text-muted-foreground">—</span>}
-                                    </Td>
-                                    <Td className="text-right">{fmt(a.salePrice)}</Td>
-                                    <Td className="font-mono text-sm">{a.code}</Td>
-                                    <Td className="font-mono text-sm">{a.barcode || '—'}</Td>
-                                    {branchId && (
-                                        <Td className="text-right">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <Input
-                                                    type="number" min="0" className="h-7 w-16 px-1.5 text-right"
-                                                    value={editingStock[a._id] !== undefined ? editingStock[a._id] : (a.stock ?? '')}
-                                                    onChange={(e) => setEditingStock((prev) => ({ ...prev, [a._id]: e.target.value }))}
-                                                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); guardarStock(a._id); } }}
-                                                />
-                                                {editingStock[a._id] !== undefined && String(editingStock[a._id]) !== String(a.stock) && (
-                                                    <Button variant="outline" size="sm" onClick={() => guardarStock(a._id)} title="Guardar stock">✓</Button>
-                                                )}
+                    <>
+                        <Table compact>
+                            <TableHeader>
+                                <TableRow>
+                                    <Th>Nombre</Th><Th>Categoría</Th>
+                                    <Th className="text-right">Precio</Th>
+                                    <Th>Código</Th><Th>Barras</Th>
+                                    {branchId && <Th className="text-right">Stock</Th>}
+                                    {branchId && <Th className="text-right">Costo prom.</Th>}
+                                    <Th className="text-right">Acciones</Th>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {articulosPaginados.map((a) => (
+                                    <TableRow key={a._id}>
+                                        <Td><strong>{a.name}</strong></Td>
+                                        <Td>
+                                            {a.category
+                                                ? <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-sm font-semibold whitespace-nowrap text-primary">{a.category}</span>
+                                                : <span className="text-muted-foreground">—</span>}
+                                        </Td>
+                                        <Td className="text-right">{fmt(a.salePrice)}</Td>
+                                        <Td className="font-mono text-sm">{a.code}</Td>
+                                        <Td className="font-mono text-sm">{a.barcode || '—'}</Td>
+                                        {branchId && (
+                                            <Td className="text-right">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <Input
+                                                        type="number" min="0" className="h-7 w-16 px-1.5 text-right"
+                                                        value={editingStock[a._id] !== undefined ? editingStock[a._id] : (a.stock ?? '')}
+                                                        onChange={(e) => setEditingStock((prev) => ({ ...prev, [a._id]: e.target.value }))}
+                                                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); guardarStock(a._id); } }}
+                                                    />
+                                                    {editingStock[a._id] !== undefined && String(editingStock[a._id]) !== String(a.stock) && (
+                                                        <Button variant="outline" size="sm" onClick={() => guardarStock(a._id)} title="Guardar stock">✓</Button>
+                                                    )}
+                                                </div>
+                                            </Td>
+                                        )}
+                                        {branchId && <Td className="text-right">{fmt(a.avgCost)}</Td>}
+                                        <Td className="text-right whitespace-nowrap">
+                                            <div className="flex justify-end gap-1.5">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => abrirEdicion(a)}
+                                                >
+                                                    Editar
+                                                </Button>
+                                                <Button variant="destructive" size="sm" onClick={() => confirmarBaja(a)}>Baja</Button>
                                             </div>
                                         </Td>
-                                    )}
-                                    {branchId && <Td className="text-right">{fmt(a.avgCost)}</Td>}
-                                    <Td className="text-right whitespace-nowrap">
-                                        <div className="flex justify-end gap-1.5">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => abrirEdicion(a)}
-                                            >
-                                                Editar
-                                            </Button>
-                                            <Button variant="destructive" size="sm" onClick={() => confirmarBaja(a)}>Baja</Button>
-                                        </div>
-                                    </Td>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-2 text-xs text-muted-foreground">
+                            <span>
+                                Mostrando {articulosFiltrados.length > 0 ? inicio + 1 : 0} a {Math.min(inicio + ITEMS_PER_PAGE, articulosFiltrados.length)} de {articulosFiltrados.length} productos
+                            </span>
+
+                            {totalPaginas > 1 && (
+                                <div className="flex items-center gap-1">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={paginaActual === 1}
+                                        onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+                                        className="h-7 px-2 text-xs"
+                                        title="Página anterior"
+                                    >
+                                        <ChevronLeft size={14} />
+                                    </Button>
+
+                                    {obtenerPaginas().map((num) => (
+                                        <Button
+                                            key={num}
+                                            variant={paginaActual === num ? 'default' : 'outline'}
+                                            size="sm"
+                                            onClick={() => setPaginaActual(num)}
+                                            className="h-7 w-7 p-0 text-xs"
+                                        >
+                                            {num}
+                                        </Button>
+                                    ))}
+
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={paginaActual >= totalPaginas}
+                                        onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
+                                        className="h-7 px-2 text-xs"
+                                        title="Página siguiente"
+                                    >
+                                        <ChevronRight size={14} />
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </>
                 )}
-                <div className="border-t border-border px-4 py-2.5">
-                    <span className="text-sm text-muted-foreground">{articulosFiltrados.length} producto{articulosFiltrados.length !== 1 ? 's' : ''}</span>
-                </div>
             </Card>
 
             <ProductoModal

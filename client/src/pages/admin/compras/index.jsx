@@ -137,10 +137,10 @@ export const ComprasPage = () => {
 
     return (
         <div>
-            <h2 className="mt-0 mb-4 text-2xl font-semibold">Compras</h2>
+            <h2 className="m-0 mb-4 text-2xl font-semibold text-foreground">Compras</h2>
 
             <Card className="mb-6">
-                <h3 className="mt-0 mb-3">Nueva compra</h3>
+                <h3 className="m-0 mb-3 text-base font-semibold text-foreground">Nueva compra</h3>
                 <div className="mb-2.5 flex flex-wrap gap-2.5">
                     <Select value={cab.branchId} onValueChange={(v) => setCab({ ...cab, branchId: v })}>
                         <SelectTrigger><SelectValue placeholder="Sucursal destino *" /></SelectTrigger>
@@ -331,7 +331,7 @@ export const ComprasPage = () => {
                 )}
             </Card>
 
-            <h3 className="mb-2.5">Historial</h3>
+            <h3 className="m-0 mb-3 text-base font-semibold text-foreground">Historial</h3>
             <Card className="overflow-hidden p-0">
                 {compras.length === 0 ? (
                     <EmptyState message="Sin compras registradas." />

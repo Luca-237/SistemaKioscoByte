@@ -15,7 +15,7 @@ export function HistorialCajaPage() {
         <div>
             <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 className="m-0 text-2xl font-semibold">Historial de Cajas</h1>
+                    <h1 className="m-0 text-2xl font-semibold text-foreground">Historial de Cajas</h1>
                     <p className="mt-1 text-sm text-muted-foreground">Registro de aperturas y cierres de caja en todas las sucursales.</p>
                 </div>
                 <Button variant="outline" onClick={refresh} disabled={loading}>Actualizar</Button>

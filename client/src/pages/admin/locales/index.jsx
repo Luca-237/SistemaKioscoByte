@@ -28,7 +28,7 @@ export const LocalesPage = () => {
 
     return (
         <div>
-            <h2 className="mt-0 mb-4 text-2xl font-semibold">Locales</h2>
+            <h2 className="m-0 mb-4 text-2xl font-semibold text-foreground">Locales</h2>
 
             <form className="mb-4 flex flex-wrap gap-2.5" onSubmit={guardar}>
                 <Input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="max-w-56" />
