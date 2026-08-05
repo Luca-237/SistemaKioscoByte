@@ -1,23 +1,42 @@
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useSucursales } from '../../../hooks/useSucursales';
 import { Button } from '../../../components/ui/Button';
-import { Input } from '../../../components/ui/Input';
 import { Card } from '../../../components/ui/Card';
 import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../components/ui/Table';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { LocalModal } from './components/LocalModal';
 
 export const LocalesPage = () => {
     const { sucursales, crear, editar, darDeBaja } = useSucursales();
     const [form, setForm] = useState({ name: '', address: '', phone: '' });
     const [editando, setEditando] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
+    const abrirNuevo = () => {
+        setEditando(null);
+        setForm({ name: '', address: '', phone: '' });
+        setShowModal(true);
+    };
+
+    const abrirEdicion = (b) => {
+        setEditando(b._id);
+        setForm({ name: b.name, address: b.address || '', phone: b.phone || '' });
+        setShowModal(true);
+    };
+
+    const cerrarModal = () => {
+        setShowModal(false);
+        setEditando(null);
+        setForm({ name: '', address: '', phone: '' });
+    };
 
     const guardar = async (e) => {
         e.preventDefault();
         try {
             if (editando) await editar(editando, form);
             else await crear(form);
-            setForm({ name: '', address: '', phone: '' });
-            setEditando(null);
+            cerrarModal();
         } catch (err) { alert(err.response?.data?.message || 'Error al guardar'); }
     };
 
@@ -28,19 +47,13 @@ export const LocalesPage = () => {
 
     return (
         <div>
-            <h2 className="m-0 mb-4 text-2xl font-semibold text-foreground">Locales</h2>
-
-            <form className="mb-4 flex flex-wrap gap-2.5" onSubmit={guardar}>
-                <Input placeholder="Nombre *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="max-w-56" />
-                <Input placeholder="Dirección" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="max-w-56" />
-                <Input placeholder="Teléfono" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="max-w-44" />
-                <Button type="submit">{editando ? 'Guardar cambios' : '+ Agregar'}</Button>
-                {editando && (
-                    <Button variant="outline" type="button" onClick={() => { setEditando(null); setForm({ name: '', address: '', phone: '' }); }}>
-                        Cancelar
-                    </Button>
-                )}
-            </form>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="m-0 text-2xl font-semibold text-foreground">Locales</h2>
+                <Button onClick={abrirNuevo}>
+                    <Plus size={16} />
+                    Agregar sucursal
+                </Button>
+            </div>
 
             <Card className="overflow-hidden p-0">
                 {sucursales.length === 0 ? (
@@ -48,7 +61,7 @@ export const LocalesPage = () => {
                 ) : (
                     <Table>
                         <TableHeader>
-                            <TableRow><Th>Nombre</Th><Th>Dirección</Th><Th>Teléfono</Th><Th></Th></TableRow>
+                            <TableRow><Th>Nombre</Th><Th>Dirección</Th><Th>Teléfono</Th><Th className="text-right">Acciones</Th></TableRow>
                         </TableHeader>
                         <TableBody>
                             {sucursales.map((b) => (
@@ -60,7 +73,7 @@ export const LocalesPage = () => {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => { setEditando(b._id); setForm({ name: b.name, address: b.address || '', phone: b.phone || '' }); }}
+                                            onClick={() => abrirEdicion(b)}
                                         >
                                             Editar
                                         </Button>
@@ -72,6 +85,15 @@ export const LocalesPage = () => {
                     </Table>
                 )}
             </Card>
+
+            <LocalModal
+                open={showModal}
+                onClose={cerrarModal}
+                form={form}
+                setForm={setForm}
+                editando={editando}
+                guardar={guardar}
+            />
         </div>
     );
 };
