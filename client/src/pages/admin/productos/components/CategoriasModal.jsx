@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronRight, Pencil, Ban, RotateCcw } from 'lucide-react';
+import { ChevronRight, Pencil, Ban, RotateCcw, ToggleRight, ToggleLeft } from 'lucide-react';
 import { fmt } from '../../../../lib/format';
 import { Button } from '../../../../components/ui/Button';
 import { Input } from '../../../../components/ui/Input';
@@ -101,9 +101,31 @@ export function CategoriasModal({ articulos, categorias, onClose, onCategoryRena
                                         ) : (
                                             <span className={`truncate text-sm font-semibold ${isInactive ? 'line-through text-muted-foreground' : ''}`}>{cat.name}</span>
                                         )}
-                                        {isInactive && (
-                                            <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap text-destructive">Inactiva</span>
-                                        )}
+                                        <button
+                                            type="button"
+                                            disabled={toggling === cat._id}
+                                            onClick={(e) => { e.stopPropagation(); handleToggle(cat); }}
+                                            title={isInactive ? 'Hacer clic para activar categoría' : 'Hacer clic para desactivar categoría'}
+                                            className={`cursor-pointer inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all hover:opacity-80 active:scale-95 ${
+                                                isInactive
+                                                    ? 'border-[var(--danger-fg)]/30 bg-[var(--danger-bg)] text-[var(--danger-fg)]'
+                                                    : 'border-[var(--success-fg)]/30 bg-[var(--success-bg)] text-[var(--success-fg)]'
+                                            }`}
+                                        >
+                                            {toggling === cat._id ? (
+                                                '…'
+                                            ) : isInactive ? (
+                                                <>
+                                                    <ToggleLeft size={14} className="shrink-0 text-[var(--danger-fg)]" />
+                                                    Inactiva
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <ToggleRight size={14} className="shrink-0 text-[var(--success-fg)]" />
+                                                    Activa
+                                                </>
+                                            )}
+                                        </button>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         <span className="rounded-full bg-background px-2 py-0.5 text-xs whitespace-nowrap text-muted-foreground">{arts.length} art.</span>
@@ -112,15 +134,6 @@ export function CategoriasModal({ articulos, categorias, onClose, onCategoryRena
                                                 <Pencil size={13} />
                                             </Button>
                                         )}
-                                        <Button
-                                            variant={isInactive ? 'outline' : 'destructive'}
-                                            size="sm"
-                                            disabled={toggling === cat._id}
-                                            onClick={(e) => { e.stopPropagation(); handleToggle(cat); }}
-                                            title={isInactive ? 'Reactivar categoría' : 'Dar de baja'}
-                                        >
-                                            {toggling === cat._id ? '…' : isInactive ? <RotateCcw size={13} /> : <Ban size={13} />}
-                                        </Button>
                                     </div>
                                 </div>
                                 {isExpanded && (
@@ -130,7 +143,7 @@ export function CategoriasModal({ articulos, categorias, onClose, onCategoryRena
                                                 {arts.map((a) => (
                                                     <li key={a._id} className="flex items-center justify-between border-b border-border/50 py-1.5 text-sm last:border-0">
                                                         <span>{a.name}</span>
-                                                        <span className="font-mono text-muted-foreground">{fmt(a.salePrice)}</span>
+                                                        <span className="text-muted-foreground">{fmt(a.salePrice)}</span>
                                                     </li>
                                                 ))}
                                             </ul>
@@ -155,7 +168,7 @@ export function CategoriasModal({ articulos, categorias, onClose, onCategoryRena
                                         {sinCategoria.map((a) => (
                                             <li key={a._id} className="flex items-center justify-between border-b border-border/50 py-1.5 text-sm last:border-0">
                                                 <span>{a.name}</span>
-                                                <span className="font-mono text-muted-foreground">{fmt(a.salePrice)}</span>
+                                                <span className="text-muted-foreground">{fmt(a.salePrice)}</span>
                                             </li>
                                         ))}
                                     </ul>

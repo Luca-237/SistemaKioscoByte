@@ -9,7 +9,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../components/ui/Select';
 
 const TODAS = '__todas__';
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 10;
 
 export const ResumenPage = () => {
     const [branchId, setBranchId] = useState('');
@@ -37,8 +37,14 @@ export const ResumenPage = () => {
 
     return (
         <div>
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="m-0 text-2xl font-semibold text-foreground">Resumen contable</h2>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div className="flex items-center gap-2.5">
+                        <span className="h-6 w-1.5 rounded-full bg-primary" />
+                        <h1 className="m-0 text-2xl font-bold tracking-tight text-foreground">Resumen Contable</h1>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">Métricas financieras y estado de movimientos generales en tiempo real.</p>
+                </div>
                 <Select value={branchId || TODAS} onValueChange={handleBranchChange}>
                     <SelectTrigger><SelectValue placeholder="Todas las sucursales" /></SelectTrigger>
                     <SelectContent>
@@ -83,7 +89,7 @@ export const ResumenPage = () => {
             </div>
 
             <h3 className="m-0 mb-3 text-base font-semibold text-foreground">Últimos movimientos</h3>
-            <Card className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0 gap-0">
                 {movimientos.length === 0 ? (
                     <EmptyState message="Sin movimientos todavía." />
                 ) : (

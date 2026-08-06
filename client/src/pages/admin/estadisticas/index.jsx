@@ -22,8 +22,14 @@ export const EstadisticasPage = () => {
     return (
         <div className="flex flex-col gap-6">
             {/* Header y Filtro */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="m-0 text-2xl font-semibold text-foreground">Estadísticas</h2>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div className="flex items-center gap-2.5">
+                        <span className="h-6 w-1.5 rounded-full bg-primary" />
+                        <h1 className="m-0 text-2xl font-bold tracking-tight text-foreground">Estadísticas y Métricas</h1>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">Rendimiento por operario, artículos más vendidos y balance mensual.</p>
+                </div>
                 <Select value={branchId || TODAS} onValueChange={(v) => setBranchId(v === TODAS ? '' : v)}>
                     <SelectTrigger className="w-[200px]"><SelectValue placeholder="Todas las sucursales" /></SelectTrigger>
                     <SelectContent>
@@ -90,10 +96,10 @@ export const EstadisticasPage = () => {
                                 <TableBody>
                                     {stats.topArticles.map((item) => (
                                         <TableRow key={item.articleId}>
-                                            <Td><strong>{item.name}</strong></Td>
-                                            <Td className="text-right font-mono text-sm">{item.soldUnits}</Td>
-                                            <Td className="text-right font-mono text-sm font-semibold text-success">{fmt(item.revenue)}</Td>
-                                            <Td className="text-right font-mono text-sm">{fmt(item.avgSalePrice)}</Td>
+                                            <Td>{item.name}</Td>
+                                            <Td className="text-right text-sm">{item.soldUnits}</Td>
+                                            <Td className="text-right text-sm text-success">{fmt(item.revenue)}</Td>
+                                            <Td className="text-right text-sm">{fmt(item.avgSalePrice)}</Td>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -117,9 +123,9 @@ export const EstadisticasPage = () => {
                                 <TableBody>
                                     {stats.salesByOperator.map((item) => (
                                         <TableRow key={item.operatorId}>
-                                            <Td><strong>{item.name}</strong></Td>
-                                            <Td className="text-right font-mono text-sm">{item.soldTickets}</Td>
-                                            <Td className="text-right font-mono text-sm font-bold text-success">{fmt(item.totalSales)}</Td>
+                                            <Td>{item.name}</Td>
+                                            <Td className="text-right text-sm">{item.soldTickets}</Td>
+                                            <Td className="text-right text-sm text-success">{fmt(item.totalSales)}</Td>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -139,8 +145,8 @@ export const EstadisticasPage = () => {
                                 {stats.monthlyBalance.map((item) => (
                                     <div key={item.month} className="rounded-xl border border-border p-3.5 bg-background/50">
                                         <div className="flex items-center justify-between gap-2.5">
-                                            <strong className="text-sm">{fmtMes(item.month)}</strong>
-                                            <span className={`font-mono text-sm font-bold ${item.balance >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                            <span className="text-sm font-semibold">{fmtMes(item.month)}</span>
+                                            <span className={`text-sm ${item.balance >= 0 ? 'text-success' : 'text-destructive'}`}>
                                                 {fmt(item.balance)}
                                             </span>
                                         </div>
@@ -159,8 +165,8 @@ export const EstadisticasPage = () => {
                                             </div>
                                         </div>
                                         <div className="mt-2.5 flex flex-wrap justify-between text-xs text-muted-foreground">
-                                            <span>Ganancia: <strong className="text-success">{fmt(item.ganancia)}</strong></span>
-                                            <span>Pérdida: <strong className="text-destructive">{fmt(item.perdida)}</strong></span>
+                                            <span>Ganancia: <span className="text-success">{fmt(item.ganancia)}</span></span>
+                                            <span>Pérdida: <span className="text-destructive">{fmt(item.perdida)}</span></span>
                                         </div>
                                     </div>
                                 ))}
@@ -178,7 +184,7 @@ export const EstadisticasPage = () => {
                                     <div key={entry.concept} className="grid gap-1.5">
                                         <div className="flex items-center justify-between text-sm">
                                             <span>{entry.concept}</span>
-                                            <strong className="font-mono">{fmt(entry.total)}</strong>
+                                            <span>{fmt(entry.total)}</span>
                                         </div>
                                         <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                                             <div className="h-full rounded-full bg-primary" style={{ width: `${Math.max((entry.total / Math.max(maxExpense, 1)) * 100, 5)}%` }} />
@@ -192,8 +198,10 @@ export const EstadisticasPage = () => {
             </div>
 
             {/* Fila Inferior a Ancho Completo: Historial Completo de Precios */}
-            <Card>
-                <h3 className="m-0 text-base font-semibold text-foreground">Diferencia de precios históricos</h3>
+            <Card className="overflow-hidden p-0 gap-0">
+                <div className="border-b border-border px-5 py-4">
+                    <h3 className="m-0 text-base font-semibold text-foreground">Diferencia de precios históricos</h3>
+                </div>
                 <div className="overflow-x-auto">
                     {stats?.priceHistory?.length ? (
                         <Table compact>
@@ -209,10 +217,10 @@ export const EstadisticasPage = () => {
                             <TableBody>
                                 {stats.priceHistory.map((item) => (
                                     <TableRow key={item.articleId}>
-                                        <Td><strong>{item.name}</strong></Td>
-                                        <Td className="text-right font-mono text-sm">{fmt(item.avgPurchasePrice)}</Td>
-                                        <Td className="text-right font-mono text-sm">{fmt(item.avgSalePrice)}</Td>
-                                        <Td className={`text-right font-mono text-sm font-bold ${item.historicalDifference >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                        <Td>{item.name}</Td>
+                                        <Td className="text-right text-sm">{fmt(item.avgPurchasePrice)}</Td>
+                                        <Td className="text-right text-sm">{fmt(item.avgSalePrice)}</Td>
+                                        <Td className={`text-right text-sm ${item.historicalDifference >= 0 ? 'text-success' : 'text-destructive'}`}>
                                             {fmt(item.historicalDifference)}
                                         </Td>
                                         <Td className="text-xs text-muted-foreground">

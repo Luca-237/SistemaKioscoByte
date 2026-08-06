@@ -137,7 +137,13 @@ export const ComprasPage = () => {
 
     return (
         <div>
-            <h2 className="m-0 mb-4 text-2xl font-semibold text-foreground">Compras</h2>
+            <div className="mb-6">
+                <div className="flex items-center gap-2.5">
+                    <span className="h-6 w-1.5 rounded-full bg-primary" />
+                    <h1 className="m-0 text-2xl font-bold tracking-tight text-foreground">Registro de Compras</h1>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">Ingreso de mercadería, gestión de proveedores y actualización de costos promedio.</p>
+            </div>
 
             <Card className="mb-6">
                 <h3 className="m-0 mb-3 text-base font-semibold text-foreground">Nueva compra</h3>
@@ -332,7 +338,7 @@ export const ComprasPage = () => {
             </Card>
 
             <h3 className="m-0 mb-3 text-base font-semibold text-foreground">Historial</h3>
-            <Card className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0 gap-0">
                 {compras.length === 0 ? (
                     <EmptyState message="Sin compras registradas." />
                 ) : (
@@ -347,7 +353,7 @@ export const ComprasPage = () => {
                                     <Td>{c.supplierName || '—'}</Td>
                                     <Td>{c.items.map((i) => `${i.quantity}× ${i.name}`).join(', ')}</Td>
                                     <Td>{c.paymentMethod}</Td>
-                                    <Td className="text-right"><strong>{fmt(c.total)}</strong></Td>
+                                    <Td className="text-right">{fmt(c.total)}</Td>
                                 </TableRow>
                             ))}
                         </TableBody>

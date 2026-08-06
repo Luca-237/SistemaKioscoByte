@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
 import { fmt } from '../../../lib/format';
 import { useCajas } from '../../../hooks/useCajas';
+import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { Table, TableHeader, TableBody, TableRow, Th, Td } from '../../../components/ui/Table';
@@ -29,10 +30,13 @@ export function HistorialCajaPage() {
 
     return (
         <div>
-            <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="m-0 text-2xl font-semibold text-foreground">Historial de Cajas</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">Registro de aperturas y cierres de caja en todas las sucursales.</p>
+                    <div className="flex items-center gap-2.5">
+                        <span className="h-6 w-1.5 rounded-full bg-primary" />
+                        <h1 className="m-0 text-2xl font-bold tracking-tight text-foreground">Historial de Cajas</h1>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">Registro de aperturas, cierres y diferencias arqueadas por sucursal.</p>
                 </div>
                 <Button onClick={refresh} disabled={loading}>
                     <RotateCw size={16} className={loading ? 'animate-spin' : ''} />
@@ -40,7 +44,7 @@ export function HistorialCajaPage() {
                 </Button>
             </header>
 
-            <Card className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0 gap-0">
                 {loading ? (
                     <p className="p-5 text-muted-foreground">Cargando cajas...</p>
                 ) : error ? (
@@ -62,9 +66,9 @@ export function HistorialCajaPage() {
                                     <TableRow key={c._id}>
                                         <Td>{c.branchId?.name || '---'}</Td>
                                         <Td>
-                                            <span className={`inline-block rounded px-2 py-1 text-xs font-bold ${c.status === 'open' ? 'bg-[var(--success-bg)] text-[var(--success-fg)]' : 'bg-muted-foreground/10 text-muted-foreground'}`}>
+                                            <Badge variant={c.status === 'open' ? 'success' : 'danger'}>
                                                 {c.status === 'open' ? 'Abierta' : 'Cerrada'}
-                                            </span>
+                                            </Badge>
                                         </Td>
                                         <Td>{new Date(c.openedAt).toLocaleString('es-AR')}</Td>
                                         <Td>{c.openedBy?.name || '---'}</Td>
@@ -72,7 +76,7 @@ export function HistorialCajaPage() {
                                         <Td>{c.closedBy?.name || '---'}</Td>
                                         <Td>
                                             {c.status === 'closed' ? (
-                                                <span className={`font-bold ${c.difference === 0 ? '' : c.difference > 0 ? 'text-success' : 'text-destructive'}`}>
+                                                <span className={c.difference === 0 ? '' : c.difference > 0 ? 'text-success' : 'text-destructive'}>
                                                     {c.difference === 0 ? 'Exacto' : (c.difference > 0 ? `+${fmt(c.difference)}` : fmt(c.difference))}
                                                 </span>
                                             ) : '---'}

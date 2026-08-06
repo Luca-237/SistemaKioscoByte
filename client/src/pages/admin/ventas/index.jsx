@@ -1,3 +1,4 @@
+import { fmt } from '../../../lib/format';
 import { useResumen } from '../../../hooks/useResumen';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
@@ -21,12 +22,18 @@ export function VentasPage() {
 
     return (
         <div>
-            <h2 className="m-0 mb-4 text-2xl font-semibold text-foreground">Panel de Ventas</h2>
+            <div className="mb-6">
+                <div className="flex items-center gap-2.5">
+                    <span className="h-6 w-1.5 rounded-full bg-primary" />
+                    <h1 className="m-0 text-2xl font-bold tracking-tight text-foreground">Panel de Ventas</h1>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">Resumen global de ventas, facturación acumulada y tickets emitidos.</p>
+            </div>
 
             <div className="flex flex-wrap gap-3.5">
                 <StatCard
                     title="Facturación Total"
-                    value={`$${resumen?.ventas?.facturado?.toLocaleString() || 0}`}
+                    value={fmt(resumen?.ventas?.facturado)}
                     borderClass="border-l-primary"
                     valueClass="text-primary"
                     subtitle="Total"

@@ -155,8 +155,14 @@ export const ProductosPage = () => {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="m-0 text-2xl font-semibold text-foreground">Productos</h2>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div className="flex items-center gap-2.5">
+                        <span className="h-6 w-1.5 rounded-full bg-primary" />
+                        <h1 className="m-0 text-2xl font-bold tracking-tight text-foreground">Catálogo de Productos</h1>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">Administración de precios, códigos de barra, categorías y stock por local.</p>
+                </div>
                 <div className="flex flex-wrap items-center gap-2.5">
                     <div className="flex min-w-[180px] items-center gap-1.5 rounded-md border border-input bg-card px-3 py-2 text-muted-foreground focus-within:border-primary focus-within:text-foreground">
                         <Search size={15} />
@@ -192,7 +198,7 @@ export const ProductosPage = () => {
                 </div>
             </div>
 
-            <Card className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0 gap-0">
                 {articulosFiltrados.length === 0 ? (
                     <EmptyState message={articulos.length === 0 ? 'Catálogo vacío.' : 'Sin resultados para el filtro.'} />
                 ) : (
@@ -211,10 +217,10 @@ export const ProductosPage = () => {
                             <TableBody>
                                 {articulosPaginados.map((a) => (
                                     <TableRow key={a._id}>
-                                        <Td><strong>{a.name}</strong></Td>
+                                        <Td>{a.name}</Td>
                                         <Td>
                                             {a.category
-                                                ? <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-sm font-semibold whitespace-nowrap text-primary">{a.category}</span>
+                                                ? <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-sm whitespace-nowrap text-primary">{a.category}</span>
                                                 : <span className="text-muted-foreground">—</span>}
                                         </Td>
                                         <Td className="text-right">{fmt(a.salePrice)}</Td>

@@ -15,12 +15,15 @@ export const AccesosPage = () => {
 
     return (
         <div>
-            <h2 className="m-0 mb-1 text-2xl font-semibold text-foreground">Accesos</h2>
-            <p className="mb-4 text-sm text-muted-foreground">
-                Elegí qué secciones del panel puede ver cada operario, además de su punto de venta.
-            </p>
+            <div className="mb-6">
+                <div className="flex items-center gap-2.5">
+                    <span className="h-6 w-1.5 rounded-full bg-primary" />
+                    <h1 className="m-0 text-2xl font-bold tracking-tight text-foreground">Permisos y Accesos</h1>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">Configuración de módulos habilitados para cada operario en el panel.</p>
+            </div>
 
-            <Card className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0 gap-0">
                 {operarios.length === 0 ? (
                     <EmptyState message="Todavía no creaste operarios." />
                 ) : (
@@ -34,7 +37,7 @@ export const AccesosPage = () => {
                         <TableBody>
                             {operarios.map((u) => (
                                 <TableRow key={u._id} className={u.active ? '' : 'opacity-50'}>
-                                    <Td><strong>{u.name}</strong></Td>
+                                    <Td>{u.name}</Td>
                                     {codigos.map((c) => (
                                         <Td key={c.code} className="text-center">
                                             <input

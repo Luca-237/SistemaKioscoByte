@@ -35,8 +35,14 @@ export const ReportesPage = () => {
 
     return (
         <div>
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="m-0 text-2xl font-semibold text-foreground">Reportes y notas</h2>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div className="flex items-center gap-2.5">
+                        <span className="h-6 w-1.5 rounded-full bg-primary" />
+                        <h1 className="m-0 text-2xl font-bold tracking-tight text-foreground">Notas y Reportes</h1>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">Solicitudes de compras, mantenimiento e incidencias reportadas por los operarios.</p>
+                </div>
                 <Select value={branchId || TODAS} onValueChange={(v) => setBranchId(v === TODAS ? '' : v)}>
                     <SelectTrigger><SelectValue placeholder="Todos los locales" /></SelectTrigger>
                     <SelectContent>
@@ -80,7 +86,7 @@ export const ReportesPage = () => {
                 </Card>
             </div>
 
-            <Card className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0 gap-0">
                 {notes.length === 0 ? (
                     <EmptyState message="No hay reportes registrados." />
                 ) : (
@@ -96,7 +102,7 @@ export const ReportesPage = () => {
                             {notes.map((note) => (
                                 <TableRow key={note._id}>
                                     <Td><Badge>{tipoLabel[note.type] || note.type}</Badge></Td>
-                                    <Td><strong>{note.title}</strong></Td>
+                                    <Td>{note.title}</Td>
                                     <Td>{note.createdBy?.name || note.createdBy?.username || '—'}</Td>
                                     <Td>{note.description}</Td>
                                     <Td>{note.supplierName || '—'}</Td>

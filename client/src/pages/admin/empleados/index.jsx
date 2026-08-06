@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, ToggleRight, ToggleLeft } from 'lucide-react';
 import { useOperarios } from '../../../hooks/useOperarios';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
@@ -67,15 +67,21 @@ export const EmpleadosPage = () => {
 
     return (
         <div>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <h2 className="m-0 text-2xl font-semibold text-foreground">Empleados</h2>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div className="flex items-center gap-2.5">
+                        <span className="h-6 w-1.5 rounded-full bg-primary" />
+                        <h1 className="m-0 text-2xl font-bold tracking-tight text-foreground">Gestión de Operarios</h1>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">Control de empleados, asignación a sucursales y blanqueo de claves.</p>
+                </div>
                 <Button onClick={abrirNuevo}>
                     <Plus size={16} />
                     Agregar operario
                 </Button>
             </div>
 
-            <Card className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0 gap-0">
                 {operarios.length === 0 ? (
                     <EmptyState message="Todavía no cargaste empleados." />
                 ) : (
@@ -89,9 +95,31 @@ export const EmpleadosPage = () => {
                         <TableBody>
                             {operarios.map((u) => (
                                 <TableRow key={u._id} className={u.active ? '' : 'opacity-50'}>
-                                    <Td><strong>{u.name}</strong></Td>
+                                    <Td>{u.name}</Td>
                                     <Td className="font-mono text-xs">{u.username}</Td>
-                                    <Td>{u.active ? 'Activo' : 'Inactivo'}</Td>
+                                    <Td>
+                                        {u.active ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleActivo(u)}
+                                                title="Hacer clic para desactivar"
+                                                className="cursor-pointer inline-flex items-center gap-1.5 rounded-full border border-[var(--success-fg)]/30 bg-[var(--success-bg)] px-3 py-1 text-xs font-semibold text-[var(--success-fg)] transition-all hover:opacity-80 active:scale-95"
+                                            >
+                                                <ToggleRight size={15} className="shrink-0 text-[var(--success-fg)]" />
+                                                Activo
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleActivo(u)}
+                                                title="Hacer clic para activar"
+                                                className="cursor-pointer inline-flex items-center gap-1.5 rounded-full border border-[var(--danger-fg)]/30 bg-[var(--danger-bg)] px-3 py-1 text-xs font-semibold text-[var(--danger-fg)] transition-all hover:opacity-80 active:scale-95"
+                                            >
+                                                <ToggleLeft size={15} className="shrink-0 text-[var(--danger-fg)]" />
+                                                Inactivo
+                                            </button>
+                                        )}
+                                    </Td>
                                     <Td>
                                         <div className="flex flex-wrap items-center gap-3 text-xs">
                                             {sucursales.map((b) => (
@@ -107,9 +135,6 @@ export const EmpleadosPage = () => {
                                         </div>
                                     </Td>
                                     <Td className="text-right space-x-1.5 whitespace-nowrap">
-                                        <Button variant="outline" size="sm" onClick={() => toggleActivo(u)}>
-                                            {u.active ? 'Desactivar' : 'Activar'}
-                                        </Button>
                                         <Button variant="outline" size="sm" onClick={() => resetearClave(u)}>Clave</Button>
                                     </Td>
                                 </TableRow>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { fmt } from '../../../lib/format';
 import { useResumen } from '../../../hooks/useResumen';
 import { Badge } from '../../../components/ui/Badge';
 import { Card } from '../../../components/ui/Card';
@@ -41,7 +42,13 @@ export function FinanzasPage() {
 
     return (
         <div>
-            <h2 className="m-0 mb-5 text-2xl font-semibold text-foreground">Finanzas</h2>
+            <div className="mb-6">
+                <div className="flex items-center gap-2.5">
+                    <span className="h-6 w-1.5 rounded-full bg-primary" />
+                    <h1 className="m-0 text-2xl font-bold tracking-tight text-foreground">Contabilidad y Finanzas</h1>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">Libro diario, ingresos brutos, costos de mercadería y margen neto real.</p>
+            </div>
 
             <div className="mb-6 flex flex-wrap gap-3.5">
                 <StatCard title="Ingresos Brutos" value={`$${stats?.ingresos?.toLocaleString() || 0}`} subtitle="Total" className="text-success" />
@@ -67,8 +74,10 @@ export function FinanzasPage() {
                 />
             </div>
 
-            <Card>
-                <h3 className="m-0 text-base font-semibold text-foreground">Libro Diario (Últimos movimientos)</h3>
+            <Card className="overflow-hidden p-0 gap-0">
+                <div className="border-b border-border px-5 py-4">
+                    <h3 className="m-0 text-base font-semibold text-foreground">Libro Diario (Últimos movimientos)</h3>
+                </div>
                 {movements.length === 0 ? (
                     <EmptyState message="No hay movimientos registrados." />
                 ) : (
@@ -89,15 +98,15 @@ export function FinanzasPage() {
                                             <Badge variant={m.type === 'ingreso' ? 'success' : 'danger'}>{m.type}</Badge>
                                         </Td>
                                         <Td className="capitalize">{m.paymentMethod || '-'}</Td>
-                                        <Td className={`text-right font-bold ${m.type === 'ingreso' ? 'text-success' : 'text-destructive'}`}>
-                                            {m.type === 'ingreso' ? '+' : '-'}${m.amount?.toLocaleString()}
+                                        <Td className={`text-right ${m.type === 'ingreso' ? 'text-success' : 'text-destructive'}`}>
+                                            {m.type === 'ingreso' ? '+' : '-'}{fmt(m.amount)}
                                         </Td>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
 
-                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-2 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-2.5 text-xs text-muted-foreground">
                             <span>
                                 Mostrando {movements.length > 0 ? inicio + 1 : 0} a {Math.min(inicio + ITEMS_PER_PAGE, movements.length)} de {movements.length} movimientos
                             </span>
